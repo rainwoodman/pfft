@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="PFFT 1.0.8 documentation" href="#" />
-    <link rel="next" title="chapter{Introduction}label{chap:intro}" href="intro.html" /> 
+    <link rel="next" title="Introduction" href="intro.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -35,7 +35,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="intro.html" title="chapter{Introduction}label{chap:intro}"
+          <a href="intro.html" title="Introduction"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
@@ -51,22 +51,73 @@
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">chapter{Introduction}label{chap:intro}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">chapter{Tutorial}label{chap:tuto}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">chapter{Installation and linking}label{chap:inst}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">chapter{Advanced Features}label{chap:feat}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="interface.html">chapter{Interface Layers of the PFFT Library}label{chap:api}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="develop.html">chapter{Developers Guide}label{chap:develop}</a></li>
-<li class="toctree-l1"><a class="reference internal" href="develop.html#chapter-todo-label-chap-todo">chapter{ToDo}label{chap:todo}</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#alternative-parallel-fft-implementations">Alternative parallel FFT implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#parallel-nonequispaced-fft">Parallel nonequispaced FFT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#a-first-parallel-transform-three-dimensional-fft-with-two-dimensional-data-decomposition">A first parallel transform - Three-dimensional FFT with two-dimensional data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#porting-fftw-mpi-based-code-to-pfft">Porting FFTW-MPI based code to PFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#errorcode-for-communicator-creation">Errorcode for communicator creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inplace-transforms">Inplace transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#higher-dimensional-data-decomposition">Higher dimensional data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#parallel-data-decomposition">Parallel data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#planning-effort">Planning effort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#preserving-input-data">Preserving input data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#ffts-with-shifted-index-sets">FFTs with shifted index sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#pruned-fft-and-shifted-index-sets">Pruned FFT and Shifted Index Sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#precisions">Precisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#ghost-cell-communication">Ghost cell communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#fortran-interface">Fortran interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation and linking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-of-the-latest-official-fftw-release">Install of the latest official FFTW release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-of-the-pfft-library">Install of the PFFT library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#how-to-include-pfft-in-your-program">How to include PFFT in your program</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features.html#how-to-deal-with-fft-index-shifts-in-parallel">How to Deal with FFT Index Shifts in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html#parallel-pruned-fft">Parallel pruned FFT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="interface.html">Interface Layers of the PFFT Library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#basic-interface">Basic Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#advanced-interface">Advanced Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#preliminary-skip-serial-transformations">Preliminary: Skip Serial Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">PFFT Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#files-and-data-types">Files and Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#mpi-initialization">MPI Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#using-pfft-plans">Using PFFT Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#data-distribution-functions">Data Distribution Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#plan-creation">Plan Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#fft-execution-timer">FFT Execution Timer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#ghost-cell-communication">Ghost Cell Communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#useful-tools">Useful Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#generating-periodic-cartesian-communicators">Generating Periodic Cartesian Communicators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Developers Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="develop.html#search-and-replace-patterns">Search and replace patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html#todo">ToDo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="develop.html#measuring-parallel-run-times">Measuring parallel run times</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+<li>:<a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li>:<a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li>:<a class="reference internal" href="search.html"><span>Search Page</span></a></li>
 </ul>
 </div>
 
@@ -84,7 +135,7 @@
 
   <h4>Next topic</h4>
   <p class="topless"><a href="intro.html"
-                        title="next chapter">chapter{Introduction}label{chap:intro}</a></p>
+                        title="next chapter">Introduction</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -116,7 +167,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="intro.html" title="chapter{Introduction}label{chap:intro}"
+          <a href="intro.html" title="Introduction"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>

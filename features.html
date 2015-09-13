@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>chapter{Advanced Features}label{chap:feat} &mdash; PFFT 1.0.8 documentation</title>
+    <title>Advanced Features &mdash; PFFT 1.0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
-    <link rel="next" title="chapter{Interface Layers of the PFFT Library}label{chap:api}" href="interface.html" />
-    <link rel="prev" title="chapter{Installation and linking}label{chap:inst}" href="install.html" /> 
+    <link rel="next" title="Interface Layers of the PFFT Library" href="interface.html" />
+    <link rel="prev" title="Installation and linking" href="install.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+          <a href="interface.html" title="Interface Layers of the PFFT Library"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="chapter{Installation and linking}label{chap:inst}"
+          <a href="install.html" title="Installation and linking"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
@@ -50,176 +50,142 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="chapter-advanced-features-label-chap-feat">
-<h1>chapter{Advanced Features}label{chap:feat}<a class="headerlink" href="#chapter-advanced-features-label-chap-feat" title="Permalink to this headline">¶</a></h1>
-<p>%&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;
-section{How to Deal with FFT Index Shifts in Parallel}
-%&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;
-Let $nin2N$. A common problem is that the index of the FFT input and/or output array runs between $-nicefrac n2,hdots,nicefrac n2-1$,
-but the FFT library requires them to run between $0,hdots,n-1$. With serial program execution one can easily remap the input data $hat g_k$
-in a way that is suitable for the library, i.e.,
-begin{equation*}</p>
-<blockquote>
-<div>hat f_k := hat g_{(k-nicefrac n2bmod n)}, quad k = 0,hdots,n-1.</div></blockquote>
-<p>end{equation*}
-Similarly, one could remap the outputs of the library $f_l$, $l=0,cdots,n-1$ in the opposite direction in order to get the
-required outputs, i.e.,
-begin{equation*}</p>
-<blockquote>
-<div>g_l := f_{l bmod n}, quad l = -nicefrac n2,hdots,nicefrac n2-1.</div></blockquote>
-<p>end{equation*}
-These shifts are also known as code{fftshift} in Matlab.</p>
-<p>However, with distributed memory these code{fftshift} operations require more complex data movements and result in a global communication.
-For example, the first index of the array moves to the middle and, therefore, the corresponding data move to another MPI process.
-Fortunately, this communication can be avoided at the cost of little extra computation.
-At the end of the section we present two PFFT library functions that perform the necessary pre- and postprocessing
-for shifted input and output index sets.</p>
-<p>subsection{Shift with half the FFT size}</p>
-<p>The special case of input shift $k_s=-nicefrac n2$ and/or output shift $l_s=-nicefrac n2$ is supported by PFFT.
-User can choose to shift the input (verb+PFFT_SHIFTED_IN+) and/or to shift the output (verb+PFFT_SHIFTED_OUT+).
-todo{this flag can be used for code{local_size} and planning}</p>
-<p>Here, we are interested in the computation of
-begin{equation*}</p>
-<blockquote>
-<div>g_l = sum_{k=-nicefrac{n_i}{2}}^{nicefrac{n_i}{2}-1} hat g_k eim{kl/n}, quad l=-nicefrac{n_o}{2},hdots,nicefrac{n_o}{2}-1</div></blockquote>
-<p>end{equation*}
-with $n, n_i, n_o in 2N$ and $n&gt;n_i$, $n&gt;n_o$.</p>
-<p>With an index shift of $nicefrac n2$ both in $k$ and $l$ this equivalent to the computation of
-begin{align*}</p>
-<blockquote>
-<div><p>g_{(l-nicefrac{n}{2})}
-&amp;= sum_{k=nicefrac{n}{2}-nicefrac{n_i}{2}}^{nicefrac{n}{2}+nicefrac{n_i}{2}-1}</p>
-<blockquote>
-<div>hat g_{(k-nicefrac{n}{2})} eim{(k-nicefrac n2)(l-nicefrac n2)/n} \</div></blockquote>
-<dl class="docutils">
-<dt>&amp;= e^{+piti l}</dt>
-<dd>sum_{k=nicefrac{n}{2}-nicefrac{n_i}{2}}^{nicefrac{n}{2}+nicefrac{n_i}{2}-1}
-left(hat g_{(k-nicefrac{n}{2})}e^{+piti (k-nicefrac n2)}right) eim{kl/n} \</dd>
-<dt>&amp;= e^{+piti(l-nicefrac n2)}</dt>
-<dd><dl class="first docutils">
-<dt>underbrace{</dt>
-<dd>sum_{k=nicefrac{n}{2}-nicefrac{n_i}{2}}^{nicefrac{n}{2}+nicefrac{n_i}{2}-1}
-underbrace{left(hat g_{(k-nicefrac{n}{2})}e^{+piti k}right)}_{hat f_k} eim{kl/n}</dd>
-</dl>
-<p class="last">}_{f_l}</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>end{align*}
-for $ l=nicefrac n2-nicefrac{n_o}{2},hdots,nicefrac n2 +nicefrac{n_o}{2}-1$.
+  <div class="section" id="advanced-features">
+<span id="chap-feat"></span><h1>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-deal-with-fft-index-shifts-in-parallel">
+<h2>How to Deal with FFT Index Shifts in Parallel<a class="headerlink" href="#how-to-deal-with-fft-index-shifts-in-parallel" title="Permalink to this headline">¶</a></h2>
+<p>Let <span class="math">\(n\in2\N\)</span>. A common problem is that the index of the FFT input
+and/or output array runs between
+<span class="math">\(-\nicefrac n2,\hdots,\nicefrac n2-1\)</span>, but the FFT library
+requires them to run between <span class="math">\(0,\hdots,n-1\)</span>. With serial program
+execution one can easily remap the input data <span class="math">\(\hat g_k\)</span> in a way
+that is suitable for the library, i.e.,</p>
+<div class="math">
+\[\hat f_k := \hat g_{(k-\nicefrac n2\bmod n)}, \quad k = 0,\hdots,n-1.\]</div>
+<p>Similarly, one could remap the outputs of the library <span class="math">\(f_l\)</span>,
+<span class="math">\(l=0,\cdots,n-1\)</span> in the opposite direction in order to get the
+required outputs, i.e.,</p>
+<div class="math">
+\[g_l := f_{l \bmod n}, \quad l = -\nicefrac n2,\hdots,\nicefrac n2-1.\]</div>
+<p>These shifts are also known as in Matlab.</p>
+<p>However, with distributed memory these operations require more complex
+data movements and result in a global communication. For example, the
+first index of the array moves to the middle and, therefore, the
+corresponding data move to another MPI process. Fortunately, this
+communication can be avoided at the cost of little extra computation. At
+the end of the section we present two PFFT library functions that
+perform the necessary pre- and postprocessing for shifted input and
+output index sets.</p>
+<div class="section" id="shift-with-half-the-fft-size">
+<h3>Shift with half the FFT size<a class="headerlink" href="#shift-with-half-the-fft-size" title="Permalink to this headline">¶</a></h3>
+<p>The special case of input shift <span class="math">\(k_s=-\nicefrac n2\)</span> and/or output
+shift <span class="math">\(l_s=-\nicefrac n2\)</span> is supported by PFFT. User can choose to
+shift the input (<code class="docutils literal"><span class="pre">PFFT_SHIFTED_IN</span></code>) and/or to shift the output
+(<code class="docutils literal"><span class="pre">PFFT_SHIFTED_OUT</span></code>).</p>
+<p>Here, we are interested in the computation of</p>
+<div class="math">
+\[g_l = \sum_{k=-\nicefrac{n_i}{2}}^{\nicefrac{n_i}{2}-1} \hat g_k \eim{kl/n}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\]</div>
+<p>with <span class="math">\(n, n_i, n_o \in 2\N\)</span> and <span class="math">\(n&gt;n_i\)</span>, <span class="math">\(n&gt;n_o\)</span>.</p>
+<p>With an index shift of <span class="math">\(\nicefrac n2\)</span> both in <span class="math">\(k\)</span> and
+<span class="math">\(l\)</span> this equivalent to the computation of</p>
+<div class="math">
+\[\begin{split}\begin{aligned}
+  g_{(l-\nicefrac{n}{2})}
+  &amp;= \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+     \hat g_{(k-\nicefrac{n}{2})} \eim{(k-\nicefrac n2)(l-\nicefrac n2)/n} \\
+  &amp;= \e^{+\pi\ti l}
+       \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+       \left(\hat g_{(k-\nicefrac{n}{2})}\e^{+\pi\ti (k-\nicefrac n2)}\right) \eim{kl/n} \\
+  &amp;= \e^{+\pi\ti(l-\nicefrac n2)}
+     \underbrace{
+       \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+       \underbrace{\left(\hat g_{(k-\nicefrac{n}{2})}\e^{+\pi\ti k}\right)}_{\hat f_k} \eim{kl/n}
+     }_{f_l}\end{aligned}\end{split}\]</div>
+<p>for
+:math:` l=nicefrac n2-nicefrac{n_o}{2},hdots,nicefrac n2 +nicefrac{n_o}{2}-1`.
 Therefore, we get the following algorithm</p>
-<dl class="docutils">
-<dt>begin{equation*}</dt>
-<dd>f_l = sum_{k=0}^n hat g_k eim{kl/n}, quad l=-nicefrac{n_o}{2},hdots,nicefrac{n_o}{2}-1</dd>
-</dl>
-<p>end{equation*}</p>
-<p>The special case $k_s=-frac{n_i}{2}, l_s=-frac{n_o}{2}$ corresponds to the shifts the arrays (textsf{FFTSHIFT})
-begin{algorithm}</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>begin{algorithmic}[1]</dt>
-<dd>itemsep=1.1ex
-State For $k=0,hdots,n-1$ set $hat f_k = 0$.
-State For $k=-nicefrac{n_i}{2},hdots,nicefrac{n_i}{2}-1$ compute $hat f_{(k+nicefrac{n}{2})} = (-1)^{(k+nicefrac{n}{2})} hat g_{k}$.
-State For $l=0,hdots,n-1$ compute $f_l = sum_{k=0}^{n} hat f_k eim{kl/n}$ using PFFT.
-State For $l=-nicefrac{n_o}{2},hdots,nicefrac{n_o}{2}-1$ compute $g_l = (-1)^l f_{(l+n/2)} $.</dd>
-</dl>
-<p>end{algorithmic}</p>
-</div></blockquote>
-<p>end{algorithm}</p>
-<p>Note, that this shift implies that the library deals with pruned FFTs in a special way, i.e., half of the zeros are added
-at the beginning of the inputs and the other half is added at the end.</p>
-<p>subsection{Arbitrary shifts}
-More general shifts must be done by the user.</p>
-<p>In a more general setting, we are interested in the computation of FFTs with shifted index sets, i.e., assume $k_s,l_sinZ$ and compute
-begin{equation*}</p>
-<blockquote>
-<div>g_l = sum_{k=k_s}^{n_i+k_s-1} hat g_k eim{kl/n},
-quad l=l_s,hdots,n_o+l_s-1,.</div></blockquote>
-<p>end{equation*}
-Because of the periodicity of the FFT this can be easily performed by algname~ref{alg:fftshift_translation}.
-begin{algorithm}label{alg:fftshift_translation}</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>begin{algorithmic}[1]</dt>
-<dd>itemsep=1.1ex
-State For $k=0,hdots,n_i-1$ assign $hat f_k = hat g_{(k+k_sbmod n_i)}$.
-State For $l=0,hdots,n_o-1$ compute $f_l = sum_{k=0}^{n_i} hat f_k eim{kl/n}$ using PFFT.
-State For $l=0,hdots,n_o-1$ assign $g_l = f_{(l-l_sbmod n_o)}$.</dd>
-</dl>
-<p>end{algorithmic}
-caption{Shifted FFT with explicit data movement.}</p>
-</div></blockquote>
-<p>end{algorithm}
-However, this involves explicit data movement since the sequence of data changes.
-For a our parallel data decomposition the change of data layout requires data communication.
-A simple index shift results in the computation of
-begin{align*}</p>
-<blockquote>
-<div><p>g_{l+l_s}
-&amp;=</p>
-<blockquote>
-<div>sum_{k=k_s}^{n_i+k_s-1} hat g_k eim{k(l+l_s)/n}
-=
-sum_{k=0}^{n_i-1} hat g_{k+k_s} eim{(k+k_s)(l+l_s)/n} \</div></blockquote>
-<dl class="docutils">
-<dt>&amp;=</dt>
-<dd>eim{k_sl/n} sum_{k=0}^{n_i-1} underbrace{left(hat g_{k+k_s}eim{(k+k_s)l_s/n}right)}_{=: hat f_k} eim{kl/n}</dd>
-</dl>
-</div></blockquote>
-<p>end{align*}
-for all $l=0,hdots,n_o-1$. The resulting algname~ref{alg:fftshift_modulation} preserves the sequence of
-data at the price of some extra computation.
-begin{algorithm}label{alg:fftshift_modulation}</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>begin{algorithmic}[1]</dt>
-<dd>itemsep=1.1ex
-State For $k=0,hdots,n_i-1$ compute $hat f_k = hat g_{(k+k_s)} eim{(k+k_s)l_s/n}$.
-State For $l=0,hdots,n_o-1$ compute $f_l = sum_{k=0}^{n_i} hat f_k eim{kl/n}$ using PFFT.
-State For $l=0,hdots,n_o-1$ compute $g_{(l+l_s)} = f_l eim{k_sl/n}$.</dd>
-</dl>
-<p>end{algorithmic}
-caption{Shifted FFT without explicit data movement.}</p>
-</div></blockquote>
-<p>end{algorithm}</p>
-<p>The special case $k_s=-frac{n_i}{2}, l_s=-frac{n_o}{2}$ corresponds to the shifts the arrays (textsf{FFTSHIFT})
-begin{algorithm}</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>begin{algorithmic}[1]</dt>
-<dd>itemsep=1.1ex
-State For $k=0,hdots,n_i-1$ compute $hat f_k = hat g_{(k-nicefrac{n_i}{2})} e^{+piti (k-nicefrac{n_i}{2})n_o/n}$.
-State For $l=0,hdots,n_o-1$ compute $f_l = sum_{k=0}^{n_i} hat f_k eim{kl/n}$ using PFFT.
-State For $l=0,hdots,n_o-1$ compute $g_{(l-nicefrac{n_o}{2})} = f_l e^{+piti n_i l/n}$.</dd>
-</dl>
-<p>end{algorithmic}</p>
-</div></blockquote>
-<p>end{algorithm}</p>
-<p>%&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;
-section{Parallel pruned FFT}
-%&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;
-Within PFFT we define a pruned FFT as
-begin{equation*}</p>
-<blockquote>
-<div>g_l = sum_{k=0}^{n_i-1} hat g_{k} eim{kl/n}, quad l=0,hdots,n_o-1.</div></blockquote>
-<p>end{equation*}
-Formally, this is equivallent to the following regular size $n$ FFT
-begin{equation*}</p>
-<blockquote>
-<div>f_l = sum_{k=0}^{n-1} hat f_{k} eim{kl/n}, quad l=0,hdots,n,</div></blockquote>
-<p>end{equation*}
-with
-begin{equation*}</p>
-<blockquote>
-<div>hat g_k :=
-begin{cases}
-hat f_k, &amp;: k=0,hdots,n_1-1, \
-0         &amp;: k=n_i,hdots,n-1,
-end{cases}</div></blockquote>
-<p>end{equation*}
-and $f_l := g_l$, $k=0,hdots,n_o-1$. I.e., we add $n-n_i$ zeros at the end of the input array and throw away $n-n_o$ entries at the end of the output array.</p>
-<p>The definition of pruned FFT changes for code{PFFT_SHIFTED_IN} and code{PFFT_SHIFTED_OUT}.</p>
+<div class="math">
+\[f_l = \sum_{k=0}^n \hat g_k \eim{kl/n}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\]</div>
+<p>The special case <span class="math">\(k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}\)</span>
+corresponds to the shifts the arrays ()</p>
+<p>For <span class="math">\(k=0,\hdots,n-1\)</span> set <span class="math">\(\hat f_k = 0\)</span>. For
+<span class="math">\(k=-\nicefrac{n_i}{2},\hdots,\nicefrac{n_i}{2}-1\)</span> compute
+<span class="math">\(\hat f_{(k+\nicefrac{n}{2})} = (-1)^{(k+\nicefrac{n}{2})} \hat g_{k}\)</span>.
+For <span class="math">\(l=0,\hdots,n-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n} \hat f_k \eim{kl/n}\)</span> using PFFT. For
+<span class="math">\(l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\)</span> compute
+:math:<a href="#id1"><span class="problematic" id="id2">`</span></a>g_l = (-1)^l f_{(l+n/2)} <a href="#id3"><span class="problematic" id="id4">`</span></a>.</p>
+<p>Note, that this shift implies that the library deals with pruned FFTs in
+a special way, i.e., half of the zeros are added at the beginning of the
+inputs and the other half is added at the end.</p>
+</div>
+<div class="section" id="arbitrary-shifts">
+<h3>Arbitrary shifts<a class="headerlink" href="#arbitrary-shifts" title="Permalink to this headline">¶</a></h3>
+<p>More general shifts must be done by the user.</p>
+<p>In a more general setting, we are interested in the computation of FFTs
+with shifted index sets, i.e., assume <span class="math">\(k_s,l_s\in\Z\)</span> and compute</p>
+<div class="math">
+\[g_l = \sum_{k=k_s}^{n_i+k_s-1} \hat g_k \eim{kl/n},
+  \quad l=l_s,\hdots,n_o+l_s-1\,.\]</div>
+<p>Because of the periodicity of the FFT this can be easily performed by
+&nbsp;<a class="reference internal" href="#alg-fftshift-translation"><span>the algorithm</span></a>.</p>
+<p id="alg-fftshift-translation">For <span class="math">\(k=0,\hdots,n_i-1\)</span> assign
+<span class="math">\(\hat f_k = \hat g_{(k+k_s\bmod n_i)}\)</span>. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k \eim{kl/n}\)</span> using PFFT. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> assign <span class="math">\(g_l = f_{(l-l_s\bmod n_o)}\)</span>.</p>
+<p>However, this involves explicit data movement since the sequence of data
+changes. For a our parallel data decomposition the change of data layout
+requires data communication. A simple index shift results in the
+computation of</p>
+<div class="math">
+\[\begin{split}\begin{aligned}
+  g_{l+l_s}
+  &amp;=
+    \sum_{k=k_s}^{n_i+k_s-1} \hat g_k \eim{k(l+l_s)/n}
+    =
+    \sum_{k=0}^{n_i-1} \hat g_{k+k_s} \eim{(k+k_s)(l+l_s)/n} \\
+  &amp;=
+    \eim{k_sl/n} \sum_{k=0}^{n_i-1} \underbrace{\left(\hat g_{k+k_s}\eim{(k+k_s)l_s/n}\right)}_{=: \hat f_k} \eim{kl/n}\end{aligned}\end{split}\]</div>
+<p>for all <span class="math">\(l=0,\hdots,n_o-1\)</span>. The resulting
+&nbsp;<a class="reference internal" href="#alg-fftshift-modulation"><span>the algorithm</span></a> preserves the sequence of data at the
+price of some extra computation.</p>
+<p id="alg-fftshift-modulation">[1] =1.1ex For <span class="math">\(k=0,\hdots,n_i-1\)</span> compute
+<span class="math">\(\hat f_k = \hat g_{(k+k_s)} \eim{(k+k_s)l_s/n}\)</span>. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k \eim{kl/n}\)</span> using PFFT. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> compute <span class="math">\(g_{(l+l_s)} = f_l \eim{k_sl/n}\)</span>.</p>
+<p>The special case <span class="math">\(k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}\)</span>
+corresponds to the shifts the arrays (FFTSHIFT)</p>
+<p>[1] =1.1ex For <span class="math">\(k=0,\hdots,n_i-1\)</span> compute
+<span class="math">\(\hat f_k = \hat g_{(k-\nicefrac{n_i}{2})} \e^{+\pi\ti (k-\nicefrac{n_i}{2})n_o/n}\)</span>.
+For <span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k \eim{kl/n}\)</span> using PFFT. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(g_{(l-\nicefrac{n_o}{2})} = f_l \e^{+\pi\ti n_i l/n}\)</span>.</p>
+</div>
+</div>
+<div class="section" id="parallel-pruned-fft">
+<h2>Parallel pruned FFT<a class="headerlink" href="#parallel-pruned-fft" title="Permalink to this headline">¶</a></h2>
+<p>Within PFFT we define a pruned FFT as</p>
+<div class="math">
+\[g_l = \sum_{k=0}^{n_i-1} \hat g_{k} \eim{kl/n}, \quad l=0,\hdots,n_o-1.\]</div>
+<p>Formally, this is equivallent to the following regular size <span class="math">\(n\)</span>
+FFT</p>
+<div class="math">
+\[f_l = \sum_{k=0}^{n-1} \hat f_{k} \eim{kl/n}, \quad l=0,\hdots,n,\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}\hat g_k :=
+  \begin{cases}
+  \hat f_k, &amp;: k=0,\hdots,n_1-1, \\
+  0         &amp;: k=n_i,\hdots,n-1,
+  \end{cases}\end{split}\]</div>
+<p>and <span class="math">\(f_l := g_l\)</span>, <span class="math">\(k=0,\hdots,n_o-1\)</span>. I.e., we add
+<span class="math">\(n-n_i\)</span> zeros at the end of the input array and throw away
+<span class="math">\(n-n_o\)</span> entries at the end of the output array.</p>
+<p>The definition of pruned FFT changes for and .</p>
+</div>
 </div>
 
 
@@ -228,12 +194,25 @@ and $f_l := g_l$, $k=0,hdots,n_o-1$. I.e., we add $n-n_i$ zeros at the end of th
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Advanced Features</a><ul>
+<li><a class="reference internal" href="#how-to-deal-with-fft-index-shifts-in-parallel">How to Deal with FFT Index Shifts in Parallel</a><ul>
+<li><a class="reference internal" href="#shift-with-half-the-fft-size">Shift with half the FFT size</a></li>
+<li><a class="reference internal" href="#arbitrary-shifts">Arbitrary shifts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parallel-pruned-fft">Parallel pruned FFT</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="install.html"
-                        title="previous chapter">chapter{Installation and linking}label{chap:inst}</a></p>
+                        title="previous chapter">Installation and linking</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="interface.html"
-                        title="next chapter">chapter{Interface Layers of the PFFT Library}label{chap:api}</a></p>
+                        title="next chapter">Interface Layers of the PFFT Library</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -265,10 +244,10 @@ and $f_l := g_l$, $k=0,hdots,n_o-1$. I.e., we add $n-n_i$ zeros at the end of th
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+          <a href="interface.html" title="Interface Layers of the PFFT Library"
              >next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="chapter{Installation and linking}label{chap:inst}"
+          <a href="install.html" title="Installation and linking"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>

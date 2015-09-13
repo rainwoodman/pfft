@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>chapter{Developers Guide}label{chap:develop} &mdash; PFFT 1.0.8 documentation</title>
+    <title>Developers Guide &mdash; PFFT 1.0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
-    <link rel="prev" title="chapter{Interface Layers of the PFFT Library}label{chap:api}" href="interface.html" /> 
+    <link rel="prev" title="PFFT Reference" href="reference.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -35,7 +35,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+          <a href="reference.html" title="PFFT Reference"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
@@ -46,32 +46,37 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="chapter-developers-guide-label-chap-develop">
-<h1>chapter{Developers Guide}label{chap:develop}<a class="headerlink" href="#chapter-developers-guide-label-chap-develop" title="Permalink to this headline">¶</a></h1>
-<p>section{Search and replace patterns}</p>
-<p>Correct alignment of pfft.h header
-begin{lstlisting}
-%s/^(    [^ ]+[^\]*)  \/  1\/g
-end{lstlisting}</p>
-<p>Expand most macros of pfft.h to generate the function reference of this manual:
-begin{lstlisting}[language=bash,prebreak=textbackslash,]
-sed -e &#8216;s/ <a href="#id1"><span class="problematic" id="id2">*</span></a>\$//g&#8217; -e &#8216;s/PFFT_EXTERN //g&#8217; </p>
-<blockquote>
-<div>-e &#8216;s/PX(([^)]*))/<a href="#id3"><span class="problematic" id="id4">pfft_</span></a>1/g&#8217; -e &#8216;s/ INT/ ptrdiff_t/g&#8217; -e &#8216;s/ R/ double/g&#8217; -e &#8216;s/ C/ pfft_complex/g&#8217; -e &#8216;s/^  //g&#8217; pfft.h &gt; pfft.h.expanded</div></blockquote>
-<p>end{lstlisting}</p>
+  <div class="section" id="developers-guide">
+<span id="chap-develop"></span><h1>Developers Guide<a class="headerlink" href="#developers-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="search-and-replace-patterns">
+<h2>Search and replace patterns<a class="headerlink" href="#search-and-replace-patterns" title="Permalink to this headline">¶</a></h2>
+<p>Correct alignment of pfft.h header</p>
+<div class="highlight-python"><div class="highlight"><pre>%s/^\(    [^ ]\+[^\\]*\)  \\/  \1\\/g
+</pre></div>
 </div>
-<div class="section" id="chapter-todo-label-chap-todo">
-<h1>chapter{ToDo}label{chap:todo}<a class="headerlink" href="#chapter-todo-label-chap-todo" title="Permalink to this headline">¶</a></h1>
-<dl class="docutils">
-<dt>begin{itemize}</dt>
-<dd>item code{PFFT_FORWARD} is defined as code{FFTW_FORWARD}
-item code{FFTW_FORWARD} is defined as $-1$
-item PFFT allows to chose between code{FFTW_FORWARD} and code{FFTW_BACKWARD}, which is not implemented by FFTW.
-item Matlab uses the same sign convention, i.e., $-1$ for code{fft} and $+1$ for code{ifftn}</dd>
-</dl>
-<p>end{itemize}</p>
-<p>section{Measuring parallel run times}
-Use code{MPI_Barrier} in front of every call to code{<a href="#id5"><span class="problematic" id="id6">pfft_</span></a>} function to avoid unbalanced run times.</p>
+<p>Expand most macros of pfft.h to generate the function reference of this
+manual:</p>
+<div class="highlight-python"><div class="highlight"><pre>sed -e &#39;s/ *\\$//g&#39; -e &#39;s/PFFT_EXTERN //g&#39; \
+    -e &#39;s/PX(\([^)]*\))/pfft_\1/g&#39; -e &#39;s/ INT/ ptrdiff_t/g&#39; \
+    -e &#39;s/ R/ double/g&#39; -e &#39;s/ C/ pfft_complex/g&#39; \
+    -e &#39;s/^  //g&#39; pfft.h &gt; pfft.h.expanded
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="todo">
+<span id="chap-todo"></span><h1>ToDo<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>is defined as</li>
+<li>is defined as <span class="math">\(-1\)</span></li>
+<li>PFFT allows to chose between and , which is not implemented by FFTW.</li>
+<li>Matlab uses the same sign convention, i.e., <span class="math">\(-1\)</span> for and
+<span class="math">\(+1\)</span> for</li>
+</ul>
+<div class="section" id="measuring-parallel-run-times">
+<h2>Measuring parallel run times<a class="headerlink" href="#measuring-parallel-run-times" title="Permalink to this headline">¶</a></h2>
+<p>Use in front of every call to function to avoid unbalanced run times.</p>
+</div>
 </div>
 
 
@@ -82,13 +87,19 @@ Use code{MPI_Barrier} in front of every call to code{<a href="#id5"><span class=
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">chapter{Developers Guide}label{chap:develop}</a></li>
-<li><a class="reference internal" href="#chapter-todo-label-chap-todo">chapter{ToDo}label{chap:todo}</a></li>
+<li><a class="reference internal" href="#">Developers Guide</a><ul>
+<li><a class="reference internal" href="#search-and-replace-patterns">Search and replace patterns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#todo">ToDo</a><ul>
+<li><a class="reference internal" href="#measuring-parallel-run-times">Measuring parallel run times</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="interface.html"
-                        title="previous chapter">chapter{Interface Layers of the PFFT Library}label{chap:api}</a></p>
+  <p class="topless"><a href="reference.html"
+                        title="previous chapter">PFFT Reference</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -120,7 +131,7 @@ Use code{MPI_Barrier} in front of every call to code{<a href="#id5"><span class=
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+          <a href="reference.html" title="PFFT Reference"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
