@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>chapter{Introduction}label{chap:intro} &mdash; PFFT 1.0.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
+    <link rel="next" title="chapter{Tutorial}label{chap:tuto}" href="tutorial.html" />
+    <link rel="prev" title="Welcome to PFFT’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="chapter{Tutorial}label{chap:tuto}"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PFFT’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>abstract{
+This user manual describes the usage of PFFT~pfftversion~cite{pfft,Pi13}, a MPI-based, parallel software library for the
+computation of equispaced fast Fourier transforms (FFT) on parallel, distributed memory architectures.
+The reader of this manual should familiar with the basic usage of FFTW and MPI.
+For further information we refer to the well written FFTW user manual~cite{fftw-manual} and
+the MPI Standard~cite{MPI-2.2}, see also cite{GrLuTh99} for detailed explanations.}</p>
+<div class="section" id="chapter-introduction-label-chap-intro">
+<h1>chapter{Introduction}label{chap:intro}<a class="headerlink" href="#chapter-introduction-label-chap-intro" title="Permalink to this headline">¶</a></h1>
+<p>A popular software library for computing FFTs is FFTW~cite{fftw, FFTW05}. This library also includes a parallel FFT implementation (FFTW-MPI) based on the Message Passing Interface (MPI).
+FFTW-MPI parallelizes multi-dimensional FFTs by a mixture of serial lower-dimensional FFTs and parallel data transpositions.
+However, FFTW-MPI makes use of a one-dimensional data decomposition, which shows to be a scalability bottleneck on large scale, parallel computers.
+For example, a three-dimensional FFT of size $1024^3$ can be computed with at most $1024$ MPI processes.
+In contrast, using a two-dimensional data decomposition would increase the maximum number of MPI processes to $1024^2$ in this case.</p>
+<p>The main goal of PFFT is to extend the MPI part of the FFTW software library to multi-dimensional data decompositions,
+i.e., $d$-dimensional FFTs of size $N^d$ can be computed in parallel with at most $N^{d-1}$ MPI processes.
+In addition, PFFT offers several extra features that are particular usefull for parallel, distributed memory FFTs but are not yet present in FFTW-MPI.
+We refer to the publication~cite{Pi13} for a closer look on the different data decompositions and the underlying algorithms of the PFFT library.</p>
+<p>The interface of PFFT is as close as possible to the FFTW-MPI interface.
+In fact, we consider every difference between PFFT and FFTW that is not explicitly mentioned within this manual as a bug that should be reported to webpfft.
+Therefore, porting code that uses FFTW-MPI to PFFT is almost trivial, e.g. see Section~ref{sec:porting}.</p>
+<p>Most features of PFFT are inherited from FFTW or similarily implemented. These include the following:
+begin{compactitem}</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>item We employ fast $mathcal{O}(Nlog N)$ algorithms of FFTW to compute arbitrary-size</dt>
+<dd>discrete Fourier transforms of complex data, real data, and even- or odd-symmetric real data.</dd>
+</dl>
+<p>item The dimension of the FFT can be arbitrary. However, parallel data decomposition must be at least one dimension smaller.
+item PFFT offers portable performance; e.g., it will perform well on most platforms.
+item The application of PFFT is split into a time consuming planning step and a high performance execution step.
+item Installing the library is easy. It is based on the common sequence of configure, make, and make install.
+item The interface of PFFT is very close to the MPI interface of FFTW.</p>
+<blockquote>
+<div>In fact, we tried to add as few extra parameters as possible.</div></blockquote>
+<p>item PFFT is written in C but also offers a Fortran interface, see Section~ref{sec:fortran}.
+item FFTW includes shared memory parallelism for all serial transforms. This enables us to benefit from hybrid parallelism to a certain amount, see Section~ref{sec:openmp}.
+item All steps of our parallel FFT can be performed completely in place. This is especially remarkable for the global</p>
+<blockquote>
+<div>transposition routines.</div></blockquote>
+<dl class="docutils">
+<dt>item Confirming to good MPI programming practice, all PFFT transforms can be performed on user defined communicators.</dt>
+<dd>In other words, PFFT does not enforce the user to work with verb+MPI_COMM_WORLD+.</dd>
+<dt>item PFFT uses the same algorithm to compute the size of the local array blocks as FFTW. This implies that the FFT size need not</dt>
+<dd>be divisible by the number of processes.</dd>
+</dl>
+<p>item PFFT supports single, double and long double precision.
+item PFFT supports new-array execution, i.e., a PFFT plan can be planned and executed on different plans up to some restrictions, see Section~ref{sec:new-array} for details.</p>
+<blockquote>
+<div>Thanks to Yu Feng for the new-array execute patch.</div></blockquote>
+</div></blockquote>
+<p>end{compactitem}
+Furthermore, we added some special features to support repeated tasks that often occur in practical application of parallel FFTs.
+begin{compactitem}</p>
+<blockquote>
+<div><p>item PFFT includes a very flexible ghost cell exchange module. A detailed description of this module is given in Section~ref{sec:gc}.
+item PFFT accepts three-dimensional data decomposition even for three-dimen-sional FFTs.</p>
+<blockquote>
+<div>However, the underlying parallel FFT framework is still based on two-dimensional decomposition. A more detailed description can be found
+in Section~ref{sec:3don2d}.</div></blockquote>
+<p>item PFFT explicitly supports the parallel calculation of pruned FFTs. Details are given in Section~ref{sec:pruned}.</p>
+</div></blockquote>
+<p>end{compactitem}</p>
+<p>Finally, we complete this overview with a list of features that are (not yet) implemented in PFFT.
+begin{compactitem}</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>item Parallel one-dimensional FFT based on MPI. FFTW-MPI uses another parallelization strategy for one-dimensional FFTs, which is not implemented in PFFT.</dt>
+<dd>The reason is that we can not achive a scalability benefit due to higher dimensional data decomposition if the FFT has only one dimension.
+Therefore, one can also call FFTW directly in this case.</dd>
+</dl>
+<p>item There is no equivalent of FFTW emph{wisdom} in PFFT, i.e., you can not save a PFFT plan to disk and restore it for later use.
+item PFFT does not have full OpenMP support. All serial FFT computations and global communications are implemented with FFTW,</p>
+<blockquote>
+<div>which offers OpenMP support, see Section~ref{sec:openmp}. However, most of the PFFT-only features, such as pruned FFT, ghost cell send and 3d decompostion of 3d FFTs are not yet parallelized with OpenMP.</div></blockquote>
+<dl class="docutils">
+<dt>item PFFT does not have full SIMD support. All serial FFT computations and global communications are implemented with FFTW,</dt>
+<dd>which offers SIMD support, see Section~ref{sec:simd}. However, most of the PFFT-only features, such as pruned FFT, ghost cell send and 3d decompostion of 3d FFTs are not yet parallelized with SIMD.</dd>
+<dt>item PFFT does not overlap communication and computation. The code of PFFT is build in a very modularized structure. Most of these modules consist</dt>
+<dd>of FFTWs routines. Therefore, the global transposition does not support non blocking communication.</dd>
+</dl>
+<p>item Similar to FFTW, we do not provide any parallel IO routines. The user is responsible of load and store of parallel data.
+item PFFT depends on FFTW to perform its serial transforms and does not support different vendor FFTs (such as Intel&#8217;s MKL or IBM&#8217;s ESSL).</p>
+<blockquote>
+<div>However, this is not assumed to be a big drawback, since FFTW seems to perform very well on most platforms.</div></blockquote>
+</div></blockquote>
+<p>%         We apply FFTW to multi-dimensional data sets in order to compute serial FFTs along single dimensions combined with transpositions of the multi-dimensional data in one step.
+%         As far as we know, there is no other FFT library that performs these two tasks. In addition, we use FFTW for local and global, i.e. serial and parallel, data transpositions.
+%         Thereby, changing the FFT vendor would affect only a
+%         However, this is not assumed to be a big drawback, since FFTW seems to perform very well on most platforms.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>item The global communication routines can not be called separately. However, it should be possible to implement a user interface to our global</dt>
+<dd>transposition routines.</dd>
+</dl>
+<p>item PFFT does not support GPU parallelization.</p>
+</div></blockquote>
+<p>end{compactitem}
+You are welcome to propose new PFFT features at webpfft.</p>
+<p>section{Alternative parallel FFT implementations}
+There have been several FFT implementations that aim to circumvent the scalability bottleneck
+for at least three dimensional FFTs by using two-dimensional decomposition approach.
+However, these implementations are often fitted to special problems and where not published
+as a stand alone software library.
+Remarkable exceptions are the parallel FFT software library by S.~Plimpton~cite{Pl97,sandiafft},
+the P3DFFT software library by D.~Pekurovsky~cite{Pe12,p3dfft} and the mbox{2DECOMP&amp;FFT} software library by N.~Li~cite{Li2010, 2decompfft}.</p>
+<p>section{Parallel nonequispaced FFT}
+If your are interested in a parallel implementation of nonequispaced fast Fourier
+transforms (NFFT) for distributed memory architectures, you should have a look at our PNFFT software library~cite{pnfft, PiPo13}
+that is also available at webpnfft.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to PFFT&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">chapter{Tutorial}label{chap:tuto}</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/intro.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="chapter{Tutorial}label{chap:tuto}"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PFFT’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Michael Pippig.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

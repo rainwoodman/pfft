@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>chapter{Developers Guide}label{chap:develop} &mdash; PFFT 1.0.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
+    <link rel="prev" title="chapter{Interface Layers of the PFFT Library}label{chap:api}" href="interface.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="chapter-developers-guide-label-chap-develop">
+<h1>chapter{Developers Guide}label{chap:develop}<a class="headerlink" href="#chapter-developers-guide-label-chap-develop" title="Permalink to this headline">¶</a></h1>
+<p>section{Search and replace patterns}</p>
+<p>Correct alignment of pfft.h header
+begin{lstlisting}
+%s/^(    [^ ]+[^\]*)  \/  1\/g
+end{lstlisting}</p>
+<p>Expand most macros of pfft.h to generate the function reference of this manual:
+begin{lstlisting}[language=bash,prebreak=textbackslash,]
+sed -e &#8216;s/ <a href="#id1"><span class="problematic" id="id2">*</span></a>\$//g&#8217; -e &#8216;s/PFFT_EXTERN //g&#8217; </p>
+<blockquote>
+<div>-e &#8216;s/PX(([^)]*))/<a href="#id3"><span class="problematic" id="id4">pfft_</span></a>1/g&#8217; -e &#8216;s/ INT/ ptrdiff_t/g&#8217; -e &#8216;s/ R/ double/g&#8217; -e &#8216;s/ C/ pfft_complex/g&#8217; -e &#8216;s/^  //g&#8217; pfft.h &gt; pfft.h.expanded</div></blockquote>
+<p>end{lstlisting}</p>
+</div>
+<div class="section" id="chapter-todo-label-chap-todo">
+<h1>chapter{ToDo}label{chap:todo}<a class="headerlink" href="#chapter-todo-label-chap-todo" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>begin{itemize}</dt>
+<dd>item code{PFFT_FORWARD} is defined as code{FFTW_FORWARD}
+item code{FFTW_FORWARD} is defined as $-1$
+item PFFT allows to chose between code{FFTW_FORWARD} and code{FFTW_BACKWARD}, which is not implemented by FFTW.
+item Matlab uses the same sign convention, i.e., $-1$ for code{fft} and $+1$ for code{ifftn}</dd>
+</dl>
+<p>end{itemize}</p>
+<p>section{Measuring parallel run times}
+Use code{MPI_Barrier} in front of every call to code{<a href="#id5"><span class="problematic" id="id6">pfft_</span></a>} function to avoid unbalanced run times.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">chapter{Developers Guide}label{chap:develop}</a></li>
+<li><a class="reference internal" href="#chapter-todo-label-chap-todo">chapter{ToDo}label{chap:todo}</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="interface.html"
+                        title="previous chapter">chapter{Interface Layers of the PFFT Library}label{chap:api}</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/develop.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="interface.html" title="chapter{Interface Layers of the PFFT Library}label{chap:api}"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Michael Pippig.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
