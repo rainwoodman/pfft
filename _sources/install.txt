@@ -2,8 +2,6 @@
 
 #1
 
-\`\_=\ :sub:`\_`
-
 Installation and linking
 ========================
 

@@ -2,8 +2,6 @@
 
 #1
 
-\`\_=\ :sub:`\_`
-
 #include <fftw3-mpi.h>
 
 int main(int argc, char \*\*argv)

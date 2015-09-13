@@ -2,8 +2,6 @@
 
 #1
 
-\`\_=\ :sub:`\_`
-
 for version 1.0.7-alpha
 
 | Michael Pippig

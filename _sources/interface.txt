@@ -2,8 +2,6 @@
 
 #1
 
-\`\_=\ :sub:`\_`
-
 Interface Layers of the PFFT Library
 ====================================
 

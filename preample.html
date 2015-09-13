@@ -44,40 +44,8 @@
             
   <p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
 <p>#1</p>
-<p>#include &lt;fftw3-mpi.h&gt;</p>
-<p>int main(int argc, char **argv)</p>
-<p>const ptrdiff<sub>t</sub> n0 = 4, n1 = 4, n2 = 4; fftw<sub>p</sub>lan
-plan; fftw<sub>c</sub>omplex *data; ptrdiff<sub>t</sub>
-alloc<sub>l</sub>ocal, local<sub>n</sub>0, local<sub>0s</sub>tart, i, j,
-k;</p>
-<p>MPI<sub>I</sub>nit(&amp;argc, &amp;argv); fftw<sub>m</sub>pi<sub>i</sub>nit();</p>
-<p>/* get local data size and allocate */ alloc<sub>l</sub>ocal =
-fftw<sub>m</sub>pi<sub>l</sub>ocal<sub>s</sub>ize<sub>3</sub>d(n0, n1,
-n2, MPI<sub>C</sub>OMM<sub>W</sub>ORLD, &amp;local<sub>n</sub>0,
-&amp;local<sub>0s</sub>tart); data =
-fftw<sub>a</sub>lloc<sub>c</sub>omplex(alloc<sub>l</sub>ocal);</p>
-<p>/* create plan for in-place forward DFT */ plan =
-fftw<sub>m</sub>pi<sub>p</sub>lan<sub>d</sub>ft<sub>3</sub>d(n0, n1, n2,
-data, data, MPI<sub>C</sub>OMM<sub>W</sub>ORLD, FFTW<sub>F</sub>ORWARD,
-FFTW<sub>E</sub>STIMATE);</p>
-<p>/* initialize data to some function my<sub>f</sub>unction(x,y) */ for
-(i = 0; i &lt; local<sub>n</sub>0; ++i) for (j = 0; j &lt; n1; ++j) for (k =
-0; k &lt; n2; ++k) data[i*n1*n2 + j*n2 + k] =
-my<sub>f</sub>unction(local<sub>0s</sub>tart + i, j, k);</p>
-<p>ptrdiff<sub>t</sub> local<sub>n</sub>i[3] = local<sub>n</sub>0, n1, n2,
-local<sub>is</sub>tart[3] = local<sub>0s</sub>tart, 0, 0;
-pfft<sub>a</sub>pr<sub>c</sub>omplex<sub>3</sub>d(data,
-local<sub>n</sub>i, local<sub>is</sub>tart, “input:”,
-MPI<sub>C</sub>OMM<sub>W</sub>ORLD);</p>
-<p>/* compute transforms, in-place, as many times as desired */
-fftw<sub>e</sub>xecute(plan);</p>
-<p>ptrdiff<sub>t</sub> local<sub>n</sub>o[3] = local<sub>n</sub>0, n1, n2,
-local<sub>os</sub>tart[3] = local<sub>0s</sub>tart, 0, 0;
-pfft<sub>a</sub>pr<sub>c</sub>omplex<sub>3</sub>d(data,
-local<sub>n</sub>o, local<sub>os</sub>tart, “output:”,
-MPI<sub>C</sub>OMM<sub>W</sub>ORLD);</p>
-<p>(*&#64; fftw_destroy_plan(plan); &#64;*)</p>
-<p>MPI<sub>F</sub>inalize();</p>
+<p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
+<p>#1</p>
 
 
           </div>
@@ -88,7 +56,7 @@ MPI<sub>C</sub>OMM<sub>W</sub>ORLD);</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/man_fftw_3don1d.txt"
+      <li><a href="_sources/preample.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
