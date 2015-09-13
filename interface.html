@@ -60,8 +60,8 @@ r2r-FFT similar interface layer specifications apply. A full reference
 list of all PFFT functions is given in Chapter&nbsp;[chap:ref].</p>
 <div class="section" id="basic-interface">
 <h2>Basic Interface<a class="headerlink" href="#basic-interface" title="Permalink to this headline">¶</a></h2>
-<p>The :code:`:sub:<cite>3</cite>d` interface is the simplest interface layer. It
-is suitable for the planning of three-dimensional FFTs.</p>
+<p>The <code class="docutils literal"><span class="pre">_3d</span></code> interface is the simplest interface layer. It is suitable
+for the planning of three-dimensional FFTs.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, unsigned pfft_flags,
     ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
@@ -77,12 +77,10 @@ pfft_plan pfft_plan_dft_3d(
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Hereby, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
-:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
-:code:`local:sub:<cite>os</cite>tart` are :code:`ptrdiff:sub:<cite>t</cite>` arrays of
-length :code:`3`.</p>
-<p>The basic interface generalizes the :code:`:sub:<cite>3</cite>d` interface to
-FFTs of arbitrary dimension :code:`rnk:sub:<cite>n</cite>`.</p>
+<p>Hereby, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">local_ni</span></code>, <code class="docutils literal"><span class="pre">local_i_start</span></code>, <code class="docutils literal"><span class="pre">local_no</span></code>, and
+<code class="docutils literal"><span class="pre">local_o_start</span></code> are <code class="docutils literal"><span class="pre">ptrdiff_t</span></code> arrays of length <code class="docutils literal"><span class="pre">3</span></code>.</p>
+<p>The basic interface generalizes the <code class="docutils literal"><span class="pre">_3d</span></code> interface to FFTs of
+arbitrary dimension <code class="docutils literal"><span class="pre">rnk_n</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft(
     int rnk_n, const ptrdiff_t *n,
     MPI_Comm comm_cart, unsigned pfft_flags,
@@ -99,21 +97,18 @@ pfft_plan pfft_plan_dft(
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Therefore, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
-:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
-:code:`local:sub:<cite>os</cite>tart` become arrays of length
-:code:`rnk:sub:<cite>n</cite>`.</p>
+<p>Therefore, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">local_ni</span></code>, <code class="docutils literal"><span class="pre">local_i_start</span></code>, <code class="docutils literal"><span class="pre">local_no</span></code>, and
+<code class="docutils literal"><span class="pre">local_o_start</span></code> become arrays of length <code class="docutils literal"><span class="pre">rnk_n</span></code>.</p>
 </div>
 <div class="section" id="advanced-interface">
 <h2>Advanced Interface<a class="headerlink" href="#advanced-interface" title="Permalink to this headline">¶</a></h2>
-<p>The advanced interface introduces the arrays :code:`ni` and
-:code:`no` of length :code:`rnk:sub:<cite>n</cite>` that give the pruned FFT
-input and output size. Furthermore, the arrays :code:`iblock` and
-:code:`oblock` of length :code:`rnk:sub:<cite>p</cite>m`
-(:code:`rnk:sub:<cite>p</cite>m` being the dimension of the process mesh) serve
-to adjust the block size of the input and output block decomposition.
-The additional parameter :code:`howmany` gives the number of
-transforms that will be computed simultaneously.</p>
+<p>The advanced interface introduces the arrays <code class="docutils literal"><span class="pre">ni</span></code> and <code class="docutils literal"><span class="pre">no</span></code> of length
+<code class="docutils literal"><span class="pre">rnk_n</span></code> that give the pruned FFT input and output size. Furthermore,
+the arrays <code class="docutils literal"><span class="pre">iblock</span></code> and <code class="docutils literal"><span class="pre">oblock</span></code> of length <code class="docutils literal"><span class="pre">rnk_pm</span></code> (<code class="docutils literal"><span class="pre">rnk_pm</span></code>
+being the dimension of the process mesh) serve to adjust the block size
+of the input and output block decomposition. The additional parameter
+<code class="docutils literal"><span class="pre">howmany</span></code> gives the number of transforms that will be computed
+simultaneously.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_many_dft(
     int rnk_n, const ptrdiff_t *n,
     const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
@@ -138,9 +133,8 @@ pfft_plan pfft_plan_many_dft(
 </div>
 <div class="section" id="preliminary-skip-serial-transformations">
 <h2>Preliminary: Skip Serial Transformations<a class="headerlink" href="#preliminary-skip-serial-transformations" title="Permalink to this headline">¶</a></h2>
-<p>The :code:`:sub:<cite>s</cite>kipped` interface extends the
-:code:`:sub:<cite>m</cite>any` interface by adding the possibility to skip some
-of the serial FFTs.</p>
+<p>The <code class="docutils literal"><span class="pre">_skipped</span></code> interface extends the <code class="docutils literal"><span class="pre">_many</span></code> interface by adding the
+possibility to skip some of the serial FFTs.</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_many_dft_skipped(
     int rnk_n, const ptrdiff_t *n,
     const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
@@ -150,24 +144,21 @@ of the serial FFTs.</p>
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Hereby, :code:`skip:sub:<cite>t</cite>rafos` is an :code:`int` array of
-length :code:`rnk:sub:<cite>p</cite>m+1` (:code:`rnk:sub:<cite>p</cite>m` being the
-mesh dimension of the communicator :code:`comm:sub:<cite>c</cite>art`). For
-:code:`t=0,...,rnk:sub:<cite>p</cite>m` set :code:`skip:sub:<cite>t</cite>rafos[t]=1`
-if the :code:`t`-th serial transformation should be computed,
-otherwise set :code:`skip:sub:<cite>t</cite>rafos[t]=0`. Note that the local
-transpositions are always performed, since they are a prerequisite for
-the global communication to work. At the moment it is only possible to
-skip the whole serial transform along the last
-:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions. However, this
-behaviour can be realized by a call of a
-:code:`(rnk:sub:<cite>p</cite>m+1)`-dimensional PFFT with</p>
+<p>Hereby, <code class="docutils literal"><span class="pre">skip_trafos</span></code> is an <code class="docutils literal"><span class="pre">int</span></code> array of length <code class="docutils literal"><span class="pre">rnk_pm</span></code>1+
+(<code class="docutils literal"><span class="pre">rnk_pm</span></code> being the mesh dimension of the communicator <code class="docutils literal"><span class="pre">comm_cart</span></code>).
+For <code class="docutils literal"><span class="pre">t=0,...,rnk_pm</span></code> set <code class="docutils literal"><span class="pre">skip_trafos[t]=1</span></code> if the <code class="docutils literal"><span class="pre">t</span></code>-th serial
+transformation should be computed, otherwise set <code class="docutils literal"><span class="pre">skip_trafos[t]=0</span></code>.
+Note that the local transpositions are always performed, since they are
+a prerequisite for the global communication to work. At the moment it is
+only possible to skip the whole serial transform along the last
+<code class="docutils literal"><span class="pre">rnk_n-rnk_pm-1</span></code> dimensions. However, this behaviour can be realized
+by a call of a <code class="docutils literal"><span class="pre">(rnk_pm</span></code>1)+-dimensional PFFT with</p>
 <div class="highlight-python"><div class="highlight"><pre>for(int t=rnk_pm+1; t&lt;rnk_n; t++)
   howmany *= n[t];
 </pre></div>
 </div>
 <p>and manual computation of the desired serial transforms along the last
-:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions.</p>
+<code class="docutils literal"><span class="pre">rnk_n-rnk_pm-1</span></code> dimensions.</p>
 </div>
 </div>
 

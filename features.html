@@ -69,15 +69,15 @@ suitable for the library, i.e.,</p>
 required outputs, i.e.,</p>
 <div class="math">
 \[g_l := f_{l \bmod n}, \quad l = -\nicefrac n2,\dots,\nicefrac n2-1.\]</div>
-<p>These shifts are also known as :code:`fftshift` in Matlab.</p>
-<p>However, with distributed memory these :code:`fftshift` operations
-require more complex data movements and result in a global
-communication. For example, the first index of the array moves to the
-middle and, therefore, the corresponding data move to another MPI
-process. Fortunately, this communication can be avoided at the cost of
-little extra computation. At the end of the section we present two PFFT
-library functions that perform the necessary pre- and postprocessing for
-shifted input and output index sets.</p>
+<p>These shifts are also known as <code class="docutils literal"><span class="pre">fftshift</span></code> in Matlab.</p>
+<p>However, with distributed memory these <code class="docutils literal"><span class="pre">fftshift</span></code> operations require
+more complex data movements and result in a global communication. For
+example, the first index of the array moves to the middle and,
+therefore, the corresponding data move to another MPI process.
+Fortunately, this communication can be avoided at the cost of little
+extra computation. At the end of the section we present two PFFT library
+functions that perform the necessary pre- and postprocessing for shifted
+input and output index sets.</p>
 <div class="section" id="shift-with-half-the-fft-size">
 <h3>Shift with half the FFT size<a class="headerlink" href="#shift-with-half-the-fft-size" title="Permalink to this headline">¶</a></h3>
 <p>The special case of input shift <span class="math">\(k_s=-\nicefrac n2\)</span> and/or output
@@ -192,9 +192,8 @@ FFT</p>
 <p>and <span class="math">\(f_l := g_l\)</span>, <span class="math">\(k=0,\dots,n_o-1\)</span>. I.e., we add
 <span class="math">\(n-n_i\)</span> zeros at the end of the input array and throw away
 <span class="math">\(n-n_o\)</span> entries at the end of the output array.</p>
-<p>The definition of pruned FFT changes for
-:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>I</sub>N` and
-:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>O</sub>UT`.</p>
+<p>The definition of pruned FFT changes for <code class="docutils literal"><span class="pre">PFFT_SHIFTED_IN</span></code> and
+<code class="docutils literal"><span class="pre">PFFT_SHIFTED_OUT</span></code>.</p>
 </div>
 </div>
 

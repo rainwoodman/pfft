@@ -23,16 +23,16 @@ required outputs, i.e.,
 
 .. math:: g_l := f_{l \bmod n}, \quad l = -\nicefrac n2,\dots,\nicefrac n2-1.
 
-These shifts are also known as :code:\`fftshift\` in Matlab.
+These shifts are also known as ``fftshift`` in Matlab.
 
-However, with distributed memory these :code:\`fftshift\` operations
-require more complex data movements and result in a global
-communication. For example, the first index of the array moves to the
-middle and, therefore, the corresponding data move to another MPI
-process. Fortunately, this communication can be avoided at the cost of
-little extra computation. At the end of the section we present two PFFT
-library functions that perform the necessary pre- and postprocessing for
-shifted input and output index sets.
+However, with distributed memory these ``fftshift`` operations require
+more complex data movements and result in a global communication. For
+example, the first index of the array moves to the middle and,
+therefore, the corresponding data move to another MPI process.
+Fortunately, this communication can be avoided at the cost of little
+extra computation. At the end of the section we present two PFFT library
+functions that perform the necessary pre- and postprocessing for shifted
+input and output index sets.
 
 Shift with half the FFT size
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,6 +179,5 @@ and :math:`f_l := g_l`, :math:`k=0,\dots,n_o-1`. I.e., we add
 :math:`n-n_i` zeros at the end of the input array and throw away
 :math:`n-n_o` entries at the end of the output array.
 
-The definition of pruned FFT changes for
-:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`I`\ N\` and
-:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`O`\ UT\`.
+The definition of pruned FFT changes for ``PFFT_SHIFTED_IN`` and
+``PFFT_SHIFTED_OUT``.

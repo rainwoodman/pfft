@@ -80,10 +80,10 @@ make install
 </pre></div>
 </div>
 <p>The MPI algorithms of FFTW must be build with a MPI C compiler. Add the
-statement :code:`MPICC=$MPICCOMP` at the end of line&nbsp;[lst:fftw:conf]
-if the :code:`configure` script fails to determine the right MPI C
-compiler :code:`$MPICCOMP`. Similarly, the MPI Fortran compiler
-:code:`$MPIFCOMP` is set by :code:`MPIFC=$MPIFCOMP`.</p>
+statement <code class="docutils literal"><span class="pre">MPICC=\$MPICCOMP</span></code> at the end of line&nbsp;[lst:fftw:conf] if the
+<code class="docutils literal"><span class="pre">configure</span></code> script fails to determine the right MPI C compiler
+<code class="docutils literal"><span class="pre">\$MPICCOMP</span></code>. Similarly, the MPI Fortran compiler <code class="docutils literal"><span class="pre">\$MPIFCOMP</span></code> is
+set by <code class="docutils literal"><span class="pre">MPIFC=\$MPIFCOMP</span></code>.</p>
 </div>
 <div class="section" id="install-of-the-pfft-library">
 <h2>Install of the PFFT library<a class="headerlink" href="#install-of-the-pfft-library" title="Permalink to this headline">¶</a></h2>
@@ -99,18 +99,17 @@ make check
 make install
 </pre></div>
 </div>
-<p>Hereby, the optional call :code:`make check` builds the test programs.
-If the -3.3.3 software library is already installed on your system but
-not found by the configure script, you can provide the FFTW installation
-directory :code:`$FFTWDIR` to configure by</p>
+<p>Hereby, the optional call <code class="docutils literal"><span class="pre">make</span> <span class="pre">check</span></code> builds the test programs. If
+the -3.3.3 software library is already installed on your system but not
+found by the configure script, you can provide the FFTW installation
+directory <code class="docutils literal"><span class="pre">\$FFTWDIR</span></code> to configure by</p>
 <div class="code bash highlight-python"><div class="highlight"><pre>./configure --with-fftw3=$FFTWDIR
 </pre></div>
 </div>
 <p>This call implies that the FFTW header files are located in
-:code:`$FFTWDIR/include` and the FFTW library files are located in
-:code:`$FFTWDIR/lib`. Otherwise, one should specify the FFTW include
-path :code:`$FFTWINC` and the FFTW library path :code:`$FFTWLIB`
-separately by</p>
+<code class="docutils literal"><span class="pre">\$FFTWDIR/include</span></code> and the FFTW library files are located in
+<code class="docutils literal"><span class="pre">\$FFTWDIR/lib</span></code>. Otherwise, one should specify the FFTW include path
+<code class="docutils literal"><span class="pre">\$FFTWINC</span></code> and the FFTW library path <code class="docutils literal"><span class="pre">\$FFTWLIB</span></code> separately by</p>
 <div class="highlight-python"><div class="highlight"><pre>./configure --with-fftw3-includedir=$FFTWINC --with-fftw3-libdir=$FFTWLIB
 </pre></div>
 </div>
@@ -119,27 +118,27 @@ separately by</p>
 </pre></div>
 </div>
 <p>which is more common to experienced users of the Autotools. To install
-PFFT in a user specified directory :code:`$PFFTINSTDIR` call configure
-with the option</p>
+PFFT in a user specified directory <code class="docutils literal"><span class="pre">\$PFFTINSTDIR</span></code> call configure with
+the option</p>
 <div class="highlight-python"><div class="highlight"><pre>./configure --prefix=$PFFTINSTDIR
 </pre></div>
 </div>
 <p>However, this option is mandatory whenever you do not have root
 permissions on your machine, since the default install paths of
-:code:`configure` are not accessible by standard users. The PFFT
-library must be built with a MPI compiler. In
-Section&nbsp;[sec:fftw<sub>i</sub>nst] we already described how to hand the
-right compilers to the :code:`configure` script. Some more options are</p>
+<code class="docutils literal"><span class="pre">configure</span></code> are not accessible by standard users. The PFFT library
+must be built with a MPI compiler. In Section&nbsp;[sec:fftw<sub>i</sub>nst]
+we already described how to hand the right compilers to the
+<code class="docutils literal"><span class="pre">configure</span></code> script. Some more options are</p>
 <p>:code:`[`keywords=]–enable-float: Produces a single-precision version
 of PFFT (float) instead of the default double-precision (double); see
 [sec:prec].</p>
 <p>:code:`[`keywords=]–enable-long-double: Produces a long-double
 precision version of PFFT (long double) instead of the default
 double-precision (double); see [sec:prec].</p>
-<p>:code:`–disable-fortran`: Disables inclusion of Fortran wrapper
-routines in the standard PFFT libraries.</p>
-<p>:code:`–disable-tests`: Disables build of test programs.</p>
-<p>For more details on the options of the :code:`configure` script call</p>
+<p><code class="docutils literal"><span class="pre">--disable-fortran</span></code>: Disables inclusion of Fortran wrapper routines in
+the standard PFFT libraries.</p>
+<p><code class="docutils literal"><span class="pre">--disable-tests</span></code>: Disables build of test programs.</p>
+<p>For more details on the options of the <code class="docutils literal"><span class="pre">configure</span></code> script call</p>
 <div class="highlight-python"><div class="highlight"><pre>./configure --help
 </pre></div>
 </div>
@@ -150,21 +149,20 @@ routines in the standard PFFT libraries.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#include &lt;pfft.h&gt;</span>
 </pre></div>
 </div>
-<p>This header includes the FFTW headers :code:`fftw.h`,
-:code:`fftw-mpi.h` automatically. Make sure that the compiler can find
-them by setting the include flags appropriately. You must also link to
-the PFFT, FFTW and FFTW-MPI libraries. On Unix, this means adding
-:code:`-lpfft -lfftw3:sub:<cite>m</cite>pi -lfftw3 -lm` at the end of the link
-command. For example, to build :code:`pfft:sub:<cite>t</cite>est.c` use the
-following compiler invocation</p>
+<p>This header includes the FFTW headers <code class="docutils literal"><span class="pre">fftw.h</span></code>, <code class="docutils literal"><span class="pre">fftw-mpi.h</span></code>
+automatically. Make sure that the compiler can find them by setting the
+include flags appropriately. You must also link to the PFFT, FFTW and
+FFTW-MPI libraries. On Unix, this means adding
+<code class="docutils literal"><span class="pre">-lpfft</span> <span class="pre">-lfftw3_mpi</span> <span class="pre">-lfftw3</span> <span class="pre">-lm</span></code> at the end of the link command. For
+example, to build <code class="docutils literal"><span class="pre">pfft_test.c</span></code> use the following compiler invocation</p>
 <div class="highlight-python"><div class="highlight"><pre>mpicc pfft_test.c -I$PFFTINC -I$FFTWINC -L$PFFTLIB -L$FFTWLIB -lpfft -lfftw3_mpi -lfftw3 -lm
 </pre></div>
 </div>
-<p>Substitute :code:`mpicc` by any other MPI C compiler if you like.
-:code:`$PFFTINC`, :code:`$FFTWINC`, :code:`$PFFTLIB`, and
-:code:`$FFTWLIB` denote the PFFT and FFTW include and library paths,
-respectively. If you use the install scripts mentioned in
-Sect.&nbsp;[sec:pfft-inst], these paths will be</p>
+<p>Substitute <code class="docutils literal"><span class="pre">mpicc</span></code> by any other MPI C compiler if you like.
+<code class="docutils literal"><span class="pre">\$PFFTINC</span></code>, <code class="docutils literal"><span class="pre">\$FFTWINC</span></code>, <code class="docutils literal"><span class="pre">\$PFFTLIB</span></code>, and <code class="docutils literal"><span class="pre">\$FFTWLIB</span></code> denote
+the PFFT and FFTW include and library paths, respectively. If you use
+the install scripts mentioned in Sect.&nbsp;[sec:pfft-inst], these paths will
+be</p>
 <div class="highlight-python"><div class="highlight"><pre>PFFTINC = $HOME/local/pfft-§\pfftversion§/include
 FFTWINC = $HOME/local/fftw-§\fftwversion§/include
 PFFTINC = $HOME/local/pfft-§\pfftversion§/lib

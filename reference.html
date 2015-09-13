@@ -61,23 +61,21 @@
 </pre></div>
 </div>
 <p>in the preamble of each source file that calls PFFT. This header
-automatically includes :code:`fftw.h` and :code:`fftw3-mpi.h`.
-Therefore, PFFT can use the :code:`fftw:sub:<cite>c</cite>omplex` data type
-defined in :code:`fftw.h`, see&nbsp;. Note that
-:code:`fftw:sub:<cite>c</cite>omplex` is defined to be the C99 native complex
-whenever :code:`&lt;complex.h&gt;` is included <em>before</em> :code:`&lt;fftw.h&gt;`,
-:code:`&lt;fftw-mpi.h&gt;` and :code:`&lt;pfft.h&gt;`. Otherwise it is defined
-as</p>
+automatically includes <code class="docutils literal"><span class="pre">fftw.h</span></code> and <code class="docutils literal"><span class="pre">fftw3-mpi.h</span></code>. Therefore, PFFT
+can use the <code class="docutils literal"><span class="pre">fftw_complex</span></code> data type defined in <code class="docutils literal"><span class="pre">fftw.h</span></code>, see&nbsp;. Note
+that <code class="docutils literal"><span class="pre">fftw_complex</span></code> is defined to be the C99 native complex whenever
+<code class="docutils literal"><span class="pre">&lt;complex.h&gt;</span></code> is included <em>before</em> <code class="docutils literal"><span class="pre">&lt;fftw.h&gt;</span></code>, <code class="docutils literal"><span class="pre">&lt;fftw-mpi.h&gt;</span></code> and
+<code class="docutils literal"><span class="pre">&lt;pfft.h&gt;</span></code>. Otherwise it is defined as</p>
 <div class="highlight-python"><div class="highlight"><pre>typedef double fftw_complex[2];
 </pre></div>
 </div>
 <p>For the sake of a clean namespace we define the wrapper data type
-:code:`pfft:sub:<cite>c</cite>omplex` as</p>
+<code class="docutils literal"><span class="pre">pfft_complex</span></code> as</p>
 <div class="highlight-python"><div class="highlight"><pre>typedef fftw_complex pfft_complex;
 </pre></div>
 </div>
-<p>that can be used equivallently to :code:`fftw:sub:<cite>c</cite>omplex`.
-Futhermore, we define the wrapper functions</p>
+<p>that can be used equivallently to <code class="docutils literal"><span class="pre">fftw_complex</span></code>. Futhermore, we
+define the wrapper functions</p>
 <div class="highlight-python"><div class="highlight"><pre>void *pfft_malloc(size_t n);
 double *pfft_alloc_real(size_t n);
 pfft_complex *pfft_alloc_complex(size_t n);
@@ -86,16 +84,16 @@ void pfft_free(void *p);
 </div>
 <p>as substitues for their corresponding FFTW equivalents, see&nbsp;. Note that
 memory allocated by one of these functions must be freed with
-:code:`pfft:sub:<cite>f</cite>ree` (or its equivalent
-:code:`fftw:sub:<cite>f</cite>ree`). Because of the performance reasons given
-in&nbsp; we recommend to use one of the (or its equivalent ) allocation
-functions for all arrays containing FFT inputs and outputs. However,
-PFFT will also work (possibly slower) with any other memory allocation
-method.</p>
-<p>Different precisions are handled as in FFTW: That is functions and
-datatypes become (single precision) or (long double precision) prefixed.
-Quadruple precision is not yet supported. The main problem is that we do
-not know about a suitable MPI datatype to represent .</p>
+<code class="docutils literal"><span class="pre">pfft_free</span></code> (or its equivalent <code class="docutils literal"><span class="pre">fftw_free</span></code>). Because of the
+performance reasons given in&nbsp; we recommend to use one of the <code class="docutils literal"><span class="pre">pfft_</span></code>
+(or its equivalent <code class="docutils literal"><span class="pre">fftw_</span></code>) allocation functions for all arrays
+containing FFT inputs and outputs. However, PFFT will also work
+(possibly slower) with any other memory allocation method.</p>
+<p>Different precisions are handled as in FFTW: That is <code class="docutils literal"><span class="pre">pfft_</span></code> functions
+and datatypes become <code class="docutils literal"><span class="pre">pfftf_</span></code> (single precision) or <code class="docutils literal"><span class="pre">pfftl_</span></code> (long
+double precision) prefixed. Quadruple precision is not yet supported.
+The main problem is that we do not know about a suitable MPI datatype to
+represent <code class="docutils literal"><span class="pre">__float128</span></code>.</p>
 </div>
 <div class="section" id="mpi-initialization">
 <h2>MPI Initialization<a class="headerlink" href="#mpi-initialization" title="Permalink to this headline">¶</a></h2>
@@ -106,9 +104,8 @@ wrapper functions</p>
 void pfft_cleanup(void);
 </pre></div>
 </div>
-<p>that can be used as substitutes for
-:code:`fftw:sub:<cite>m</cite>pi<sub>i</sub>nit` and
-:code:`fftw:sub:<cite>m</cite>pi<sub>c</sub>leanup`, respectively.</p>
+<p>that can be used as substitutes for <code class="docutils literal"><span class="pre">fftw_mpi_init</span></code> and
+<code class="docutils literal"><span class="pre">fftw_mpi_cleanup</span></code>, respectively.</p>
 </div>
 <div class="section" id="using-pfft-plans">
 <h2>Using PFFT Plans<a class="headerlink" href="#using-pfft-plans" title="Permalink to this headline">¶</a></h2>
@@ -121,9 +118,8 @@ one of the functions given in Section&nbsp;[sec:create-plan] is executed with</p
 <div class="highlight-python"><div class="highlight"><pre>void pfft_destroy_plan(const pfft_plan plan);
 </pre></div>
 </div>
-<p>Note, that you can <em>not</em> apply
-:code:`fftw:sub:<cite>m</cite>pi<sub>e</sub>xecute` or
-:code:`fftw:sub:<cite>d</cite>estroy` on PFFT plans.</p>
+<p>Note, that you can <em>not</em> apply <code class="docutils literal"><span class="pre">fftw_mpi_execute</span></code> or <code class="docutils literal"><span class="pre">fftw_destroy</span></code>
+on PFFT plans.</p>
 <p>The new array execute functions are given by</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_execute_dft(const pfft_plan plan, pfft_complex *in, pfft_complex *out);
 void pfft_execute_dft_r2c(const pfft_plan plan, double *in, pfft_complex *out);
@@ -131,9 +127,9 @@ void pfft_execute_dft_c2r(const pfft_plan plan, pfft_complex *in, double *out);
 void pfft_execute_r2r(const pfft_plan plan, double *in, double *out);
 </pre></div>
 </div>
-<p>The arrays given by :code:`in` and :code:`out` must have the correct
-size and the same alignement as the array that were used to create the
-plan, just as it is the case for FFTW, see&nbsp;[fftw-new-array].</p>
+<p>The arrays given by <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> must have the correct size and
+the same alignement as the array that were used to create the plan, just
+as it is the case for FFTW, see&nbsp;[fftw-new-array].</p>
 </div>
 <div class="section" id="data-distribution-functions">
 <h2>Data Distribution Functions<a class="headerlink" href="#data-distribution-functions" title="Permalink to this headline">¶</a></h2>
@@ -161,75 +157,63 @@ discrete Fourier transform (DFT) in two or more dimensions, returning
 the number of <em>complex</em> numbers that must be allocated to hold the
 parallel transform.</p>
 <p>Arguments:</p>
-<p>:code:`rnk:sub:<cite>n</cite>` is the rank of the transform (typically the size
-of the arrays :code:`n`, :code:`ni`, :code:`no`) that can be any
-integer <span class="math">\(\ge 2\)</span>. The :code:`:sub:<cite>3</cite>d` planner corresponds to
-a :code:`rnk:sub:<cite>n</cite>` of 3.</p>
-<p>The array :code:`n` of size :code:`rnk:sub:<cite>n</cite>` specifies the
-transform dimensions. They can be any positive integer.</p>
-<p>The array :code:`ni` of size :code:`rnk:sub:<cite>n</cite>` specifies the
-input array dimensions. They can be any positive integer with
-:code:`ni[t] &lt;= n[t]` for all dimensions
-:code:`t=0,...,rnk:sub:<cite>n</cite>-1`. For :code:`ni[t]&lt;n[t]` the inputs
-will be padded with zeros up to size :code:`n[t]` along the
-:code:`t`-th dimension before the transform, see
-Section&nbsp;[sec:pruned-fft].</p>
-<p>The array :code:`no` of size :code:`rnk:sub:<cite>n</cite>` specifies the
-output array dimensions. They can be any positive integer with
-:code:`no[t] &lt;= n[t]` for all dimensions
-:code:`t=0,...,rnk:sub:<cite>n</cite>-1`. For :code:`no[t]&lt;n[t]` the outputs
-will be pruned to size :code:`no[t]` along the :code:`t`-th
-dimension after the transform, see Section&nbsp;[sec:pruned-fft].</p>
-<p>:code:`howmany` is the number of transforms to compute. The resulting
-plan computes howmany transforms, where the input of the k-th transform
-is at location in+k (in C pointer arithmetic) with stride
-:code:`howmany`, and its output is at location out+k with stride
-:code:`howmany`. The basic :code:`pfft:sub:<cite>p</cite>lan<sub>d</sub>ft`
-interface corresponds to howmany=1.</p>
-<p>:code:`comm:sub:<cite>c</cite>art` is a Cartesian communicator of dimension
-:code:`rnk:sub:<cite>p</cite>m` that specifies the parallel data decomposition,
-see Section&nbsp;[sec:data-decomp]. Most of the time, PFFT requires
-:code:`rnk:sub:<cite>p</cite>m &lt; rnk<sub>n</sub>`. The only exception is the
-case :code:`rnk:sub:<cite>p</cite>m == rnk<sub>n</sub> == 3`, see
-Section&nbsp;[sec:3don3d]. If an ordinary (i.e. non-Cartesian) communicator
-is passed, PFFT internally converts it into a one-dimensional Cartesian
-communicator while retaining the MPI ranks (this results in the FFTW-MPI
-data decomposition).</p>
-<p>The arrays :code:`iblock` and :code:`oblock` of size
-:code:`rnk:sub:<cite>p</cite>m+1` specify the block sizes for the first
-:code:`rnk:sub:<cite>p</cite>m+1` dimensions of the input and output data,
-respectively. These must be the same block sizes as were passed to the
-corresponding :code:`local:sub:<cite>s</cite>ize` function. You can pass
-:code:`PFFT:sub:<cite>D</cite>EFAULT<sub>B</sub>LOCKS` to use PFFT’s default
-block sizes. Furthermore, you can use
-:code:`PFFT:sub:<cite>D</cite>EFAULT<sub>B</sub>LOCK` to set the default block
-size in separate dimensions, e.g.,
-:code:`iblock[t]=PFFT:sub:<cite>D</cite>EFAULT<sub>B</sub>LOCK`.</p>
-<p>:code:`pfft:sub:<cite>f</cite>lags` is a bitwise OR (’:code:`|`’) of zero or
-more planner flags, as defined in Section&nbsp;[sec:flags].</p>
-<p>The array :code:`local:sub:<cite>n</cite>i` of size :code:`rnk:sub:<cite>n</cite>`
-returns the size of the local input array block in every dimension
-(counted in units of complex numbers).</p>
-<p>The array :code:`local:sub:<cite>is</cite>tart` of size :code:`rnk:sub:<cite>n</cite>`
-returns the offset of the local input array block in every dimension
-(counted in units of complex numbers).</p>
-<p>The array :code:`local:sub:<cite>n</cite>o` of size :code:`rnk:sub:<cite>n</cite>`
-returns the size of the local output array block in every dimension
-(counted in units of complex numbers).</p>
-<p>The array :code:`local:sub:<cite>os</cite>tart` of size :code:`rnk:sub:<cite>n</cite>`
-returns the offset of the local output array block in every dimension
-(counted in units of complex numbers).</p>
-<p>In addition, the following :code:`local:sub:<cite>b</cite>lock` functions
-compute the local data distribution of the process with MPI rank
-:code:`pid`. The :code:`local:sub:<cite>s</cite>ize` interface can be
-understood as a call of :code:`local:sub:<cite>b</cite>lock` where
-:code:`pid` is given by
-:code:`MPI:sub:<cite>C</cite>omm<sub>r</sub>ank(comm<sub>c</sub>art, &amp;pid)`,
-i.e., each MPI process computes its own data block. However,
-:code:`local:sub:<cite>b</cite>lock` functions have a :code:`void` return
-type, i.e., they omit the computation of the local array size that is
-necessary to hold the parallel transform. This makes
-:code:`local:sub:<cite>b</cite>lock` functions substantially faster in
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code> is the rank of the transform (typically the size of the arrays
+<code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">ni</span></code>, <code class="docutils literal"><span class="pre">no</span></code>) that can be any integer <span class="math">\(\ge 2\)</span>. The
+<code class="docutils literal"><span class="pre">_3d</span></code> planner corresponds to a <code class="docutils literal"><span class="pre">rnk_n</span></code> of 3.</p>
+<p>The array <code class="docutils literal"><span class="pre">n</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> specifies the transform dimensions.
+They can be any positive integer.</p>
+<p>The array <code class="docutils literal"><span class="pre">ni</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> specifies the input array dimensions.
+They can be any positive integer with <code class="docutils literal"><span class="pre">ni[t]</span> <span class="pre">&lt;=</span> <span class="pre">n[t]</span></code> for all
+dimensions <code class="docutils literal"><span class="pre">t=0,...,rnk_n-1</span></code>. For <code class="docutils literal"><span class="pre">ni[t]&lt;n[t]</span></code> the inputs will be
+padded with zeros up to size <code class="docutils literal"><span class="pre">n[t]</span></code> along the <code class="docutils literal"><span class="pre">t</span></code>-th dimension
+before the transform, see Section&nbsp;[sec:pruned-fft].</p>
+<p>The array <code class="docutils literal"><span class="pre">no</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> specifies the output array
+dimensions. They can be any positive integer with <code class="docutils literal"><span class="pre">no[t]</span> <span class="pre">&lt;=</span> <span class="pre">n[t]</span></code> for
+all dimensions <code class="docutils literal"><span class="pre">t=0,...,rnk_n-1</span></code>. For <code class="docutils literal"><span class="pre">no[t]&lt;n[t]</span></code> the outputs will
+be pruned to size <code class="docutils literal"><span class="pre">no[t]</span></code> along the <code class="docutils literal"><span class="pre">t</span></code>-th dimension after the
+transform, see Section&nbsp;[sec:pruned-fft].</p>
+<p><code class="docutils literal"><span class="pre">howmany</span></code> is the number of transforms to compute. The resulting plan
+computes howmany transforms, where the input of the k-th transform is at
+location in+k (in C pointer arithmetic) with stride <code class="docutils literal"><span class="pre">howmany</span></code>, and its
+output is at location out+k with stride <code class="docutils literal"><span class="pre">howmany</span></code>. The basic
+<code class="docutils literal"><span class="pre">pfft_plan_dft</span></code> interface corresponds to howmany=1.</p>
+<p><code class="docutils literal"><span class="pre">comm_cart</span></code> is a Cartesian communicator of dimension <code class="docutils literal"><span class="pre">rnk_pm</span></code> that
+specifies the parallel data decomposition, see
+Section&nbsp;[sec:data-decomp]. Most of the time, PFFT requires
+<code class="docutils literal"><span class="pre">rnk_pm</span> <span class="pre">&lt;</span> <span class="pre">rnk_n</span></code>. The only exception is the case
+<code class="docutils literal"><span class="pre">rnk_pm</span> <span class="pre">==</span> <span class="pre">rnk_n</span> <span class="pre">==</span> <span class="pre">3</span></code>, see Section&nbsp;[sec:3don3d]. If an ordinary (i.e.
+non-Cartesian) communicator is passed, PFFT internally converts it into
+a one-dimensional Cartesian communicator while retaining the MPI ranks
+(this results in the FFTW-MPI data decomposition).</p>
+<p>The arrays <code class="docutils literal"><span class="pre">iblock</span></code> and <code class="docutils literal"><span class="pre">oblock</span></code> of size <code class="docutils literal"><span class="pre">rnk_pm</span></code>1+ specify the
+block sizes for the first <code class="docutils literal"><span class="pre">rnk_pm</span></code>1+ dimensions of the input and
+output data, respectively. These must be the same block sizes as were
+passed to the corresponding <code class="docutils literal"><span class="pre">local_size</span></code> function. You can pass
+<code class="docutils literal"><span class="pre">PFFT_DEFAULT_BLOCKS</span></code> to use PFFT’s default block sizes. Furthermore,
+you can use <code class="docutils literal"><span class="pre">PFFT_DEFAULT_BLOCK</span></code> to set the default block size in
+separate dimensions, e.g., <code class="docutils literal"><span class="pre">iblock[t]=PFFT_DEFAULT_BLOCK</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">pfft_flags</span></code> is a bitwise OR (’<code class="docutils literal"><span class="pre">|</span></code>’) of zero or more planner
+flags, as defined in Section&nbsp;[sec:flags].</p>
+<p>The array <code class="docutils literal"><span class="pre">local_ni</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> returns the size of the local
+input array block in every dimension (counted in units of complex
+numbers).</p>
+<p>The array <code class="docutils literal"><span class="pre">local_i_start</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> returns the offset of the
+local input array block in every dimension (counted in units of complex
+numbers).</p>
+<p>The array <code class="docutils literal"><span class="pre">local_no</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> returns the size of the local
+output array block in every dimension (counted in units of complex
+numbers).</p>
+<p>The array <code class="docutils literal"><span class="pre">local_o_start</span></code> of size <code class="docutils literal"><span class="pre">rnk_n</span></code> returns the offset of the
+local output array block in every dimension (counted in units of complex
+numbers).</p>
+<p>In addition, the following <code class="docutils literal"><span class="pre">local_block</span></code> functions compute the local
+data distribution of the process with MPI rank <code class="docutils literal"><span class="pre">pid</span></code>. The
+<code class="docutils literal"><span class="pre">local_size</span></code> interface can be understood as a call of <code class="docutils literal"><span class="pre">local_block</span></code>
+where <code class="docutils literal"><span class="pre">pid</span></code> is given by <code class="docutils literal"><span class="pre">MPI_Comm_rank(comm_cart,</span> <span class="pre">&amp;pid)</span></code>, i.e., each
+MPI process computes its own data block. However, <code class="docutils literal"><span class="pre">local_block</span></code>
+functions have a <code class="docutils literal"><span class="pre">void</span></code> return type, i.e., they omit the computation
+of the local array size that is necessary to hold the parallel
+transform. This makes <code class="docutils literal"><span class="pre">local_block</span></code> functions substantially faster in
 exectuion.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_local_block_dft_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, int pid, unsigned pfft_flags,
@@ -274,18 +258,17 @@ the number of <em>complex</em> numbers that must be allocated to hold the
 parallel transform.</p>
 <p>Arguments are the same as for c2c transforms (see
 Section&nbsp;[sec:local-size-c2c]) with the following exceptions:</p>
-<p>The logical input array size :code:`ni` will differ from the physical
-array size of the real inputs if the flag
-:code:`PFFT:sub:<cite>P</cite>ADDED<sub>R</sub>2C` is included in
-:code:`pfft:sub:<cite>f</cite>lags`. This results from the padding at the end
-of the last dimension that is necessary to align the real valued inputs
-and complex valued outputs for inplace transforms, see . In contrast to
-FFTW-MPI, PFFT does not pad the r2c inputs per default.</p>
-<p>:code:`local:sub:<cite>n</cite>i` is counted in units of real numbers. It will
-include padding</p>
-<p>:code:`local:sub:<cite>is</cite>tart` is counted in units of real numbers.</p>
-<p>The corresponding :code:`local:sub:<cite>b</cite>lock` functions compute the
-local data distribution of the process with MPI rank :code:`pid`.</p>
+<p>The logical input array size <code class="docutils literal"><span class="pre">ni</span></code> will differ from the physical array
+size of the real inputs if the flag <code class="docutils literal"><span class="pre">PFFT_PADDED_R2C</span></code> is included in
+<code class="docutils literal"><span class="pre">pfft_flags</span></code>. This results from the padding at the end of the last
+dimension that is necessary to align the real valued inputs and complex
+valued outputs for inplace transforms, see . In contrast to FFTW-MPI,
+PFFT does not pad the r2c inputs per default.</p>
+<p><code class="docutils literal"><span class="pre">local_ni</span></code> is counted in units of real numbers. It will include
+padding</p>
+<p><code class="docutils literal"><span class="pre">local_i_start</span></code> is counted in units of real numbers.</p>
+<p>The corresponding <code class="docutils literal"><span class="pre">local_block</span></code> functions compute the local data
+distribution of the process with MPI rank <code class="docutils literal"><span class="pre">pid</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_local_block_dft_r2c_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, int pid, unsigned pfft_flags,
     ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
@@ -329,17 +312,16 @@ the number of <em>complex</em> numbers that must be allocated to hold the
 parallel transform.</p>
 <p>Arguments are the same as for c2c transforms (see
 Section&nbsp;[sec:local-size-c2c]) with the following exceptions:</p>
-<p>The logical output array size :code:`no` will differ from the physical
-array size of the real outputs if the flag
-:code:`PFFT:sub:<cite>P</cite>ADDED<sub>C</sub>2R` is included in
-:code:`pfft:sub:<cite>f</cite>lags`. This results from the padding at the end
-of the last dimension that is necessary to align the real valued outputs
-and complex valued inputs for inplace transforms, see . In contrast to
-FFTW-MPI, PFFT does not pad the c2r outputs per default.</p>
-<p>:code:`local:sub:<cite>n</cite>o` is counted in units of real numbers.</p>
-<p>:code:`local:sub:<cite>os</cite>tart` is counted in units of real numbers.</p>
-<p>The corresponding :code:`local:sub:<cite>b</cite>lock` functions compute the
-local data distribution of the process with MPI rank :code:`pid`.</p>
+<p>The logical output array size <code class="docutils literal"><span class="pre">no</span></code> will differ from the physical array
+size of the real outputs if the flag <code class="docutils literal"><span class="pre">PFFT_PADDED_C2R</span></code> is included in
+<code class="docutils literal"><span class="pre">pfft_flags</span></code>. This results from the padding at the end of the last
+dimension that is necessary to align the real valued outputs and complex
+valued inputs for inplace transforms, see . In contrast to FFTW-MPI,
+PFFT does not pad the c2r outputs per default.</p>
+<p><code class="docutils literal"><span class="pre">local_no</span></code> is counted in units of real numbers.</p>
+<p><code class="docutils literal"><span class="pre">local_o_start</span></code> is counted in units of real numbers.</p>
+<p>The corresponding <code class="docutils literal"><span class="pre">local_block</span></code> functions compute the local data
+distribution of the process with MPI rank <code class="docutils literal"><span class="pre">pid</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_local_block_dft_c2r_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, int pid, unsigned pfft_flags,
     ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
@@ -383,12 +365,12 @@ the number of <em>real</em> numbers that must be allocated to hold the parallel
 transform.</p>
 <p>Arguments are the same as for c2c transforms (see
 Section&nbsp;[sec:local-size-c2c]) with the following exceptions:</p>
-<p>:code:`local:sub:<cite>n</cite>i` is counted in units of real numbers.</p>
-<p>:code:`local:sub:<cite>is</cite>tart` is counted in units of real numbers.</p>
-<p>:code:`local:sub:<cite>n</cite>o` is counted in units of real numbers.</p>
-<p>:code:`local:sub:<cite>os</cite>tart` is counted in units of real numbers.</p>
-<p>The corresponding :code:`local:sub:<cite>b</cite>lock` functions compute the
-local data distribution of the process with MPI rank :code:`pid`.</p>
+<p><code class="docutils literal"><span class="pre">local_ni</span></code> is counted in units of real numbers.</p>
+<p><code class="docutils literal"><span class="pre">local_i_start</span></code> is counted in units of real numbers.</p>
+<p><code class="docutils literal"><span class="pre">local_no</span></code> is counted in units of real numbers.</p>
+<p><code class="docutils literal"><span class="pre">local_o_start</span></code> is counted in units of real numbers.</p>
+<p>The corresponding <code class="docutils literal"><span class="pre">local_block</span></code> functions compute the local data
+distribution of the process with MPI rank <code class="docutils literal"><span class="pre">pid</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_local_block_r2r_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, int pid, unsigned pfft_flags,
     ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
@@ -431,36 +413,31 @@ pfft_plan pfft_plan_many_dft_skipped(
 </pre></div>
 </div>
 <p>Plan a parallel, complex input/output discrete Fourier transform (DFT)
-in two or more dimensions, returning an :code:`pfft:sub:<cite>p</cite>lan`. The
-planner returns NULL if the plan cannot be created.</p>
+in two or more dimensions, returning an <code class="docutils literal"><span class="pre">pfft_plan</span></code>. The planner
+returns NULL if the plan cannot be created.</p>
 <p>Arguments:</p>
-<p>:code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`ni`, :code:`no`,
-:code:`howmany`, :code:`iblock`, :code:`oblock`,
-:code:`comm:sub:<cite>c</cite>art` must be the same as passed to the
-corresponding :code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>d</sub>ft`
-function, see Section&nbsp;[sec:local-size-c2c].</p>
-<p>The array :code:`skip:sub:<cite>t</cite>rafos` of size
-:code:`rnk:sub:<cite>p</cite>m+1` specifies the serial transforms that will be
-omitted. For :code:`t=0,...,rnk:sub:<cite>p</cite>m` set
-:code:`skip:sub:<cite>t</cite>rafos[t]=1` if the :code:`t`-th serial
-transformation should be computed, otherwise set
-:code:`skip:sub:<cite>t</cite>rafos[t]=0`, see Section&nbsp;[sec:skip-trafo] for
-more details.</p>
-<p>:code:`in` and :code:`out` point to the complex valued input and
-output arrays of the transform, which may be the same (yielding an
-in-place transform). These arrays are overwritten during planning,
-unless :code:`PFFT:sub:<cite>E</cite>STIMATE |
-PFFT<sub>N</sub>O<sub>T</sub>UNE` is used in the flags. (The arrays
-need not be initialized, but they must be allocated.)</p>
-<p>:code:`sign` is the sign of the exponent in the formula that defines
-the Fourier transform. It can be -1 (= :code:`PFFT:sub:<cite>F</cite>ORWARD`)
-or +1 (= :code:`PFFT:sub:<cite>B</cite>ACKWARD`).</p>
-<p>:code:`pfft:sub:<cite>f</cite>lags` is a bitwise OR (’:code:`|`’) of zero or
-more planner flags, as defined in Section&nbsp;[sec:flags].</p>
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">ni</span></code>, <code class="docutils literal"><span class="pre">no</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code>, <code class="docutils literal"><span class="pre">iblock</span></code>, <code class="docutils literal"><span class="pre">oblock</span></code>,
+<code class="docutils literal"><span class="pre">comm_cart</span></code> must be the same as passed to the corresponding
+<code class="docutils literal"><span class="pre">pfft_local_size_dft</span></code> function, see Section&nbsp;[sec:local-size-c2c].</p>
+<p>The array <code class="docutils literal"><span class="pre">skip_trafos</span></code> of size <code class="docutils literal"><span class="pre">rnk_pm</span></code>1+ specifies the serial
+transforms that will be omitted. For <code class="docutils literal"><span class="pre">t=0,...,rnk_pm</span></code> set
+<code class="docutils literal"><span class="pre">skip_trafos[t]=1</span></code> if the <code class="docutils literal"><span class="pre">t</span></code>-th serial transformation should be
+computed, otherwise set <code class="docutils literal"><span class="pre">skip_trafos[t]=0</span></code>, see
+Section&nbsp;[sec:skip-trafo] for more details.</p>
+<p><code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> point to the complex valued input and output arrays
+of the transform, which may be the same (yielding an in-place
+transform). These arrays are overwritten during planning, unless
+<code class="docutils literal"><span class="pre">PFFT_ESTIMATE</span> <span class="pre">|</span> <span class="pre">PFFT_NO_TUNE</span></code> is used in the flags. (The arrays need
+not be initialized, but they must be allocated.)</p>
+<p><code class="docutils literal"><span class="pre">sign</span></code> is the sign of the exponent in the formula that defines the
+Fourier transform. It can be -1 (= <code class="docutils literal"><span class="pre">PFFT_FORWARD</span></code>) or +1 (=
+<code class="docutils literal"><span class="pre">PFFT_BACKWARD</span></code>).</p>
+<p><code class="docutils literal"><span class="pre">pfft_flags</span></code> is a bitwise OR (’<code class="docutils literal"><span class="pre">|</span></code>’) of zero or more planner
+flags, as defined in Section&nbsp;[sec:flags].</p>
 <p>PFFT computes an unnormalized transform: computing a forward followed by
 a backward transform (or vice versa) will result in the original data
 multiplied by the size of the transform (the product of the dimensions
-:code:`n[t]`).</p>
+<code class="docutils literal"><span class="pre">n[t]</span></code>).</p>
 </div>
 <div class="section" id="id2">
 <h3>Real-to-Complex FFT<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
@@ -483,29 +460,23 @@ pfft_plan pfft_plan_many_dft_r2c_skipped(
 </pre></div>
 </div>
 <p>Plan a parallel, real-input/complex-output discrete Fourier transform
-(DFT) in two or more dimensions, returning an
-:code:`pfft:sub:<cite>p</cite>lan`. The planner returns NULL if the plan cannot
-be created.</p>
+(DFT) in two or more dimensions, returning an <code class="docutils literal"><span class="pre">pfft_plan</span></code>. The planner
+returns NULL if the plan cannot be created.</p>
 <p>Arguments:</p>
-<p>:code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`ni`, :code:`no`,
-:code:`howmany`, :code:`iblock`, :code:`oblock`,
-:code:`comm:sub:<cite>c</cite>art` must be the same as passed to the
-corresponding
-:code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>d</sub>ft<sub>r</sub>2c`
-function, see Section&nbsp;[sec:local-size-r2c].</p>
-<p>:code:`in` and :code:`out` point to the real valued input and
-complex valued output arrays of the transform, which may be the same
-(yielding an in-place transform). These arrays are overwritten during
-planning, unless :code:`PFFT:sub:<cite>E</cite>STIMATE |
-PFFT<sub>N</sub>O<sub>T</sub>UNE` is used in the flags. (The arrays
-need not be initialized, but they must be allocated.)</p>
-<p>:code:`sign` is the sign of the exponent in the formula that defines
-the Fourier transform. It can be -1 (= :code:`PFFT:sub:<cite>F</cite>ORWARD`)
-or +1 (= :code:`PFFT:sub:<cite>B</cite>ACKWARD`). Note that this parameter is
-not part of the FFTW-MPI interface, where r2c transforms are defined to
-be forward transforms. However, the backward transform can be easily
-realized by an additional conjugation of the complex outputs as done by
-PFFT.</p>
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">ni</span></code>, <code class="docutils literal"><span class="pre">no</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code>, <code class="docutils literal"><span class="pre">iblock</span></code>, <code class="docutils literal"><span class="pre">oblock</span></code>,
+<code class="docutils literal"><span class="pre">comm_cart</span></code> must be the same as passed to the corresponding
+<code class="docutils literal"><span class="pre">pfft_local_size_dft_r2c</span></code> function, see Section&nbsp;[sec:local-size-r2c].</p>
+<p><code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> point to the real valued input and complex valued
+output arrays of the transform, which may be the same (yielding an
+in-place transform). These arrays are overwritten during planning,
+unless <code class="docutils literal"><span class="pre">PFFT_ESTIMATE</span> <span class="pre">|</span> <span class="pre">PFFT_NO_TUNE</span></code> is used in the flags. (The
+arrays need not be initialized, but they must be allocated.)</p>
+<p><code class="docutils literal"><span class="pre">sign</span></code> is the sign of the exponent in the formula that defines the
+Fourier transform. It can be -1 (= <code class="docutils literal"><span class="pre">PFFT_FORWARD</span></code>) or +1 (=
+<code class="docutils literal"><span class="pre">PFFT_BACKWARD</span></code>). Note that this parameter is not part of the FFTW-MPI
+interface, where r2c transforms are defined to be forward transforms.
+However, the backward transform can be easily realized by an additional
+conjugation of the complex outputs as done by PFFT.</p>
 </div>
 <div class="section" id="id3">
 <h3>Complex-to-Real FFT<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
@@ -528,29 +499,23 @@ pfft_plan pfft_plan_many_dft_c2r_skipped(
 </pre></div>
 </div>
 <p>Plan a parallel, complex-input/real-output discrete Fourier transform
-(DFT) in two or more dimensions, returning an
-:code:`pfft:sub:<cite>p</cite>lan`. The planner returns NULL if the plan cannot
-be created.</p>
+(DFT) in two or more dimensions, returning an <code class="docutils literal"><span class="pre">pfft_plan</span></code>. The planner
+returns NULL if the plan cannot be created.</p>
 <p>Arguments:</p>
-<p>:code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`ni`, :code:`no`,
-:code:`howmany`, :code:`iblock`, :code:`oblock`,
-:code:`comm:sub:<cite>c</cite>art` must be the same as passed to the
-corresponding
-:code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>d</sub>ft<sub>c</sub>2r`
-function, see Section&nbsp;[sec:local-size-c2r].</p>
-<p>:code:`in` and :code:`out` point to the complex valued input and
-real valued output arrays of the transform, which may be the same
-(yielding an in-place transform). These arrays are overwritten during
-planning, unless :code:`PFFT:sub:<cite>E</cite>STIMATE |
-PFFT<sub>N</sub>O<sub>T</sub>UNE` is used in the flags. (The arrays
-need not be initialized, but they must be allocated.)</p>
-<p>:code:`sign` is the sign of the exponent in the formula that defines
-the Fourier transform. It can be -1 (= :code:`PFFT:sub:<cite>F</cite>ORWARD`)
-or +1 (= :code:`PFFT:sub:<cite>B</cite>ACKWARD`). Note that this parameter is
-not part of the FFTW-MPI interface, where c2r transforms are defined to
-be backward transforms. However, the forward transform can be easily
-realized by an additional conjugation of the complex inputs as done by
-PFFT.</p>
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">ni</span></code>, <code class="docutils literal"><span class="pre">no</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code>, <code class="docutils literal"><span class="pre">iblock</span></code>, <code class="docutils literal"><span class="pre">oblock</span></code>,
+<code class="docutils literal"><span class="pre">comm_cart</span></code> must be the same as passed to the corresponding
+<code class="docutils literal"><span class="pre">pfft_local_size_dft_c2r</span></code> function, see Section&nbsp;[sec:local-size-c2r].</p>
+<p><code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> point to the complex valued input and real valued
+output arrays of the transform, which may be the same (yielding an
+in-place transform). These arrays are overwritten during planning,
+unless <code class="docutils literal"><span class="pre">PFFT_ESTIMATE</span> <span class="pre">|</span> <span class="pre">PFFT_NO_TUNE</span></code> is used in the flags. (The
+arrays need not be initialized, but they must be allocated.)</p>
+<p><code class="docutils literal"><span class="pre">sign</span></code> is the sign of the exponent in the formula that defines the
+Fourier transform. It can be -1 (= <code class="docutils literal"><span class="pre">PFFT_FORWARD</span></code>) or +1 (=
+<code class="docutils literal"><span class="pre">PFFT_BACKWARD</span></code>). Note that this parameter is not part of the FFTW-MPI
+interface, where c2r transforms are defined to be backward transforms.
+However, the forward transform can be easily realized by an additional
+conjugation of the complex inputs as done by PFFT.</p>
 </div>
 <div class="section" id="id4">
 <h3>Real-to-Real FFT<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
@@ -573,25 +538,22 @@ pfft_plan pfft_plan_many_r2r_skipped(
 </pre></div>
 </div>
 <p>Plan a parallel, real input/output (r2r) transform in two or more
-dimensions, returning an :code:`pfft:sub:<cite>p</cite>lan`. The planner
-returns NULL if the plan cannot be created.</p>
+dimensions, returning an <code class="docutils literal"><span class="pre">pfft_plan</span></code>. The planner returns NULL if the
+plan cannot be created.</p>
 <p>Arguments:</p>
-<p>:code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`ni`, :code:`no`,
-:code:`howmany`, :code:`iblock`, :code:`oblock`,
-:code:`comm:sub:<cite>c</cite>art` must be the same as passed to the
-corresponding :code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>r</sub>2r`
-function, see Section&nbsp;[sec:local-size-r2r].</p>
-<p>:code:`in` and :code:`out` point to the real valued input and output
-arrays of the transform, which may be the same (yielding an in-place
-transform). These arrays are overwritten during planning, unless
-:code:`PFFT:sub:<cite>E</cite>STIMATE | PFFT<sub>N</sub>O<sub>T</sub>UNE` is
-used in the flags. (The arrays need not be initialized, but they must be
-allocated.)</p>
-<p>The array :code:`kinds` of length :code:`rnk:sub:<cite>n</cite>` specifies
-the kind of r2r transform that is computed in the corresponding
-dimensions. Just like FFTW-MPI we compute the separable product formed
-by taking each transform kind along the corresponding dimension, one
-dimension after another.</p>
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">ni</span></code>, <code class="docutils literal"><span class="pre">no</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code>, <code class="docutils literal"><span class="pre">iblock</span></code>, <code class="docutils literal"><span class="pre">oblock</span></code>,
+<code class="docutils literal"><span class="pre">comm_cart</span></code> must be the same as passed to the corresponding
+<code class="docutils literal"><span class="pre">pfft_local_size_r2r</span></code> function, see Section&nbsp;[sec:local-size-r2r].</p>
+<p><code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> point to the real valued input and output arrays of
+the transform, which may be the same (yielding an in-place transform).
+These arrays are overwritten during planning, unless
+<code class="docutils literal"><span class="pre">PFFT_ESTIMATE</span> <span class="pre">|</span> <span class="pre">PFFT_NO_TUNE</span></code> is used in the flags. (The arrays need
+not be initialized, but they must be allocated.)</p>
+<p>The array <code class="docutils literal"><span class="pre">kinds</span></code> of length <code class="docutils literal"><span class="pre">rnk_n</span></code> specifies the kind of r2r
+transform that is computed in the corresponding dimensions. Just like
+FFTW-MPI we compute the separable product formed by taking each
+transform kind along the corresponding dimension, one dimension after
+another.</p>
 </div>
 </div>
 <div class="section" id="fft-execution-timer">
@@ -601,31 +563,30 @@ the results.</p>
 <div class="section" id="basis-run-time-measurements">
 <h3>Basis Run Time Measurements<a class="headerlink" href="#basis-run-time-measurements" title="Permalink to this headline">¶</a></h3>
 <p>PFFT-plans automatically accumulate the local run times of every call to
-:code:`pfft:sub:<cite>e</cite>xecute`. For most applications it is sufficient
-to print run time of a plan :code:`ths` averaged over all runs with</p>
+<code class="docutils literal"><span class="pre">pfft_execute</span></code>. For most applications it is sufficient to print run
+time of a plan <code class="docutils literal"><span class="pre">ths</span></code> averaged over all runs with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_print_average_timer(
     const pfft_plan ths, MPI_Comm comm);
 </pre></div>
 </div>
 <p>Note, that for each timer the maximum time over all processes is reduced
-to rank :code:`0` of communicator :code:`comm`, i.e., a call to
-:code:`MPI:sub:<cite>R</cite>educe` is performed and the output is only printed
-on this process. The following function works in the same way but prints
-more verbose output</p>
+to rank <code class="docutils literal"><span class="pre">0</span></code> of communicator <code class="docutils literal"><span class="pre">comm</span></code>, i.e., a call to <code class="docutils literal"><span class="pre">MPI_Reduce</span></code>
+is performed and the output is only printed on this process. The
+following function works in the same way but prints more verbose output</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_print_average_timer_adv(
     const pfft_plan ths, MPI_Comm comm);
 </pre></div>
 </div>
-<p>To write the averaged run time of plan :code:`ths` into a file called
-:code:`name` use</p>
+<p>To write the averaged run time of plan <code class="docutils literal"><span class="pre">ths</span></code> into a file called
+<code class="docutils literal"><span class="pre">name</span></code> use</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_write_average_timer(
     const pfft_plan ths, const char *name, MPI_Comm comm);
 void pfft_write_average_timer_adv(
     const pfft_plan ths, const char *name, MPI_Comm comm);
 </pre></div>
 </div>
-<p>Again, the output is only written on rank :code:`0` of communicator
-:code:`comm`.</p>
+<p>Again, the output is only written on rank <code class="docutils literal"><span class="pre">0</span></code> of communicator
+<code class="docutils literal"><span class="pre">comm</span></code>.</p>
 <p>Discard all the recorded run times with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_reset_timer(
     pfft_plan ths);
@@ -636,82 +597,77 @@ creation function.</p>
 </div>
 <div class="section" id="advanced-timer-manipulation">
 <h3>Advanced Timer Manipulation<a class="headerlink" href="#advanced-timer-manipulation" title="Permalink to this headline">¶</a></h3>
-<p>In order to access the run times directly a new typedef
-:code:`pfft:sub:<cite>t</cite>imer` is introduced. The following function
-returns a copy of the timer corresponding to PFFT plan :code:`ths`</p>
+<p>In order to access the run times directly a new typedef <code class="docutils literal"><span class="pre">pfft_timer</span></code>
+is introduced. The following function returns a copy of the timer
+corresponding to PFFT plan <code class="docutils literal"><span class="pre">ths</span></code></p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_timer pfft_get_timer(
     const pfft_plan ths);
 </pre></div>
 </div>
-<p>Note that the memory of the returned :code:`pfft:sub:<cite>t</cite>imer` must
-be released with</p>
+<p>Note that the memory of the returned <code class="docutils literal"><span class="pre">pfft_timer</span></code> must be released
+with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_destroy_timer(
     pfft_timer ths);
 </pre></div>
 </div>
 <p>as soon as the timer is not needed anymore.</p>
 <p>In the following we introduce some routines to perform basic operations
-on timers. For all functions with a :code:`pfft:sub:<cite>t</cite>imer` return
-value you must use :code:`pfft:sub:<cite>d</cite>estroy<sub>t</sub>imer` in
-order to release the allocated memory of the timer. Create a copy of a
-PFFT-timer :code:`orig` with</p>
+on timers. For all functions with a <code class="docutils literal"><span class="pre">pfft_timer</span></code> return value you must
+use <code class="docutils literal"><span class="pre">pfft_destroy_timer</span></code> in order to release the allocated memory of
+the timer. Create a copy of a PFFT-timer <code class="docutils literal"><span class="pre">orig</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_timer pfft_copy_timer(
     const pfft_timer orig);
 </pre></div>
 </div>
-<p>Compute the average, local time over all runs of a timer :code:`ths`
-with</p>
+<p>Compute the average, local time over all runs of a timer <code class="docutils literal"><span class="pre">ths</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_average_timer(
     pfft_timer ths);
 </pre></div>
 </div>
-<p>Create a new timer that contains the sum of two timers :code:`sum1`
-and :code:`sum2` with</p>
+<p>Create a new timer that contains the sum of two timers <code class="docutils literal"><span class="pre">sum1</span></code> and
+<code class="docutils literal"><span class="pre">sum2</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_timer pfft_add_timers(
     const pfft_timer sum1, const pfft_timer sum2);
 </pre></div>
 </div>
-<p>Create a timer that contains the maximum times of all the timers
-:code:`ths` from all processes belonging to communicator
-:code:`comm` with</p>
+<p>Create a timer that contains the maximum times of all the timers <code class="docutils literal"><span class="pre">ths</span></code>
+from all processes belonging to communicator <code class="docutils literal"><span class="pre">comm</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_timer pfft_reduce_max_timer(
     const pfft_timer ths, MPI_Comm comm);
 </pre></div>
 </div>
-<p>Since this function calls :code:`MPI:sub:<cite>R</cite>educe`, only the first
-process (rank 0) of :code:`comm` will get the desired data while all
-the other processes have timers with undefined values.</p>
+<p>Since this function calls <code class="docutils literal"><span class="pre">MPI_Reduce</span></code>, only the first process (rank
+0) of <code class="docutils literal"><span class="pre">comm</span></code> will get the desired data while all the other processes
+have timers with undefined values.</p>
 <p>Note, that you can not access the elements of a timer directly, since it
-is only a pointer to a :code:`struct`. However, PFFT offers a routine
-that creates an array and copies all the entries of the timer into it</p>
+is only a pointer to a <code class="docutils literal"><span class="pre">struct</span></code>. However, PFFT offers a routine that
+creates an array and copies all the entries of the timer into it</p>
 <div class="highlight-python"><div class="highlight"><pre>double* pfft_convert_timer2vec(
     const pfft_timer ths);
 </pre></div>
 </div>
-<p>Remember to use :code:`free` in order to release the allocated memory
-of the returned array at the moment it is not needed anymore. The
-entries of the returned array are ordered as follows:</p>
-<p>dimension of the process mesh :code:`rnk:sub:<cite>p</cite>m`</p>
-<p>number of serial trafos :code:`rnk:sub:<cite>t</cite>rafo`</p>
-<p>number of global remaps :code:`rnk:sub:<cite>r</cite>emap`</p>
-<p>number of :code:`pfft:sub:<cite>e</cite>xecute` runs :code:`iter`</p>
+<p>Remember to use <code class="docutils literal"><span class="pre">free</span></code> in order to release the allocated memory of the
+returned array at the moment it is not needed anymore. The entries of
+the returned array are ordered as follows:</p>
+<p>dimension of the process mesh <code class="docutils literal"><span class="pre">rnk_pm</span></code></p>
+<p>number of serial trafos <code class="docutils literal"><span class="pre">rnk_trafo</span></code></p>
+<p>number of global remaps <code class="docutils literal"><span class="pre">rnk_remap</span></code></p>
+<p>number of <code class="docutils literal"><span class="pre">pfft_execute</span></code> runs <code class="docutils literal"><span class="pre">iter</span></code></p>
 <p>local run time of all runs</p>
-<p>:code:`rnk:sub:<cite>n</cite>` local times of the serial trafos</p>
-<p>:code:`rnk:sub:<cite>r</cite>emap` local times of the global remaps</p>
+<p><code class="docutils literal"><span class="pre">rnk_n</span></code> local times of the serial trafos</p>
+<p><code class="docutils literal"><span class="pre">rnk_remap</span></code> local times of the global remaps</p>
 <p>2 times of the global remaps that are only necessary for
 three-dimensional FFTs on three-dimensional process meshes</p>
-<p>time for computing twiddled input (as needed for
-:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>O</sub>UT`)</p>
-<p>time for computing twiddled output (as needed for
-:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>I</sub>N`)</p>
+<p>time for computing twiddled input (as needed for <code class="docutils literal"><span class="pre">PFFT_SHIFTED_OUT</span></code>)</p>
+<p>time for computing twiddled output (as needed for <code class="docutils literal"><span class="pre">PFFT_SHIFTED_IN</span></code>)</p>
 <p>The complementary function</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_timer pfft_convert_vec2timer(
     const double *times);
 </pre></div>
 </div>
 <p>creates a timer and fills it’s entries with the data from array
-:code:`times`. Thereby, the entries of :code:`times` must be in the
-same order as above.</p>
+<code class="docutils literal"><span class="pre">times</span></code>. Thereby, the entries of <code class="docutils literal"><span class="pre">times</span></code> must be in the same order
+as above.</p>
 </div>
 </div>
 <div class="section" id="ghost-cell-communication">
@@ -719,16 +675,16 @@ same order as above.</p>
 <p>In the following we describe the PFFT ghost cell communication module.
 At the moment, PFFT ghost cell communication is restricted to
 three-dimensional arrays.</p>
-<p>Assume a three-dimensional array :code:`data` of size :code:`n[3]`
-that is distributed in blocks such that each process has a local copy of
-:code:`data[k[0],k[1],k[2]]` with</p>
+<p>Assume a three-dimensional array <code class="docutils literal"><span class="pre">data</span></code> of size <code class="docutils literal"><span class="pre">n[3]</span></code> that is
+distributed in blocks such that each process has a local copy of
+<code class="docutils literal"><span class="pre">data[k[0],k[1],k[2]]</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">local_start</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">k</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">local_start</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">local_n</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Here and in the following, we assume :code:`t=0,1,2`. The “classical”
-ghost cell exchange communicates all the necessary data between
-neighboring processes, such that each process gets a local copy of
-:code:`data[k[0],k[1],k[2]]` with</p>
+<p>Here and in the following, we assume <code class="docutils literal"><span class="pre">t=0,1,2</span></code>. The “classical” ghost
+cell exchange communicates all the necessary data between neighboring
+processes, such that each process gets a local copy of
+<code class="docutils literal"><span class="pre">data[k[0],k[1],k[2]]</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">local_gc_start</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">k</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">local_gc_start</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">local_ngc</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -738,33 +694,30 @@ neighboring processes, such that each process gets a local copy of
 </pre></div>
 </div>
 <p>I.e., the local array block is increased in every dimension by
-:code:`gc:sub:<cite>b</cite>elow` elements below and :code:`gc:sub:<cite>a</cite>bove`
-elements above. Hereby, the :code:`data` is wrapped periodically
-whenever :code:`k[t]` exceeds the array dimensions. The number of
-ghost cells in every dimension can be chosen independently and can be
-arbitrary large, i.e., PFFT ghost cell communication also handles the
-case where the requested data exceeds next neighbor communication. The
-number of ghost cells can even be bigger than the array size, which
-results in multiple local copies of the same data elements at every
-process. However, the arrays :code:`gc:sub:<cite>b</cite>elow` and
-:code:`gc:sub:<cite>a</cite>bove` must be equal among all MPI processes.</p>
+<code class="docutils literal"><span class="pre">gc_below</span></code> elements below and <code class="docutils literal"><span class="pre">gc_above</span></code> elements above. Hereby, the
+<code class="docutils literal"><span class="pre">data</span></code> is wrapped periodically whenever <code class="docutils literal"><span class="pre">k[t]</span></code> exceeds the array
+dimensions. The number of ghost cells in every dimension can be chosen
+independently and can be arbitrary large, i.e., PFFT ghost cell
+communication also handles the case where the requested data exceeds
+next neighbor communication. The number of ghost cells can even be
+bigger than the array size, which results in multiple local copies of
+the same data elements at every process. However, the arrays
+<code class="docutils literal"><span class="pre">gc_below</span></code> and <code class="docutils literal"><span class="pre">gc_above</span></code> must be equal among all MPI processes.</p>
 <p>PFFT ghost cell communication can work on both, the input and output
-array distributions. Substitute :code:`local:sub:<cite>n</cite>` and
-:code:`local:sub:<cite>s</cite>tart` by :code:`local:sub:<cite>n</cite>i` and
-:code:`local:sub:<cite>is</cite>tart` if you are interested in ghost cell
+array distributions. Substitute <code class="docutils literal"><span class="pre">local_n</span></code> and <code class="docutils literal"><span class="pre">local_start</span></code> by
+<code class="docutils literal"><span class="pre">local_ni</span></code> and <code class="docutils literal"><span class="pre">local_i_start</span></code> if you are interested in ghost cell
 communication of the input array. For ghost cell communication of the
-output array, substitute :code:`local:sub:<cite>n</cite>` and
-:code:`local:sub:<cite>s</cite>tart` by :code:`local:sub:<cite>n</cite>o` and
-:code:`local:sub:<cite>os</cite>tart`.</p>
+output array, substitute <code class="docutils literal"><span class="pre">local_n</span></code> and <code class="docutils literal"><span class="pre">local_start</span></code> by <code class="docutils literal"><span class="pre">local_no</span></code>
+and <code class="docutils literal"><span class="pre">local_o_start</span></code>.</p>
 <div class="section" id="using-ghost-cell-plans">
 <h3>Using Ghost Cell Plans<a class="headerlink" href="#using-ghost-cell-plans" title="Permalink to this headline">¶</a></h3>
-<p>We introduce a new datatype :code:`pfft:sub:<cite>g</cite>cplan` that stores
-all the necessary information for ghost cell communication. Using a
-ghost cell plan follows the typical workflow: At first, determine the
-parallel data distribution; cf. Section&nbsp;[sec:gc:local-size]. Next,
-create a ghost cell plan; cf. Section&nbsp;[sec:gc:plan-cdata] and
-Section&nbsp;[sec:gc:plan-rdata]. Execute the ghost cell communication with
-one of the following two collective functions</p>
+<p>We introduce a new datatype <code class="docutils literal"><span class="pre">pfft_gcplan</span></code> that stores all the
+necessary information for ghost cell communication. Using a ghost cell
+plan follows the typical workflow: At first, determine the parallel data
+distribution; cf. Section&nbsp;[sec:gc:local-size]. Next, create a ghost cell
+plan; cf. Section&nbsp;[sec:gc:plan-cdata] and Section&nbsp;[sec:gc:plan-rdata].
+Execute the ghost cell communication with one of the following two
+collective functions</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_exchange(
     pfft_gcplan ths);
 void pfft_reduce(
@@ -781,8 +734,7 @@ Finally, free the allocated memory with</p>
 </pre></div>
 </div>
 <p>if the plan is not needed anymore. Passing a freed plan to
-:code:`pfft:sub:<cite>e</cite>xchange` or :code:`pfft:sub:<cite>r</cite>educe` results
-in undefined behavior.</p>
+<code class="docutils literal"><span class="pre">pfft_exchange</span></code> or <code class="docutils literal"><span class="pre">pfft_reduce</span></code> results in undefined behavior.</p>
 </div>
 <div class="section" id="data-distribution">
 <h3>Data Distribution<a class="headerlink" href="#data-distribution" title="Permalink to this headline">¶</a></h3>
@@ -806,33 +758,27 @@ ptrdiff_t pfft_local_size_many_gc(
     ptrdiff_t *local_ngc, ptrdiff_t *local_gc_start);
 </pre></div>
 </div>
-<p>Hereby, :code:`rnk:sub:<cite>n</cite>` and :code:`howmany` must be the
-exactly same variables that were used for the PFFT plan creation.
-However, only the case :code:`rnk:sub:<cite>n</cite>==3` is completely
-implemented at the moment. The local array size
-:code:`local:sub:<cite>n</cite>` must be equal to :code:`local:sub:<cite>n</cite>i` or
-:code:`local:sub:<cite>n</cite>o` (computed by an appropriate call of
-:code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize`; cf.
+<p>Hereby, <code class="docutils literal"><span class="pre">rnk_n</span></code> and <code class="docutils literal"><span class="pre">howmany</span></code> must be the exactly same variables
+that were used for the PFFT plan creation. However, only the case
+<code class="docutils literal"><span class="pre">rnk_n==3</span></code> is completely implemented at the moment. The local array
+size <code class="docutils literal"><span class="pre">local_n</span></code> must be equal to <code class="docutils literal"><span class="pre">local_ni</span></code> or <code class="docutils literal"><span class="pre">local_no</span></code> (computed
+by an appropriate call of <code class="docutils literal"><span class="pre">pfft_local_size</span></code>; cf.
 Section&nbsp;[sec:local-size]) depending on whether the ghost cell plan works
-on the FFT input or output array. Analogously,
-:code:`local:sub:<cite>s</cite>tart` becomes :code:`local:sub:<cite>is</cite>tart` or
-:code:`local:sub:<cite>os</cite>tart`. The number of ghost cells is given by
-the two arrays :code:`gc:sub:<cite>b</cite>elow` and :code:`gc:sub:<cite>a</cite>bove`
-that must be equal among all MPI processes. All the ghost cell data
-distribution functions return the local array plus ghost cell size
-:code:`local:sub:<cite>n</cite>gc` and the corresponding offset
-:code:`local:sub:<cite>g</cite>c<sub>s</sub>tart` as two arrays of length
-:code:`rnk:sub:<cite>n</cite>`. In addition, the :code:`ptrdiff:sub:<cite>t</cite>`
-return value gives the number of data elements that are necessary in
-order to store the array plus ghost cells.</p>
+on the FFT input or output array. Analogously, <code class="docutils literal"><span class="pre">local_start</span></code> becomes
+<code class="docutils literal"><span class="pre">local_i_start</span></code> or <code class="docutils literal"><span class="pre">local_o_start</span></code>. The number of ghost cells is
+given by the two arrays <code class="docutils literal"><span class="pre">gc_below</span></code> and <code class="docutils literal"><span class="pre">gc_above</span></code> that must be equal
+among all MPI processes. All the ghost cell data distribution functions
+return the local array plus ghost cell size <code class="docutils literal"><span class="pre">local_ngc</span></code> and the
+corresponding offset <code class="docutils literal"><span class="pre">local_gc_start</span></code> as two arrays of length
+<code class="docutils literal"><span class="pre">rnk_n</span></code>. In addition, the <code class="docutils literal"><span class="pre">ptrdiff_t</span></code> return value gives the number
+of data elements that are necessary in order to store the array plus
+ghost cells.</p>
 <p>Note, that the array distribution functions do not distinguish between
-real and complex valued data. That is because :code:`local:sub:<cite>n</cite>`
-and :code:`local:sub:<cite>s</cite>tart` count array elements in units of
-complex or real depending on the transform. In addition, it does not
-matter if the local array is transposed or not, i.e., it is not
-necessary to pass the flags
-:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N` and
-:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT` to the ghost cell
+real and complex valued data. That is because <code class="docutils literal"><span class="pre">local_n</span></code> and
+<code class="docutils literal"><span class="pre">local_start</span></code> count array elements in units of complex or real
+depending on the transform. In addition, it does not matter if the local
+array is transposed or not, i.e., it is not necessary to pass the flags
+<code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_IN</span></code> and <code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_OUT</span></code> to the ghost cell
 distribution function. In constrast, the ghost cell plan creation
 depends on the transform type as well as the transposition flags.</p>
 </div>
@@ -857,13 +803,12 @@ alloc_local_gc = pfft_local_size_gc_3d(
 pfft_complex *cdata = pfft_alloc_complex(alloc_local_gc &gt; alloc_local ? alloc_local_gc : alloc_local);
 </pre></div>
 </div>
-<p>Here, :code:`alloc:sub:<cite>l</cite>ocal` gives the number of data elements
-that are necessary to hold all steps of the parallel FFT, while
-:code:`alloc:sub:<cite>l</cite>ocal<sub>g</sub>c` gives the number of data
-elements that are necessary to hold all steps of the ghost cell
-communication. Note that we took the maximum of these both numbers as
-argument for :code:`pfft:sub:<cite>a</cite>lloc<sub>c</sub>omplex`. The code
-snippet for real valued arrays looks very similar.</p>
+<p>Here, <code class="docutils literal"><span class="pre">alloc_local</span></code> gives the number of data elements that are
+necessary to hold all steps of the parallel FFT, while
+<code class="docutils literal"><span class="pre">alloc_local_gc</span></code> gives the number of data elements that are necessary
+to hold all steps of the ghost cell communication. Note that we took the
+maximum of these both numbers as argument for <code class="docutils literal"><span class="pre">pfft_alloc_complex</span></code>.
+The code snippet for real valued arrays looks very similar.</p>
 <div class="highlight-python"><div class="highlight"><pre>/* Get parameters of data distribution */
 /* alloc_local, local_no, local_o_start are given in complex units */
 /* local_ni, local_i_start are given in real units */
@@ -880,8 +825,8 @@ double *rdata = pfft_alloc_real(alloc_local_gc &gt; 2*alloc_local ? alloc_local_
 </pre></div>
 </div>
 <p>Note that the number of real valued data elements is given by two times
-:code:`alloc:sub:<cite>l</cite>ocal` for r2c transforms, whereas the last line
-would change into</p>
+<code class="docutils literal"><span class="pre">alloc_local</span></code> for r2c transforms, whereas the last line would change
+into</p>
 <div class="highlight-python"><div class="highlight"><pre>double *rdata = pfft_alloc_real(alloc_local_gc &gt; alloc_local ? alloc_local_gc : alloc_local);
 </pre></div>
 </div>
@@ -893,8 +838,8 @@ would change into</p>
 valued arrays, i.e.,</p>
 <p>c2c inputs,</p>
 <p>c2c outputs,</p>
-<p>r2c outputs (use flag :code:`PFFT:sub:<cite>G</cite>C<sub>C</sub>2R`), and</p>
-<p>c2r inputs (use flag :code:`PFFT:sub:<cite>G</cite>C<sub>R</sub>2C`).</p>
+<p>r2c outputs (use flag <code class="docutils literal"><span class="pre">PFFT_GC_C2R</span></code>), and</p>
+<p>c2r inputs (use flag <code class="docutils literal"><span class="pre">PFFT_GC_R2C</span></code>).</p>
 <p>Corresponding to the three interface layers for FFT planning, there are
 the following three layers for creating a complex valued ghost cell
 plan:</p>
@@ -913,25 +858,23 @@ pfft_gcplan pfft_plan_many_cgc(
     pfft_complex *data, MPI_Comm comm_cart, unsigned gc_flags);
 </pre></div>
 </div>
-<p>Hereby, :code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`howmany` and
-:code:`comm:sub:<cite>c</cite>art` must be the variables that were used for the
-PFFT plan creation. However, only the case :code:`rnk:sub:<cite>n</cite>==3` is
-completely implemented at the moment. Remember that :code:`n` is the
-logical FFT size just as it is the case for FFT planning. The block size
-:code:`block` must be equal to :code:`iblock` or :code:`oblock`
+<p>Hereby, <code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code> and <code class="docutils literal"><span class="pre">comm_cart</span></code> must be the
+variables that were used for the PFFT plan creation. However, only the
+case <code class="docutils literal"><span class="pre">rnk_n==3</span></code> is completely implemented at the moment. Remember that
+<code class="docutils literal"><span class="pre">n</span></code> is the logical FFT size just as it is the case for FFT planning.
+The block size <code class="docutils literal"><span class="pre">block</span></code> must be equal to <code class="docutils literal"><span class="pre">iblock</span></code> or <code class="docutils literal"><span class="pre">oblock</span></code>
 depending on whether the ghost cell plan works on the FFT input or
-output array. Analogously, :code:`data` becomes :code:`in` or
-:code:`out`. Set the number of ghost cells by
-:code:`gc:sub:<cite>b</cite>elow` and :code:`gc:sub:<cite>a</cite>bove` as described
-in Section&nbsp;[sec:gc]. The flags :code:`gc:sub:<cite>f</cite>lags` must be set
-appropriately to the flags that were passed to the FFT planner.
-Table&nbsp;[tab:map-cgcflags] shows the ghost cell planner flags that must be
-set in dependence on the listed FFT planner flags.</p>
+output array. Analogously, <code class="docutils literal"><span class="pre">data</span></code> becomes <code class="docutils literal"><span class="pre">in</span></code> or <code class="docutils literal"><span class="pre">out</span></code>. Set the
+number of ghost cells by <code class="docutils literal"><span class="pre">gc_below</span></code> and <code class="docutils literal"><span class="pre">gc_above</span></code> as described in
+Section&nbsp;[sec:gc]. The flags <code class="docutils literal"><span class="pre">gc_flags</span></code> must be set appropriately to
+the flags that were passed to the FFT planner. Table&nbsp;[tab:map-cgcflags]
+shows the ghost cell planner flags that must be set in dependence on the
+listed FFT planner flags.</p>
 <p>[h]</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="56%" />
+<col width="47%" />
+<col width="53%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">FFT flag</th>
@@ -939,27 +882,26 @@ set in dependence on the listed FFT planner flags.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>N</sub>ONE`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED<sub>N</sub>ONE`</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_NONE</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED_NONE</span></code></td>
 </tr>
-<tr class="row-odd"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED`</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_IN</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED</span></code></td>
 </tr>
-<tr class="row-even"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED`</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_OUT</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED</span></code></td>
 </tr>
 </tbody>
 </table>
 <p>[tab:map-cgcflags]</p>
-<p>In addition, we introduce the flag
-:code:`PFFT:sub:<cite>G</cite>C<sub>R</sub>2C` (and its equivalent
-:code:`PFFT:sub:<cite>G</cite>C<sub>C</sub>2R`) to handle the complex array
-storage format of r2c and c2r transforms. In fact, these two flags imply
-an ordinary complex valued ghost cell communication on an array of size
-:code:`n[0] x ... x n[rnk<sub>n</sub>-2] x (n[rnk:sub:<cite>n</cite>-1]/2+1)`.
-Please note that we wrongly assume periodic boundary conditions in this
-case. Therefore, you should ignore the data elements with the last index
-behind :code:`n[rnk:sub:<cite>n</cite>-1]/2`.</p>
+<p>In addition, we introduce the flag <code class="docutils literal"><span class="pre">PFFT_GC_R2C</span></code> (and its equivalent
+<code class="docutils literal"><span class="pre">PFFT_GC_C2R</span></code>) to handle the complex array storage format of r2c and
+c2r transforms. In fact, these two flags imply an ordinary complex
+valued ghost cell communication on an array of size
+<code class="docutils literal"><span class="pre">n[0]</span> <span class="pre">x</span> <span class="pre">...</span> <span class="pre">x</span> <span class="pre">n[rnk_n-2]</span> <span class="pre">x</span> <span class="pre">(n[rnk_n-1]/2</span></code>1)+. Please note that we
+wrongly assume periodic boundary conditions in this case. Therefore, you
+should ignore the data elements with the last index behind
+<code class="docutils literal"><span class="pre">n[rnk_n-1]/2</span></code>.</p>
 </div>
 <div class="section" id="plan-creation-for-real-data">
 <h3>Plan Creation for Real Data<a class="headerlink" href="#plan-creation-for-real-data" title="Permalink to this headline">¶</a></h3>
@@ -986,24 +928,22 @@ pfft_gcplan pfft_plan_many_rgc(
     double *data, MPI_Comm comm_cart, unsigned gc_flags);
 </pre></div>
 </div>
-<p>Hereby, :code:`rnk:sub:<cite>n</cite>`, :code:`n`, :code:`howmany` and
-:code:`comm:sub:<cite>c</cite>art` must be the variables that were used for the
-PFFT plan creation. Remember that :code:`n` is the logical FFT size
-just as it is the case for FFT planning. The block size :code:`block`
-must be equal to :code:`iblock` or :code:`oblock` depending on
-whether the ghost cell plan works on the FFT input or output array.
-Analogously, :code:`data` becomes :code:`in` or :code:`out`. Set
-the number of ghost cells by :code:`gc:sub:<cite>b</cite>elow` and
-:code:`gc:sub:<cite>a</cite>bove` as described in Section&nbsp;[sec:gc:local-size].
-The flags :code:`gc:sub:<cite>f</cite>lags` must be set appropriately to the
-flags that were passed to the FFT planner. Table&nbsp;[tab:map-rgcflags]
-shows the ghost cell planner flags that must be set in dependence on the
-listed FFT planner flags.</p>
+<p>Hereby, <code class="docutils literal"><span class="pre">rnk_n</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">howmany</span></code> and <code class="docutils literal"><span class="pre">comm_cart</span></code> must be the
+variables that were used for the PFFT plan creation. Remember that <code class="docutils literal"><span class="pre">n</span></code>
+is the logical FFT size just as it is the case for FFT planning. The
+block size <code class="docutils literal"><span class="pre">block</span></code> must be equal to <code class="docutils literal"><span class="pre">iblock</span></code> or <code class="docutils literal"><span class="pre">oblock</span></code> depending
+on whether the ghost cell plan works on the FFT input or output array.
+Analogously, <code class="docutils literal"><span class="pre">data</span></code> becomes <code class="docutils literal"><span class="pre">in</span></code> or <code class="docutils literal"><span class="pre">out</span></code>. Set the number of ghost
+cells by <code class="docutils literal"><span class="pre">gc_below</span></code> and <code class="docutils literal"><span class="pre">gc_above</span></code> as described in
+Section&nbsp;[sec:gc:local-size]. The flags <code class="docutils literal"><span class="pre">gc_flags</span></code> must be set
+appropriately to the flags that were passed to the FFT planner.
+Table&nbsp;[tab:map-rgcflags] shows the ghost cell planner flags that must be
+set in dependence on the listed FFT planner flags.</p>
 <p>[h]</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="56%" />
+<col width="47%" />
+<col width="53%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">FFT flag</th>
@@ -1011,34 +951,31 @@ listed FFT planner flags.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>N</sub>ONE`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED<sub>N</sub>ONE`</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_NONE</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED_NONE</span></code></td>
 </tr>
-<tr class="row-odd"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED`</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_IN</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED</span></code></td>
 </tr>
-<tr class="row-even"><td>:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>T</sub>RANSPOSED`</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PFFT_TRANSPOSED_OUT</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_TRANSPOSED</span></code></td>
 </tr>
-<tr class="row-odd"><td>:code:`PFFT:sub:<cite>P</cite>ADDED<sub>R</sub>2C`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>P</sub>ADDED<sub>R</sub>2C`</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PFFT_PADDED_R2C</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_PADDED_R2C</span></code></td>
 </tr>
-<tr class="row-even"><td>:code:`PFFT:sub:<cite>P</cite>ADDED<sub>C</sub>2R`</td>
-<td>:code:`PFFT:sub:<cite>G</cite>C<sub>P</sub>ADDED<sub>C</sub>2R`</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PFFT_PADDED_C2R</span></code></td>
+<td><code class="docutils literal"><span class="pre">PFFT_GC_PADDED_C2R</span></code></td>
 </tr>
 </tbody>
 </table>
 <p>[tab:map-rgcflags]</p>
-<p>Note that the flag
-:code:`PFFT:sub:<cite>G</cite>C<sub>P</sub>ADDED<sub>R</sub>2C` (or its
-equivalent :code:`PFFT:sub:<cite>G</cite>C<sub>P</sub>ADDED<sub>C</sub>2R`)
-implies an ordinary real valued ghost cell communication on an array of
-size :code:`n[0] x ... x n[rnk<sub>n</sub>-2] x
-2*(n[rnk<sub>n</sub>-1]/2+1)`. Especially, the padding elements will be
-handles as normal data points, i.e., you must we aware that the numbers
-of ghost cells :code:`gc:sub:<cite>b</cite>elow[rnk<sub>n</sub>-1]` and
-:code:`gc:sub:<cite>a</cite>bove[rnk<sub>n</sub>-1]` include the number of
-padding elements.</p>
+<p>Note that the flag <code class="docutils literal"><span class="pre">PFFT_GC_PADDED_R2C</span></code> (or its equivalent
+<code class="docutils literal"><span class="pre">PFFT_GC_PADDED_C2R</span></code>) implies an ordinary real valued ghost cell
+communication on an array of size
+<code class="docutils literal"><span class="pre">n[0]</span> <span class="pre">x</span> <span class="pre">...</span> <span class="pre">x</span> <span class="pre">n[rnk_n-2]</span> <span class="pre">x</span> <span class="pre">2*(n[rnk_n-1]/2</span></code>1)+. Especially, the
+padding elements will be handles as normal data points, i.e., you must
+we aware that the numbers of ghost cells <code class="docutils literal"><span class="pre">gc_below[rnk_n-1]</span></code> and
+<code class="docutils literal"><span class="pre">gc_above[rnk_n-1]</span></code> include the number of padding elements.</p>
 </div>
 <div class="section" id="inofficial-flags">
 <h3>Inofficial Flags<a class="headerlink" href="#inofficial-flags" title="Permalink to this headline">¶</a></h3>
@@ -1046,32 +983,31 @@ padding elements.</p>
 <div class="section" id="ghost-cell-execution-timer">
 <h3>Ghost Cell Execution Timer<a class="headerlink" href="#ghost-cell-execution-timer" title="Permalink to this headline">¶</a></h3>
 <p>PFFT ghost cell plans automatically accumulate the local run times of
-every call to :code:`pfft:sub:<cite>e</cite>xchange` and
-:code:`pfft:sub:<cite>r</cite>educe`. For most applications it is sufficient to
-print run time of a plan :code:`ths` averaged over all runs with</p>
+every call to <code class="docutils literal"><span class="pre">pfft_exchange</span></code> and <code class="docutils literal"><span class="pre">pfft_reduce</span></code>. For most
+applications it is sufficient to print run time of a plan <code class="docutils literal"><span class="pre">ths</span></code>
+averaged over all runs with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_print_average_gctimer(
     const pfft_gcplan ths, MPI_Comm comm);
 </pre></div>
 </div>
 <p>Note, that for each timer the maximum time over all processes is reduced
-to rank :code:`0` of communicator :code:`comm`, i.e., a call to
-:code:`MPI:sub:<cite>R</cite>educe` is performed and the output is only printed
-on this process. The following function works in the same way but prints
-more verbose output</p>
+to rank <code class="docutils literal"><span class="pre">0</span></code> of communicator <code class="docutils literal"><span class="pre">comm</span></code>, i.e., a call to <code class="docutils literal"><span class="pre">MPI_Reduce</span></code>
+is performed and the output is only printed on this process. The
+following function works in the same way but prints more verbose output</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_print_average_gctimer_adv(
     const pfft_gcplan ths, MPI_Comm comm);
 </pre></div>
 </div>
-<p>To write the averaged run time of a ghost cell plan :code:`ths` into a
-file called :code:`name` use</p>
+<p>To write the averaged run time of a ghost cell plan <code class="docutils literal"><span class="pre">ths</span></code> into a file
+called <code class="docutils literal"><span class="pre">name</span></code> use</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_write_average_gctimer(
     const pfft_gcplan ths, const char *name, MPI_Comm comm);
 void pfft_write_average_gctimer_adv(
     const pfft_gcplan ths, const char *name, MPI_Comm comm);
 </pre></div>
 </div>
-<p>Again, the output is only written on rank :code:`0` of communicator
-:code:`comm`.</p>
+<p>Again, the output is only written on rank <code class="docutils literal"><span class="pre">0</span></code> of communicator
+<code class="docutils literal"><span class="pre">comm</span></code>.</p>
 <p>Discard all the recorded run times with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_reset_gctimers(
     pfft_gcplan ths);
@@ -1079,67 +1015,62 @@ void pfft_write_average_gctimer_adv(
 </div>
 <p>This function is called per default at the end of every ghost cell plan
 creation function.</p>
-<p>In order to access the run times directly a new typedef
-:code:`pfft:sub:<cite>t</cite>imer` is introduced. The following functions
-return a copy of the timer corresponding to ghost cell plan
-:code:`ths` that accumulated the time for ghost cell exchange or ghost
-cell reduce, respectively:</p>
+<p>In order to access the run times directly a new typedef <code class="docutils literal"><span class="pre">pfft_timer</span></code>
+is introduced. The following functions return a copy of the timer
+corresponding to ghost cell plan <code class="docutils literal"><span class="pre">ths</span></code> that accumulated the time for
+ghost cell exchange or ghost cell reduce, respectively:</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_gctimer pfft_get_gctimer_exg(
     const pfft_gcplan ths);
 pfft_gctimer pfft_get_gctimer_red(
     const pfft_gcplan ths);
 </pre></div>
 </div>
-<p>Note that the memory of the returned :code:`pfft:sub:<cite>g</cite>ctimer` must
-be released with</p>
+<p>Note that the memory of the returned <code class="docutils literal"><span class="pre">pfft_gctimer</span></code> must be released
+with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_destroy_gctimer(
     pfft_gctimer ths);
 </pre></div>
 </div>
 <p>as soon as the timer is not needed anymore.</p>
 <p>In the following we introduce some routines to perform basic operations
-on timers. For all functions with a :code:`pfft:sub:<cite>g</cite>ctimer`
-return value you must use
-:code:`pfft:sub:<cite>d</cite>estroy<sub>g</sub>ctimer` in order to release the
-allocated memory of the timer. Create a copy of a ghost cell timer
-:code:`orig` with</p>
+on timers. For all functions with a <code class="docutils literal"><span class="pre">pfft_gctimer</span></code> return value you
+must use <code class="docutils literal"><span class="pre">pfft_destroy_gctimer</span></code> in order to release the allocated
+memory of the timer. Create a copy of a ghost cell timer <code class="docutils literal"><span class="pre">orig</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_gctimer pfft_copy_gctimer(
     const pfft_gctimer orig);
 </pre></div>
 </div>
-<p>Compute the average, local time over all runs of a timer :code:`ths`
-with</p>
+<p>Compute the average, local time over all runs of a timer <code class="docutils literal"><span class="pre">ths</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_average_gctimer(
     pfft_gctimer ths);
 </pre></div>
 </div>
-<p>Create a new timer that contains the sum of two timers :code:`sum1`
-and :code:`sum2` with</p>
+<p>Create a new timer that contains the sum of two timers <code class="docutils literal"><span class="pre">sum1</span></code> and
+<code class="docutils literal"><span class="pre">sum2</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_gctimer pfft_add_gctimers(
     const pfft_gctimer sum1, const pfft_gctimer sum2);
 </pre></div>
 </div>
-<p>Create a timer that contains the maximum times of all the timers
-:code:`ths` from all processes belonging to communicator
-:code:`comm` with</p>
+<p>Create a timer that contains the maximum times of all the timers <code class="docutils literal"><span class="pre">ths</span></code>
+from all processes belonging to communicator <code class="docutils literal"><span class="pre">comm</span></code> with</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_gctimer pfft_reduce_max_gctimer(
     const pfft_gctimer ths, MPI_Comm comm);
 </pre></div>
 </div>
-<p>Since this function calls :code:`MPI:sub:<cite>R</cite>educe`, only the first
-process (rank 0) of :code:`comm` will get the desired data while all
-the other processes have timers with undefined values.</p>
+<p>Since this function calls <code class="docutils literal"><span class="pre">MPI_Reduce</span></code>, only the first process (rank
+0) of <code class="docutils literal"><span class="pre">comm</span></code> will get the desired data while all the other processes
+have timers with undefined values.</p>
 <p>Note, that you can not access the elements of a timer directly, since it
-is only a pointer to a :code:`struct`. However, PFFT offers a routine
-that creates an array and copies all the entries of the timer into it</p>
+is only a pointer to a <code class="docutils literal"><span class="pre">struct</span></code>. However, PFFT offers a routine that
+creates an array and copies all the entries of the timer into it</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_convert_gctimer2vec(
     const pfft_gctimer ths, double *times);
 </pre></div>
 </div>
-<p>Remember to use :code:`free` in order to release the allocated memory
-of the returned array at the moment it is not needed anymore. The
-entries of the returned array are ordered as follows:</p>
-<p>number of :code:`pfft:sub:<cite>e</cite>xecute` runs :code:`iter`</p>
+<p>Remember to use <code class="docutils literal"><span class="pre">free</span></code> in order to release the allocated memory of the
+returned array at the moment it is not needed anymore. The entries of
+the returned array are ordered as follows:</p>
+<p>number of <code class="docutils literal"><span class="pre">pfft_execute</span></code> runs <code class="docutils literal"><span class="pre">iter</span></code></p>
 <p>local run time of all runs</p>
 <p>local run time of zero padding (make room for incoming ghost cells and
 init with zeros)</p>
@@ -1151,8 +1082,8 @@ timer)</p>
 </pre></div>
 </div>
 <p>creates a timer and fills it’s entries with the data from array
-:code:`times`. Thereby, the entries of :code:`times` must be in the
-same order as above.</p>
+<code class="docutils literal"><span class="pre">times</span></code>. Thereby, the entries of <code class="docutils literal"><span class="pre">times</span></code> must be in the same order
+as above.</p>
 </div>
 </div>
 <div class="section" id="useful-tools">
@@ -1161,8 +1092,8 @@ same order as above.</p>
 to perform parallel FFTs.</p>
 <div class="section" id="initializing-complex-inputs-and-checking-outputs">
 <h3>Initializing Complex Inputs and Checking Outputs<a class="headerlink" href="#initializing-complex-inputs-and-checking-outputs" title="Permalink to this headline">¶</a></h3>
-<p>To fill a complex array :code:`data` with reproducible, complex values
-you can use one of the functions</p>
+<p>To fill a complex array <code class="docutils literal"><span class="pre">data</span></code> with reproducible, complex values you
+can use one of the functions</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_init_input_complex_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1173,12 +1104,11 @@ void pfft_init_input_complex(
     pfft_complex *data);
 </pre></div>
 </div>
-<p>Hereby, the arrays :code:`n`, :code:`local:sub:<cite>n</cite>` and
-:code:`local:sub:<cite>ns</cite>tart` of length :code:`rnk:sub:<cite>n</cite>`
-(:code:`rnk:sub:<cite>n</cite>==3` for :code:`:sub:<cite>3</cite>d`) give the size of
-the FFT, the local array size and the local array offset as computed by
-the array distribution functions described in Section&nbsp;[sec:local-size]
-The functions</p>
+<p>Hereby, the arrays <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">local_n</span></code> and <code class="docutils literal"><span class="pre">local_n_start</span></code> of length
+<code class="docutils literal"><span class="pre">rnk_n</span></code> (<code class="docutils literal"><span class="pre">rnk_n==3</span></code> for <code class="docutils literal"><span class="pre">_3d</span></code>) give the size of the FFT, the local
+array size and the local array offset as computed by the array
+distribution functions described in Section&nbsp;[sec:local-size] The
+functions</p>
 <div class="highlight-python"><div class="highlight"><pre>double pfft_check_output_complex_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1189,12 +1119,10 @@ double pfft_check_output_complex(
     const pfft_complex *data, MPI_Comm comm);
 </pre></div>
 </div>
-<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array
-:code:`data` and values produced by
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>c</sub>omplex<sub>3</sub>d`,
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>c</sub>omplex`. In
-addition, we supply the following functions for setting all the input
-data to zero at once</p>
+<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array <code class="docutils literal"><span class="pre">data</span></code> and
+values produced by <code class="docutils literal"><span class="pre">pfft_init_input_complex_3d</span></code>,
+<code class="docutils literal"><span class="pre">pfft_init_input_complex</span></code>. In addition, we supply the following
+functions for setting all the input data to zero at once</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_clear_input_complex_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1239,8 +1167,8 @@ backward FFT instead of being a buggy relict of the forward transform.</p>
 </div>
 <div class="section" id="initializing-real-inputs-and-checking-outputs">
 <h3>Initializing Real Inputs and Checking Outputs<a class="headerlink" href="#initializing-real-inputs-and-checking-outputs" title="Permalink to this headline">¶</a></h3>
-<p>To fill a real array :code:`data` with reproducible, real values use
-one of the functions</p>
+<p>To fill a real array <code class="docutils literal"><span class="pre">data</span></code> with reproducible, real values use one of
+the functions</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_init_input_real_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1251,10 +1179,10 @@ void pfft_init_input_real(
     double *data);
 </pre></div>
 </div>
-<p>Hereby, the arrays :code:`n`, :code:`local:sub:<cite>n</cite>` and
-:code:`local:sub:<cite>ns</cite>tart` give the size of the FFT, the local array
-size and the local array offset as computed by the array distribution
-functions described in Section&nbsp;[sec:local-size] The functions</p>
+<p>Hereby, the arrays <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">local_n</span></code> and <code class="docutils literal"><span class="pre">local_n_start</span></code> give the
+size of the FFT, the local array size and the local array offset as
+computed by the array distribution functions described in
+Section&nbsp;[sec:local-size] The functions</p>
 <div class="highlight-python"><div class="highlight"><pre>double pfft_check_output_real_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1265,12 +1193,10 @@ double pfft_check_output_real(
     const pfft_complex *data, MPI_Comm comm);
 </pre></div>
 </div>
-<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array
-:code:`data` and values produced by
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>r</sub>eal<sub>3</sub>d`,
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>r</sub>eal`. In addition,
-we supply the following functions for setting all the input data to zero
-at once</p>
+<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array <code class="docutils literal"><span class="pre">data</span></code> and
+values produced by <code class="docutils literal"><span class="pre">pfft_init_input_real_3d</span></code>,
+<code class="docutils literal"><span class="pre">pfft_init_input_real</span></code>. In addition, we supply the following functions
+for setting all the input data to zero at once</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_clear_input_real_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1281,15 +1207,12 @@ void pfft_clear_input_real(
     double *data);
 </pre></div>
 </div>
-<p>Note, that both
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>r</sub>eal*` functions
-will set all array elements to zero were :code:`local:sub:<cite>n</cite> +
-local<sub>ns</sub>tart &gt;= n`. In addition, both
-:code:`pfft:sub:<cite>c</cite>heck<sub>o</sub>utput<sub>r</sub>eal*` function
-will ignore all the errors resulting from these elements. Therefore, it
-is safe to use all these functions for a consistency check of a r2c
-transform followed by a c2r transform since all padding elements will be
-ignored.</p>
+<p>Note, that both <code class="docutils literal"><span class="pre">pfft_init_input_real*</span></code> functions will set all array
+elements to zero were <code class="docutils literal"><span class="pre">local_n</span> <span class="pre">``</span> <span class="pre">local\</span> <span class="pre">:sub:`ns`\</span> <span class="pre">tart</span> <span class="pre">&gt;=</span> <span class="pre">n+.</span> <span class="pre">In</span>
+<span class="pre">addition,</span> <span class="pre">both</span> <span class="pre">``pfft_check_output_real*</span></code> function will ignore all the
+errors resulting from these elements. Therefore, it is safe to use all
+these functions for a consistency check of a r2c transform followed by a
+c2r transform since all padding elements will be ignored.</p>
 </div>
 <div class="section" id="initializing-r2c-c2r-inputs-and-checking-outputs">
 <h3>Initializing r2c/c2r Inputs and Checking Outputs<a class="headerlink" href="#initializing-r2c-c2r-inputs-and-checking-outputs" title="Permalink to this headline">¶</a></h3>
@@ -1305,8 +1228,8 @@ complex valued function <span class="math">\(f\)</span>. It can be easily shown 
 values
 <span class="math">\(X[{\ensuremath{\boldsymbol{k}}}] := \frac{1}{2}\left(f({\ensuremath{\boldsymbol{k}}})+f^*(-{\ensuremath{\boldsymbol{k}}})\right)\)</span>
 satisfy the radial Hermitian symmetry.</p>
-<p>To fill a complex array :code:`data` with reproducible, complex values
-that fulfill the radial Hermitian symmetry use one of the functions</p>
+<p>To fill a complex array <code class="docutils literal"><span class="pre">data</span></code> with reproducible, complex values that
+fulfill the radial Hermitian symmetry use one of the functions</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_init_input_complex_hermitian_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1317,10 +1240,10 @@ void pfft_init_input_complex_hermitian(
     double *data);
 </pre></div>
 </div>
-<p>Hereby, the arrays :code:`n`, :code:`local:sub:<cite>n</cite>` and
-:code:`local:sub:<cite>ns</cite>tart` give the size of the FFT, the local array
-size and the local array offset as computed by the array distribution
-functions described in Section&nbsp;[sec:local-size] The functions</p>
+<p>Hereby, the arrays <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">local_n</span></code> and <code class="docutils literal"><span class="pre">local_n_start</span></code> give the
+size of the FFT, the local array size and the local array offset as
+computed by the array distribution functions described in
+Section&nbsp;[sec:local-size] The functions</p>
 <div class="highlight-python"><div class="highlight"><pre>double pfft_check_output_complex_hermitian_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1331,12 +1254,10 @@ double pfft_check_output_complex_hermitian(
     const pfft_complex *data, MPI_Comm comm);
 </pre></div>
 </div>
-<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array
-:code:`data` and values produced by
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>c</sub>omplex<sub>h</sub>ermitian<sub>3</sub>d`,
-:code:`pfft:sub:<cite>i</cite>nit<sub>i</sub>nput<sub>c</sub>omplex<sub>h</sub>ermitian`.
-In addition, we supply the following functions for setting all the input
-data to zero at once</p>
+<p>compute the <span class="math">\(l_1\)</span>-norm between the elements of array <code class="docutils literal"><span class="pre">data</span></code> and
+values produced by <code class="docutils literal"><span class="pre">pfft_init_input_complex_hermitian_3d</span></code>,
+<code class="docutils literal"><span class="pre">pfft_init_input_complex_hermitian</span></code>. In addition, we supply the
+following functions for setting all the input data to zero at once</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_clear_input_complex_hermitian_3d(
     const ptrdiff_t *n,
     const ptrdiff_t *local_n, const ptrdiff_t *local_n_start,
@@ -1352,22 +1273,21 @@ inputs with radial Hermitian symmetry for ordinary c2c transforms. Of
 course the results of such a c2c DFT will have all imaginary parts equal
 to zero up to machine precision.</p>
 </div>
-<div class="section" id="operations-on-arrays-of-type-code-ptrdiff-sub-t">
-<h3>Operations on Arrays of Type :code:`ptrdiff:sub:<cite>t</cite>`<a class="headerlink" href="#operations-on-arrays-of-type-code-ptrdiff-sub-t" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="operations-on-arrays-of-type-ptrdiff-t">
+<h3>Operations on Arrays of Type <code class="docutils literal"><span class="pre">ptrdiff_t</span></code><a class="headerlink" href="#operations-on-arrays-of-type-ptrdiff-t" title="Permalink to this headline">¶</a></h3>
 <p>The following routines are shortcuts for the elementwise manipulation of
-:code:`ptrdiff:sub:<cite>t</cite>` valued arrays. In the following, all arrays
-:code:`vec`, :code:`vec1`, and :code:`vec2` are of length
-:code:`d` and type :code:`ptrdiff:sub:<cite>t</cite>`.</p>
+<code class="docutils literal"><span class="pre">ptrdiff_t</span></code> valued arrays. In the following, all arrays <code class="docutils literal"><span class="pre">vec</span></code>,
+<code class="docutils literal"><span class="pre">vec1</span></code>, and <code class="docutils literal"><span class="pre">vec2</span></code> are of length <code class="docutils literal"><span class="pre">d</span></code> and type <code class="docutils literal"><span class="pre">ptrdiff_t</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_prod_INT(
     int d, const ptrdiff_t *vec);
 </pre></div>
 </div>
-<p>Returns the product over all elements of :code:`vec`.</p>
+<p>Returns the product over all elements of <code class="docutils literal"><span class="pre">vec</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_sum_INT(
     int d, const ptrdiff_t *vec);
 </pre></div>
 </div>
-<p>Returns the sum over all elements of :code:`vec`.</p>
+<p>Returns the sum over all elements of <code class="docutils literal"><span class="pre">vec</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>int pfft_equal_INT(
     int d, const ptrdiff_t *vec1, const ptrdiff_t *vec2);
 </pre></div>
@@ -1378,27 +1298,26 @@ to zero up to machine precision.</p>
     ptrdiff_t *vec2);
 </pre></div>
 </div>
-<p>Copies the elements of :code:`vec1` into :code:`vec2`.</p>
+<p>Copies the elements of <code class="docutils literal"><span class="pre">vec1</span></code> into <code class="docutils literal"><span class="pre">vec2</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_vadd_INT(
     int d, const ptrdiff_t *vec1, const ptrdiff_t *vec2,
     ptrdiff_t *sum);
 </pre></div>
 </div>
-<p>Fills :code:`sum` with the componentwise sum of :code:`vec1` and
-:code:`vec2`.</p>
+<p>Fills <code class="docutils literal"><span class="pre">sum</span></code> with the componentwise sum of <code class="docutils literal"><span class="pre">vec1</span></code> and <code class="docutils literal"><span class="pre">vec2</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_vsub_INT(
     int d, const ptrdiff_t *vec1, const ptrdiff_t *vec2,
     ptrdiff_t *sum);
 </pre></div>
 </div>
-<p>Fills :code:`sum` with the componentwise difference of :code:`vec1`
-and :code:`vec2`.</p>
+<p>Fills <code class="docutils literal"><span class="pre">sum</span></code> with the componentwise difference of <code class="docutils literal"><span class="pre">vec1</span></code> and
+<code class="docutils literal"><span class="pre">vec2</span></code>.</p>
 </div>
 <div class="section" id="print-three-dimensional-arrays-in-parallel">
 <h3>Print Three-Dimensional Arrays in Parallel<a class="headerlink" href="#print-three-dimensional-arrays-in-parallel" title="Permalink to this headline">¶</a></h3>
 <p>Use the following routine to print the elements of a block decomposed
-three-dimensional (real or complex valued) array :code:`data` in a
-nicely formatted way.</p>
+three-dimensional (real or complex valued) array <code class="docutils literal"><span class="pre">data</span></code> in a nicely
+formatted way.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_apr_real_3d(
     const double *data,
     const ptrdiff_t *local_n, const ptrdiff_t *local_start,
@@ -1410,13 +1329,12 @@ void pfft_apr_complex_3d(
 </pre></div>
 </div>
 <p>Obviously, this makes only sense for arrays of moderate size. The block
-decomposition is given by :code:`local:sub:<cite>n</cite>`,
-:code:`local:sub:<cite>ns</cite>tart` as returned by the array distribution
-function decribed in Section&nbsp;[sec:local-size]. Furthermore, some
-arbitrary string :code:`name` can be added at the beginning of each
-output - typically this will be the name of the array. Communicator
-:code:`comm` must be suitable to the block decomposition and is used
-to synchronize the outputs over all processes.</p>
+decomposition is given by <code class="docutils literal"><span class="pre">local_n</span></code>, <code class="docutils literal"><span class="pre">local_n_start</span></code> as returned by
+the array distribution function decribed in Section&nbsp;[sec:local-size].
+Furthermore, some arbitrary string <code class="docutils literal"><span class="pre">name</span></code> can be added at the
+beginning of each output - typically this will be the name of the array.
+Communicator <code class="docutils literal"><span class="pre">comm</span></code> must be suitable to the block decomposition and is
+used to synchronize the outputs over all processes.</p>
 <p>Generalizations for the case where the dimensions of the local arrays
 are permuted are given by</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_apr_real_permuted_3d(
@@ -1431,32 +1349,29 @@ void pfft_apr_complex_permuted_3d(
     const char *name, MPI_Comm comm);
 </pre></div>
 </div>
-<p>Hereby, :code:`perm0`, :code:`perm1`, and :code:`perm2` give the
-array’s permutation of dimension.</p>
+<p>Hereby, <code class="docutils literal"><span class="pre">perm0</span></code>, <code class="docutils literal"><span class="pre">perm1</span></code>, and <code class="docutils literal"><span class="pre">perm2</span></code> give the array’s permutation
+of dimension.</p>
 </div>
 <div class="section" id="reading-command-line-arguments">
 <h3>Reading Command Line Arguments<a class="headerlink" href="#reading-command-line-arguments" title="Permalink to this headline">¶</a></h3>
 <p>The following function offers a simple way to read command line
-arguments into an array :code:`parameter`.</p>
+arguments into an array <code class="docutils literal"><span class="pre">parameter</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_get_args(
     int argc, char **argv, const char *name,
     int neededArgs, unsigned type,
     void *parameter);
 </pre></div>
 </div>
-<p>Hereby, :code:`argc` and :code:`argv` are the standard argument of
-the :code:`main` routine. Furthermore, :code:`name`,
-:code:`neededAgrs`, and :code:`type` give the name, number of
-entries and the type of the command line argument. Supported types are
-:code:`PFFT:sub:<cite>I</cite>NT`, :code:`PFFT:sub:<cite>P</cite>TRDIFF<sub>T</sub>`,
-:code:`PFFT:sub:<cite>F</cite>LOAT`, :code:`PFFT:sub:<cite>D</cite>OUBLE`, and
-:code:`PFFT:sub:<cite>U</cite>NSIGNED`, which denote the standard C type that
-is used for typecasting. In addition, you can use the special type
-:code:`PFFT:sub:<cite>S</cite>WITCH` that is an integer type equal to one if
-the corresponding command line argument is given. The array
-:code:`parameter` must be of sufficient size to hold
-:code:`neededArgs` elements of the given data type. Special attention
-is given</p>
+<p>Hereby, <code class="docutils literal"><span class="pre">argc</span></code> and <code class="docutils literal"><span class="pre">argv</span></code> are the standard argument of the <code class="docutils literal"><span class="pre">main</span></code>
+routine. Furthermore, <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">neededAgrs</span></code>, and <code class="docutils literal"><span class="pre">type</span></code> give the
+name, number of entries and the type of the command line argument.
+Supported types are <code class="docutils literal"><span class="pre">PFFT_INT</span></code>, <code class="docutils literal"><span class="pre">PFFT_PTRDIFF_T</span></code>, <code class="docutils literal"><span class="pre">PFFT_FLOAT</span></code>,
+<code class="docutils literal"><span class="pre">PFFT_DOUBLE</span></code>, and <code class="docutils literal"><span class="pre">PFFT_UNSIGNED</span></code>, which denote the standard C type
+that is used for typecasting. In addition, you can use the special type
+<code class="docutils literal"><span class="pre">PFFT_SWITCH</span></code> that is an integer type equal to one if the
+corresponding command line argument is given. The array <code class="docutils literal"><span class="pre">parameter</span></code>
+must be of sufficient size to hold <code class="docutils literal"><span class="pre">neededArgs</span></code> elements of the given
+data type. Special attention is given</p>
 <p>For example, a program containing the following code snippet</p>
 <div class="highlight-python"><div class="highlight"><pre>double x=0.1;
 pfft_get_args(argc, argv, &quot;-pfft_x&quot;, 1, PFFT_DOUBLE, &amp;x);
@@ -1472,22 +1387,20 @@ pfft_get_args(argc, argv, &quot;-pfft_on&quot;, 0, PFFT_SWITCH, switch);
 <div class="highlight-python"><div class="highlight"><pre>./test -pfft_x 3.1 -pfft_np 2 3 -pfft_n 8 16 32 -pfft_on
 </pre></div>
 </div>
-<p>will read :code:`x=3.1`, :code:`np[2] = {2,3}`,
-:code:`n[3]={8,16,32}`, and turn on the :code:`switch=1`. Note the
-address operator :code:`&amp;` in front of :code:`x` in the second line!
-Furthermore, note that the initialization of all variables with default
-values before the call of :code:`pfft:sub:<cite>g</cite>et<sub>a</sub>rgs`
+<p>will read <code class="docutils literal"><span class="pre">x=3.1</span></code>, <code class="docutils literal"><span class="pre">np[2]</span> <span class="pre">=</span> <span class="pre">(2,3)</span></code>, <code class="docutils literal"><span class="pre">n[3]=</span> <span class="pre">(8,16,32)</span></code>, and turn on
+the <code class="docutils literal"><span class="pre">switch=1</span></code>. Note the address operator <code class="docutils literal"><span class="pre">&amp;</span></code> in front of <code class="docutils literal"><span class="pre">x</span></code> in
+the second line! Furthermore, note that the initialization of all
+variables with default values before the call of <code class="docutils literal"><span class="pre">pfft_get_args</span></code>
 avoids trouble if the user does not provide all the command line
 arguments.</p>
 </div>
-<div class="section" id="parallel-substitutes-for-code-vprintf-code-fprintf-and-code-printf">
-<h3>Parallel Substitutes for :code:`vprintf`, :code:`fprintf`, and :code:`printf`<a class="headerlink" href="#parallel-substitutes-for-code-vprintf-code-fprintf-and-code-printf" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="parallel-substitutes-for-vprintf-fprintf-and-printf">
+<h3>Parallel Substitutes for <code class="docutils literal"><span class="pre">vprintf</span></code>, <code class="docutils literal"><span class="pre">fprintf</span></code>, and <code class="docutils literal"><span class="pre">printf</span></code><a class="headerlink" href="#parallel-substitutes-for-vprintf-fprintf-and-printf" title="Permalink to this headline">¶</a></h3>
 <p>The following functions are similar to the standard C function
-:code:`vfprintf`, :code:`fprintf` and :code:`printf` with the
-exception, that only rank :code:`0` within the given communicator
-:code:`comm` will produce output. The intension is to avoid the flood
-of messages that is produced when simple :code:`printf` statement are
-run in parallel.</p>
+<code class="docutils literal"><span class="pre">vfprintf</span></code>, <code class="docutils literal"><span class="pre">fprintf</span></code> and <code class="docutils literal"><span class="pre">printf</span></code> with the exception, that only
+rank <code class="docutils literal"><span class="pre">0</span></code> within the given communicator <code class="docutils literal"><span class="pre">comm</span></code> will produce output.
+The intension is to avoid the flood of messages that is produced when
+simple <code class="docutils literal"><span class="pre">printf</span></code> statement are run in parallel.</p>
 <div class="highlight-python"><div class="highlight"><pre>void pfft_vfprintf(
     MPI_Comm comm, FILE *stream, const char *format, va_list ap);
 void pfft_fprintf(
@@ -1500,38 +1413,35 @@ void pfft_printf(
 </div>
 <div class="section" id="generating-periodic-cartesian-communicators">
 <h2>Generating Periodic Cartesian Communicators<a class="headerlink" href="#generating-periodic-cartesian-communicators" title="Permalink to this headline">¶</a></h2>
-<p>Based on the processes that are part of the given communicator
-:code:`comm` the following routine</p>
+<p>Based on the processes that are part of the given communicator <code class="docutils literal"><span class="pre">comm</span></code>
+the following routine</p>
 <div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh_1d(
     MPI_Comm comm, int np0,
     MPI_Comm *comm_cart_1d);
 </pre></div>
 </div>
 <p>allocates and creates a one-dimensional, periodic, Cartesian
-communicator :code:`comm:sub:<cite>c</cite>art<sub>1</sub>d` of size
-:code:`np0`. Thereby, a non-zero error code is returned whenever
-:code:`np0` does not fit the size of :code:`comm`. The memory of the
-generated communicator should be released with
-:code:`MPI:sub:<cite>C</cite>omm<sub>f</sub>ree` after usage. Analogously, use</p>
+communicator <code class="docutils literal"><span class="pre">comm_cart_1d</span></code> of size <code class="docutils literal"><span class="pre">np0</span></code>. Thereby, a non-zero error
+code is returned whenever <code class="docutils literal"><span class="pre">np0</span></code> does not fit the size of <code class="docutils literal"><span class="pre">comm</span></code>. The
+memory of the generated communicator should be released with
+<code class="docutils literal"><span class="pre">MPI_Comm_free</span></code> after usage. Analogously, use</p>
 <div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh_2d(
     MPI_Comm comm, int np0, int np1,
     MPI_Comm *comm_cart_2d);
 </pre></div>
 </div>
 <p>in order to allocate and create two-dimensional, periodic, Cartesian
-communicator :code:`comm:sub:<cite>c</cite>art<sub>2</sub>d` of size
-:code:`np0*np1` or</p>
+communicator <code class="docutils literal"><span class="pre">comm_cart_2d</span></code> of size <code class="docutils literal"><span class="pre">np0*np1</span></code> or</p>
 <div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh(
     int rnk_np, MPI_Comm comm, const int *np,
     MPI_Comm *comm_cart);
 </pre></div>
 </div>
-<p>in order to allocate and create a :code:`rnk:sub:<cite>n</cite>p`-dimensional,
-periodic, Cartesian communicator of size
-:code:`np[0]*np[1]*...*np[rnk:sub:<cite>n</cite>p-1]`. Hereby, :code:`np`
-is an array of length :code:`rnk:sub:<cite>n</cite>p`. Again, the memory of the
-generated communicator should be released with
-:code:`MPI:sub:<cite>C</cite>omm<sub>f</sub>ree` after usage.</p>
+<p>in order to allocate and create a <code class="docutils literal"><span class="pre">rnk_np</span></code>-dimensional, periodic,
+Cartesian communicator of size <code class="docutils literal"><span class="pre">np[0]*np[1]*...*np[rnk_np-1]</span></code>. Hereby,
+<code class="docutils literal"><span class="pre">np</span></code> is an array of length <code class="docutils literal"><span class="pre">rnk_np</span></code>. Again, the memory of the
+generated communicator should be released with <code class="docutils literal"><span class="pre">MPI_Comm_free</span></code> after
+usage.</p>
 </div>
 </div>
 
@@ -1580,10 +1490,10 @@ generated communicator should be released with
 <li><a class="reference internal" href="#initializing-complex-inputs-and-checking-outputs">Initializing Complex Inputs and Checking Outputs</a></li>
 <li><a class="reference internal" href="#initializing-real-inputs-and-checking-outputs">Initializing Real Inputs and Checking Outputs</a></li>
 <li><a class="reference internal" href="#initializing-r2c-c2r-inputs-and-checking-outputs">Initializing r2c/c2r Inputs and Checking Outputs</a></li>
-<li><a class="reference internal" href="#operations-on-arrays-of-type-code-ptrdiff-sub-t">Operations on Arrays of Type :code:`ptrdiff:sub:<cite>t</cite>`</a></li>
+<li><a class="reference internal" href="#operations-on-arrays-of-type-ptrdiff-t">Operations on Arrays of Type <code class="docutils literal"><span class="pre">ptrdiff_t</span></code></a></li>
 <li><a class="reference internal" href="#print-three-dimensional-arrays-in-parallel">Print Three-Dimensional Arrays in Parallel</a></li>
 <li><a class="reference internal" href="#reading-command-line-arguments">Reading Command Line Arguments</a></li>
-<li><a class="reference internal" href="#parallel-substitutes-for-code-vprintf-code-fprintf-and-code-printf">Parallel Substitutes for :code:`vprintf`, :code:`fprintf`, and :code:`printf`</a></li>
+<li><a class="reference internal" href="#parallel-substitutes-for-vprintf-fprintf-and-printf">Parallel Substitutes for <code class="docutils literal"><span class="pre">vprintf</span></code>, <code class="docutils literal"><span class="pre">fprintf</span></code>, and <code class="docutils literal"><span class="pre">printf</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#generating-periodic-cartesian-communicators">Generating Periodic Cartesian Communicators</a></li>
