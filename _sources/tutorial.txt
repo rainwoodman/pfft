@@ -416,11 +416,11 @@ In the following, we use the notation :math:`\frac{n}{P}` to symbolize
 that an array of length :math:`n` is distributed on :math:`P` MPI
 processes. The standard PFFT data decomposition of :math:`h` interleaved
 :math:`d`-dimensional arrays of equal size
-:math:`n_0 \times n_1\times \hdots \times n_{d-1}` on a
+:math:`n_0 \times n_1\times \dots \times n_{d-1}` on a
 :math:`r`-dimensional process mesh of size
-:math:`P_0\times \hdots \times P_{r-1}` is given by the blocks
+:math:`P_0\times \dots \times P_{r-1}` is given by the blocks
 
-.. math:: \frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \hdots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.
+.. math:: \frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \dots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.
 
 A PFFT created with planning flag
 :code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`N`\ ONE\` requires the inputs to
@@ -431,7 +431,7 @@ PFFT can save half of the global communication amount, if the data
 reordering to standard decomposition is omitted. The transposed data
 decomposition is given by
 
-.. math:: \frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \hdots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h
+.. math:: \frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \dots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h
 
 A PFFT plan created with planning flag
 :code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`O`\ UT\` produces outputs with
@@ -549,7 +549,7 @@ Pruned FFT
 
 For pruned r2r- and c2c-FFT are defined as
 
-.. math:: g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1,
+.. math:: g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\dots,n_o-1,
 
 where :math:`n_i\le n` and :math:`n_o\le n`.
 

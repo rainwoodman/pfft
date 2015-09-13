@@ -406,11 +406,11 @@ nothing. Thereby, the block size :code:`block` defaults to
 that an array of length <span class="math">\(n\)</span> is distributed on <span class="math">\(P\)</span> MPI
 processes. The standard PFFT data decomposition of <span class="math">\(h\)</span> interleaved
 <span class="math">\(d\)</span>-dimensional arrays of equal size
-<span class="math">\(n_0 \times n_1\times \hdots \times n_{d-1}\)</span> on a
+<span class="math">\(n_0 \times n_1\times \dots \times n_{d-1}\)</span> on a
 <span class="math">\(r\)</span>-dimensional process mesh of size
-<span class="math">\(P_0\times \hdots \times P_{r-1}\)</span> is given by the blocks</p>
+<span class="math">\(P_0\times \dots \times P_{r-1}\)</span> is given by the blocks</p>
 <div class="math">
-\[\frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \hdots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.\]</div>
+\[\frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \dots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.\]</div>
 <p>A PFFT created with planning flag
 :code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>N</sub>ONE` requires the inputs to
 be decomposed in this standard way and produces outputs that are
@@ -419,7 +419,7 @@ decomposed in the same way.</p>
 reordering to standard decomposition is omitted. The transposed data
 decomposition is given by</p>
 <div class="math">
-\[\frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \hdots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h\]</div>
+\[\frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \dots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h\]</div>
 <p>A PFFT plan created with planning flag
 :code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT` produces outputs with
 transposed data decomposition. Analogously, a PFFT plan created with
@@ -515,7 +515,7 @@ outputs are stored in array :code:`in`.</p>
 <h3>Pruned FFT<a class="headerlink" href="#pruned-fft" title="Permalink to this headline">¶</a></h3>
 <p>For pruned r2r- and c2c-FFT are defined as</p>
 <div class="math">
-\[g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1,\]</div>
+\[g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\dots,n_o-1,\]</div>
 <p>where <span class="math">\(n_i\le n\)</span> and <span class="math">\(n_o\le n\)</span>.</p>
 </div>
 <div class="section" id="shifted-index-sets">
