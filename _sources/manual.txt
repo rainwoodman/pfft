@@ -4,6 +4,1228 @@
 
 \`\_=\ :sub:`\_`
 
+for version 1.0.7-alpha
+
+| Michael Pippig
+| Technische Universität Chemnitz
+| Faculty of Mathematics
+| 09107 Chemnitz, Germany
+| michael.pippig@mathematik.tu-chemnitz.de
+
+| Download **P**\ arallel **F**\ ast **F**\ ourier **T**\ ransform
+Software Library at
+| `{www.tu-chemnitz.de/~mpip}/software.php <{www.tu-chemnitz.de/~mpip}/software.php>`__
+| https://github.com/mpip/pfft.git
+
+Introduction
+============
+
+A popular software library for computing FFTs is FFTW . This library
+also includes a parallel FFT implementation (FFTW-MPI) based on the
+Message Passing Interface (MPI). FFTW-MPI parallelizes multi-dimensional
+FFTs by a mixture of serial lower-dimensional FFTs and parallel data
+transpositions. However, FFTW-MPI makes use of a one-dimensional data
+decomposition, which shows to be a scalability bottleneck on large
+scale, parallel computers. For example, a three-dimensional FFT of size
+:math:`1024^3` can be computed with at most :math:`1024` MPI processes.
+In contrast, using a two-dimensional data decomposition would increase
+the maximum number of MPI processes to :math:`1024^2` in this case.
+
+The main goal of PFFT is to extend the MPI part of the FFTW software
+library to multi-dimensional data decompositions, i.e.,
+:math:`d`-dimensional FFTs of size :math:`N^d` can be computed in
+parallel with at most :math:`N^{d-1}` MPI processes. In addition, PFFT
+offers several extra features that are particular usefull for parallel,
+distributed memory FFTs but are not yet present in FFTW-MPI. We refer to
+the publication  for a closer look on the different data decompositions
+and the underlying algorithms of the PFFT library.
+
+The interface of PFFT is as close as possible to the FFTW-MPI interface.
+In fact, we consider every difference between PFFT and FFTW that is not
+explicitly mentioned within this manual as a bug that should be reported
+to https://github.com/mpip/pfft.git. Therefore, porting code that uses
+FFTW-MPI to PFFT is almost trivial, e.g. see Section [sec:porting].
+
+Most features of PFFT are inherited from FFTW or similarily implemented.
+These include the following:
+
+We employ fast :math:`\mathcal{O}(N\log N)` algorithms of FFTW to
+compute arbitrary-size discrete Fourier transforms of complex data, real
+data, and even- or odd-symmetric real data.
+
+The dimension of the FFT can be arbitrary. However, parallel data
+decomposition must be at least one dimension smaller.
+
+PFFT offers portable performance; e.g., it will perform well on most
+platforms.
+
+The application of PFFT is split into a time consuming planning step and
+a high performance execution step.
+
+Installing the library is easy. It is based on the common sequence of
+configure, make, and make install.
+
+The interface of PFFT is very close to the MPI interface of FFTW. In
+fact, we tried to add as few extra parameters as possible.
+
+PFFT is written in C but also offers a Fortran interface, see
+Section [sec:fortran].
+
+FFTW includes shared memory parallelism for all serial transforms. This
+enables us to benefit from hybrid parallelism to a certain amount, see
+Section [sec:openmp].
+
+All steps of our parallel FFT can be performed completely in place. This
+is especially remarkable for the global transposition routines.
+
+Confirming to good MPI programming practice, all PFFT transforms can be
+performed on user defined communicators. In other words, PFFT does not
+enforce the user to work with ``MPI_COMM_WORLD``.
+
+PFFT uses the same algorithm to compute the size of the local array
+blocks as FFTW. This implies that the FFT size need not be divisible by
+the number of processes.
+
+PFFT supports single, double and long double precision.
+
+PFFT supports new-array execution, i.e., a PFFT plan can be planned and
+executed on different plans up to some restrictions, see
+Section [sec:new-array] for details. Thanks to Yu Feng for the new-array
+execute patch.
+
+Furthermore, we added some special features to support repeated tasks
+that often occur in practical application of parallel FFTs.
+
+PFFT includes a very flexible ghost cell exchange module. A detailed
+description of this module is given in Section [sec:gc].
+
+PFFT accepts three-dimensional data decomposition even for
+three-dimensional FFTs. However, the underlying parallel FFT framework
+is still based on two-dimensional decomposition. A more detailed
+description can be found in Section [sec:3don2d].
+
+PFFT explicitly supports the parallel calculation of pruned FFTs.
+Details are given in Section [sec:pruned].
+
+Finally, we complete this overview with a list of features that are (not
+yet) implemented in PFFT.
+
+Parallel one-dimensional FFT based on MPI. FFTW-MPI uses another
+parallelization strategy for one-dimensional FFTs, which is not
+implemented in PFFT. The reason is that we can not achive a scalability
+benefit due to higher dimensional data decomposition if the FFT has only
+one dimension. Therefore, one can also call FFTW directly in this case.
+
+There is no equivalent of FFTW *wisdom* in PFFT, i.e., you can not save
+a PFFT plan to disk and restore it for later use.
+
+PFFT does not have full OpenMP support. All serial FFT computations and
+global communications are implemented with FFTW, which offers OpenMP
+support, see Section [sec:openmp]. However, most of the PFFT-only
+features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
+FFTs are not yet parallelized with OpenMP.
+
+PFFT does not have full SIMD support. All serial FFT computations and
+global communications are implemented with FFTW, which offers SIMD
+support, see Section [sec:simd]. However, most of the PFFT-only
+features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
+FFTs are not yet parallelized with SIMD.
+
+PFFT does not overlap communication and computation. The code of PFFT is
+build in a very modularized structure. Most of these modules consist of
+FFTWs routines. Therefore, the global transposition does not support non
+blocking communication.
+
+Similar to FFTW, we do not provide any parallel IO routines. The user is
+responsible of load and store of parallel data.
+
+PFFT depends on FFTW to perform its serial transforms and does not
+support different vendor FFTs (such as Intel’s MKL or IBM’s ESSL).
+However, this is not assumed to be a big drawback, since FFTW seems to
+perform very well on most platforms.
+
+The global communication routines can not be called separately. However,
+it should be possible to implement a user interface to our global
+transposition routines.
+
+PFFT does not support GPU parallelization.
+
+You are welcome to propose new PFFT features at
+https://github.com/mpip/pfft.git.
+
+Alternative parallel FFT implementations
+----------------------------------------
+
+There have been several FFT implementations that aim to circumvent the
+scalability bottleneck for at least three dimensional FFTs by using
+two-dimensional decomposition approach. However, these implementations
+are often fitted to special problems and where not published as a stand
+alone software library. Remarkable exceptions are the parallel FFT
+software library by S. Plimpton , the P3DFFT software library by
+D. Pekurovsky  and the software library by N. Li .
+
+Parallel nonequispaced FFT
+--------------------------
+
+If your are interested in a parallel implementation of nonequispaced
+fast Fourier transforms (NFFT) for distributed memory architectures, you
+should have a look at our PNFFT software library  that is also available
+at https://github.com/mpip/pnfft.git.
+
+Tutorial
+========
+
+The following chapter describes the usage of the PFFT library at the
+example of a simple test file in the first section, followed by the more
+advanced features of PFFT in the next sections.
+
+A first parallel transform - Three-dimensional FFT with two-dimensional data decomposition
+------------------------------------------------------------------------------------------
+
+We explain the basic steps for computing a parallel FFT with the PFFT
+library at the example of the short test program given by
+Listing [lst:man\ :sub:`c`\ 2c]. This test computes a three-dimensional
+c2c-FFT on a two-dimensional process mesh. The source code
+:code:\`manual:sub:`c`\ 2c\ :sub:`3`\ d.c\` can be found in directory
+:code:\`tests/\` of the library’s source code tree.
+
+After initializing MPI with :code:\`MPI:sub:`I`\ nit\` and before
+calling any other PFFT routine initialize the parallel FFT computations
+via
+
+::
+
+    void pfft_init(void);
+
+MPI introduces the concept of communicators to store all the topological
+information of the physical process layout. PFFT requires to be called
+on a process mesh that corresponds to a periodic, Cartesian
+communicator. We assist the user in creating such a communicator with
+the following routine
+
+::
+
+    int pfft_create_procmesh_2d(
+        MPI_Comm comm, int np0, int np1,
+        MPI_Comm *comm_cart_2d);
+
+This routine uses the processes within the communicator :code:\`comm\`
+to create a two-dimensional process grid of size :code:\`np0\` x
+:code:\`np1\` and stores it into the Cartesian communicator
+:code:\`comm:sub:`c`\ art\ :sub:`2`\ d\`. Note that
+:code:\`comm:sub:`c`\ art\ :sub:`2`\ d\` is allocated by the routine and
+must be freed with :code:\`MPI:sub:`C`\ omm\ :sub:`f`\ ree\` after
+usage. The input parameter :code:\`comm\` is a communicator, indicating
+which processes will participate in the transform. Choosing
+:code:\`comm\` as :code:\`MPI:sub:`C`\ OMM\ :sub:`W`\ ORLD\` implies
+that the FFT is computed on all available processes.
+
+At the next step we need to know the data decomposition of the input and
+output array, that depends on the array sizes, the process grid and the
+chosen parallel algorithm. Therefore, we call
+
+::
+
+    ptrdiff_t pfft_local_size_3d(
+        ptrdiff_t *n, MPI_Comm comm_cart_2d, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+
+Hereby, :code:\`n\`, :code:\`local:sub:`n`\ i\`,
+:code:\`local:sub:`is`\ tart\`, :code:\`local:sub:`n`\ o\`,
+:code:\`local:sub:`os`\ tart\` are arrays of length :math:`3` that must
+be allocated. The return value of this function equals the size of the
+local complex array that needs to be allocated by every process. In most
+cases, this coincides with the product of the local array sizes – but
+may be bigger, whenever the parallel algorithm needs some extra storage.
+The input value :code:\`n\` gives the three-dimensional FFT size and the
+flag :code:\`pfft:sub:`f`\ lags\` serves to adjust some details of the
+parallel execution. For the sake of simplicity, we restrict our self to
+the case
+:code:\`pfft:sub:`f`\ lags=PFFT\ :sub:`T`\ RANSPOSED\ :sub:`N`\ ONE\`
+for a while and explain the more sophisticated flags at a later point.
+The output arrays :code:\`local:sub:`n`\ i\` and
+:code:\`local:sub:`is`\ tart\` give the size and the offset of the local
+input array that result from the parallel block distribution of the
+global input array, i.e., every process owns the input data
+:code:\`in[k[0],k[1],k[2]]\` with :code:\`local:sub:`is`\ tart[t] <=
+k[t] < local\ :sub:`is`\ tart[t] + local\ :sub:`n`\ i[t]\` for
+:code:\`t=0,1,2\`. Analogously, the output parameters
+:code:\`local:sub:`os`\ tart\` and :code:\`local:sub:`n`\ o\` contain
+the size and the offset of the local output array.
+
+Afterward, the input and output arrays must be allocated. Hereby,
+
+::
+
+    pfft_complex* pfft_alloc_complex(size_t size);
+
+is a simple wrapper of :code:\`fftw:sub:`a`\ lloc\ :sub:`c`\ omplex\`,
+which in turn allocates the memory via :code:\`fftw:sub:`m`\ alloc\` to
+ensure proper alignment for SIMD. Have a look at the FFTW user manual 
+for more details on SIMD memory alignment and
+:code:\`fftw:sub:`m`\ alloc\`. Nevertheless, you can also use any other
+dynamic memory allocation.
+
+The planning of a single three-dimensional parallel FFT of size
+:code:\`n[0]\` x :code:\`n[1]\` x :code:\`n[2]\` is done by the function
+
+::
+
+    pfft_plan pfft_plan_dft_3d(
+        ptrdiff_t *n, pfft_complex *in, pfft_complex *out,
+        MPI_Comm comm_cart_2d, int sign, unsigned pfft_flags);
+
+We provide the address of the input and output array by the pointers
+:code:\`in\` and :code:\`out\`, respectively. An inplace transform is
+assumed if these pointers are equal. The integer :code:\`sign\` gives
+the sign in the exponential of the FFT. Possible values are
+:code:\`PFFT:sub:`F`\ ORWARD\` (:math:`-1`) and
+:code:\`PFFT:sub:`B`\ ACKWARD\` (:math:`+1`). Flags passed to the
+planner via :code:\`pfft\_flags\` must coincide with the flags that were
+passed to :code:\`pfft:sub:`l`\ ocal\ :sub:`s`\ ize\ :sub:`3`\ d\`.
+Otherwise the data layout of the parallel execution may not match
+calculated local array sizes. As return value we get a PFFT plan, some
+structure that stores all the information needed to perform a parallel
+FFT.
+
+Once the plan is generated, we are allowed to fill the input array
+:code:\`in\`. Note, that per default the planning step
+:code:\`pfft:sub:`p`\ lan\ :sub:`d`\ ft\ :sub:`3`\ d\` will overwrite
+input array :code:\`in\`. Therefore, you should not write any sensitive
+data into :code:\`in\` until the plan was generated. For simplicity, our
+test program makes use of the library function
+
+::
+
+    void pfft_init_input_complex_3d(
+        ptrdiff_t *n, ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        pfft_complex *in);
+
+to fill the input array with some numbers. Alternatively, one can fill
+the array with a function :code:\`func\` of choice and the following
+loop that takes account of the parallel data layout
+
+::
+
+    ptrdiff_t m=0;
+    for(ptrdiff_t k0=0; k0 < local_ni[0]; k0++)
+      for(ptrdiff_t k1=0; k1 < local_ni[1]; k1++)
+        for(ptrdiff_t k2=0; k2 < local_ni[2]; k2++)
+          in[m++] = func(k0 + local_i_start[0],
+                         k1 + local_i_start[1],
+                         k2 + local_i_start[2]);
+
+The parallel FFT is computed when we execute the generated plan via
+
+::
+
+    void pfft_execute(const pfft_plan plan);
+
+Now, the results can be read from :code:\`out\` with an analogous
+three-dimensional loop. If we do not want to execute another parallel
+FFT of the same type, we free the allocated memory of the plan with
+
+::
+
+    void pfft_destroy_plan(pfft_plan plan);
+
+Additionally, we use
+
+::
+
+    int MPI_Comm_free(MPI_Comm *comm);  
+
+to free the communicator allocated by
+:code:\`pfft:sub:`c`\ reate\ :sub:`p`\ rocmesh\ :sub:`2`\ d\` and
+
+::
+
+    void pfft_free(void *ptr);
+
+to free memory allocated by
+:code:\`pfft:sub:`a`\ lloc\ :sub:`c`\ omplex\`. Finally, we exit MPI via
+
+::
+
+    int MPI_Finalize(void);
+
+Porting FFTW-MPI based code to PFFT
+-----------------------------------
+
+We illustrate the close connection between FFTW-MPI and PFFT at a
+three-dimensional MPI example analogous to the example given in the FFTW
+manual .
+
+Exactly the same task can be performed with PFFT as given in
+Listing [lst:pfft\ :sub:`3`\ don1d].
+
+::
+
+    #include <pfft.h>
+         
+    int main(int argc, char **argv)
+    {
+        const ptrdiff_t n[3] = {..., ..., ...};
+        pfft_plan plan;
+        pfft_complex *data;
+        ptrdiff_t alloc_local, local_ni[3], local_i_start[3], local_no[3], local_o_start[3], i, j, k;
+        unsigned pfft_flags = 0;
+
+        MPI_Init(&argc, &argv);
+        pfft_init();
+
+        /* get local data size and allocate */
+        alloc_local = pfft_local_size_dft_3d(n, MPI_COMM_WORLD, pfft_flags,
+    				         local_ni, local_i_start,
+    				         local_no, local_o_start);
+        data = pfft_alloc_complex(alloc_local);
+
+        /* create plan for in-place forward DFT */
+        plan = pfft_plan_dft_3d(n, data, data, MPI_COMM_WORLD,
+    			    PFFT_FORWARD, PFFT_ESTIMATE);
+
+        /* initialize data to some function my_function(x,y,z) */
+        for (i = 0; i < local_n[0]; ++i) 
+          for (j = 0; j < n[1]; ++j) 
+            for (k = 0; k < n[2]; ++k)
+              data[i*n[1]*n[2] + j*n[2] + k] = my_function(local_i_start[0] + i, j, k);
+
+        /* compute transforms, in-place, as many times as desired */
+        pfft_execute(plan);
+
+        pfft_destroy_plan(plan);
+
+        MPI_Finalize();
+    }
+
+substitute :code:\`fftw3-mpi.h\` by :code:\`pfft.h\`
+
+substitute all prefixes and by
+
+substitute all prefixes by
+
+the integers :code:\`N\`, :code:\`local:sub:`n`\ 0\`,
+:code:\`local:sub:`0s`\ tart\` become arrays of length 3
+
+in
+:code:\`pfft:sub:`l`\ ocal\ :sub:`s`\ ize\ :sub:`d`\ ft\ :sub:`3`\ d\`
+
+:code:\`pfft:sub:`l`\ ocal\ :sub:`s`\ ize\ :sub:`d`\ ft\ :sub:`3`\ d\`
+has additional input :code:\`pfft:sub:`f`\ lags\` and additional outputs
+:code:\`local:sub:`n`\ o\`, :code:\`local:sub:`os`\ tart\`
+
+The loop that inits :code:\`data\` becomes splitted along all three
+dimensions. We could also use
+
+First, All prefixes are substituted by
+
+Now, the changes in order to use a two-dimensional process mesh are
+marginal as can be seen in Listing [lst:pfft\ :sub:`3`\ don2d].
+
+::
+
+    #include <pfft.h>
+         
+    int main(int argc, char **argv)
+    {
+        const ptrdiff_t n[3] = {..., ..., ...};
+        (red@const int np0 = ..., np1 = ...;@*)
+        pfft_plan plan;
+        pfft_complex *data;
+        ptrdiff_t alloc_local, local_ni[3], local_i_start[3], local_no[3], local_o_start[3], i, j, k;
+        unsigned pfft_flags = 0;
+        (red@MPI_Comm comm_cart_2d;@*)
+
+        MPI_Init(&argc, &argv);
+        pfft_init();
+
+        (red@/* create two-dimensional process grid of size np0 x np1 */@*)
+        (red@pfft_create_procmesh_2d(MPI_COMM_WORLD, np0, np1,@*)
+            (red@&comm_cart_2d);@*)
+        
+        /* get local data size and allocate */
+        alloc_local = pfft_local_size_dft_3d(n, (red@comm_cart_2d@*), pfft_flags,
+    				         local_ni, local_i_start,
+    				         local_no, local_o_start);
+        data = pfft_alloc_complex(alloc_local);
+
+        /* create plan for in-place forward DFT */
+        plan = pfft_plan_dft_3d(n, data, data, MPI_COMM_WORLD,
+    			    PFFT_FORWARD, PFFT_ESTIMATE);
+
+        /* initialize data to some function my_function(x,y,z) */
+        for (i = 0; i < local_n[0]; ++i) 
+          for (j = 0; j < (red@local_n[1]@*); ++j) 
+            for (k = 0; k < (red@local_n[2]@*); ++k)
+              data[i*(red@local_n[1]*local_n[2]@*) + j*(red@local_n[2]@*) + k] =
+                  my_function(local_i_start[0] + i,
+    		          (red@local_i_start[1] +@*) j,
+    		          (red@local_i_start[2] +@*) k);
+
+        /* compute transforms, in-place, as many times as desired */
+        pfft_execute(plan);
+
+        pfft_destroy_plan(plan);
+
+        MPI_Finalize();
+    }
+
+Errorcode for communicator creation
+-----------------------------------
+
+As we have seen the function
+
+::
+
+    int pfft_create_procmesh_2d(
+        MPI_Comm comm, int np0, int np1,
+        MPI_Comm *comm_cart_2d);
+
+creates a two-dimensional, periodic, Cartesian communicator. The
+:code:\`int\` return value (not used in Listing [lst:man\ :sub:`c`\ 2c])
+is the forwarded error code of
+:code:\`MPI:sub:`C`\ art\ :sub:`c`\ reate\`. It is equal to zero if the
+communicator was created successfully. The most common error is that the
+number of processes within the input communicator :code:\`comm\` does
+not fit :code:\`np0 x np1\`. In this case the Cartesian communicator is
+not generated and the return value is unequal to zero. Therefore, a
+typical sanity check might look like
+
+::
+
+    /* Create two-dimensional process grid of size np[0] x np[1],
+       if possible */
+    if( pfft_create_procmesh_2d(MPI_COMM_WORLD, np[0], np[1],
+            &comm_cart_2d) )
+    {
+      pfft_fprintf(MPI_COMM_WORLD, stderr,
+          "Error: This test file only works with %d processes.\n",
+          np[0]*np[1]);
+      MPI_Finalize();
+      return 1;
+    }
+
+Hereby, we use the PFFT library function
+
+::
+
+    void pfft_fprintf(
+        MPI_Comm comm, FILE *stream, const char *format, ...);
+
+to print the error message. This function is similar to the standard C
+function :code:\`fprintf\` with the exception, that only the process
+with MPI rank :math:`0` within the given communicator :code:\`comm\`
+will produce some output; see Section [sec:fprintf] for details.
+
+Inplace transforms
+------------------
+
+Similar to FFTW, PFFT is able to compute parallel FFTs completely in
+place, which means that beside some constant buffers, no second data
+array is necessary. Especially, the global data communication can be
+performed in place. As far as we know, there is no other parallel FFT
+library beside FFTW and PFFT that supports this feature. This feature is
+enabled as soon as the pointer to the output array :code:\`out\` is
+equal to the pointer to the input array :code:\`in\`. E.g., in
+Listing [lst:man\ :sub:`c`\ 2c] we would call
+
+::
+
+    /* Plan parallel forward FFT */
+    plan = pfft_plan_dft_3d(n, in, in, comm_cart_2d,
+        PFFT_FORWARD, PFFT_TRANSPOSED_NONE);
+
+Higher dimensional data decomposition
+-------------------------------------
+
+The test program given in Listing [lst:man\ :sub:`c`\ 2c] used a
+two-dimensional data decomposition of a three-dimensional data set.
+Moreover, PFFT support the computation of any :math:`d`-dimensional FFT
+with :math:`r`-dimensional data decomposition as long as
+:math:`r\le d-1`. For example, one can use a one-dimensional data
+decomposition for any two- or higher-dimensional data set, while the
+data set must be at least four-dimensional to fit to a three-dimensional
+data decomposition. The case :math:`r=d` is not supported efficiently,
+since during the parallel computations there is always at least one
+dimension that remains local, i.e., one dimensions stays non-decomposed.
+The only exception from this rule is the case :math:`d=r=3` that is
+supported by PFFT in a special way, see Section [sec:3don3d] for
+details.
+
+The dimensionality of the data decomposition is given by the dimension
+of the Cartesian communicator that goes into the PFFT planing routines.
+Therefore, we present a generalization of communicator creation function
+
+::
+
+    int pfft_create_procmesh(
+        int rnk_np, MPI_Comm comm, const int *np,
+        MPI_Comm *comm_cart);
+
+Hereby, the array :code:\`np\` of length :code:\`rnk:sub:`n`\ p\` gives
+the size of the Cartesian communicator :code:\`cart:sub:`c`\ omm\`.
+
+Parallel data decomposition
+---------------------------
+
+In the following, we use the notation :math:`\frac{n}{P}` to symbolize
+that an array of length :math:`n` is broken into disjoint blocks and
+distributed on :math:`P` MPI processes. Hereby, the data is distributed
+in compliance to the FFTW-MPI data decompostion , i.e., the first
+:code:\`P/block\` (rounded down) processes get a contiguous chunk of
+:code:\`block\` elements, the next process gets the remaining :code:\`n
+- block \* (n/block)\` data elements, and all remaining processes get
+nothing. Thereby, the block size :code:\`block\` defaults to
+:code:\`n/P\` (rounded down) but can also be user defined.
+
+Non-transposed and transposed data layout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the following, we use the notation :math:`\frac{n}{P}` to symbolize
+that an array of length :math:`n` is distributed on :math:`P` MPI
+processes. The standard PFFT data decomposition of :math:`h` interleaved
+:math:`d`-dimensional arrays of equal size
+:math:`n_0 \times n_1\times \hdots \times n_{d-1}` on a
+:math:`r`-dimensional process mesh of size
+:math:`P_0\times \hdots \times P_{r-1}` is given by the blocks
+
+.. math:: \frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \hdots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.
+
+A PFFT created with planning flag
+:code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`N`\ ONE\` requires the inputs to
+be decomposed in this standard way and produces outputs that are
+decomposed in the same way.
+
+PFFT can save half of the global communication amount, if the data
+reordering to standard decomposition is omitted. The transposed data
+decomposition is given by
+
+.. math:: \frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \hdots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h
+
+A PFFT plan created with planning flag
+:code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`O`\ UT\` produces outputs with
+transposed data decomposition. Analogously, a PFFT plan created with
+planning flag :code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`I`\ N\` requires
+its inputs to be decomposed in the transposed way. Typically, one
+creates a forward plan with
+:code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`O`\ UT\` and a backward plan with
+planning flag :code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`I`\ N\`.
+
+Note that the flags :code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`O`\ UT\` and
+:code:\`PFFT:sub:`T`\ RANSPOSED\ :sub:`I`\ N\` must be passed to the
+array distribution function (see Section [sec:local-size]) *as well as*
+to the planner (see Section [sec:create-plan]).
+
+Three-dimensional FFTs with three-dimensional data decomposition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many applications work with three-dimensional block decompositions of
+three-dimensional arrays. PFFT supports decompositions of the kind
+
+.. math:: \frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \frac{n_2}{P_2} \times h.
+
+However, PFFT applies a parallel algorithms that needs at least one
+non-distributed transform dimension (we do not transform along
+:math:`h`), Therefore, we split the number of processes along the last
+dimension into two factors :math:`P_2=Q_1Q_2`, remap the data to the
+two-dimensional decomposition
+
+.. math:: \frac{n_0}{P_0Q_0} \times \frac{n_1}{P_1Q_1} \times n_2 \times h,
+
+and compute the parallel FFT with this two-dimensional decomposition.
+Note that the 3d to 2d remap implies some very special restrictions on
+the block sizes for :math:`n_0` and :math:`n_1`, i.e., the blocks must
+be divisible by :math:`Q_0` and :math:`Q_1`. More precisely, the default
+blocks of the 2d-decomposition are given by :code:\`n0/(P0\*Q0)\` and
+:code:\`n1/(P1\*Q1)\` (both divisions rounded down). This implies that
+the default blocks of the 3d-decomposition must be :code:\`n0/(P0\*Q0)
+\* Q0\`, :code:\`n1/(P1\*Q1) \* Q1\`, and :code:\`n2/(Q0\*Q1)\` (all
+divisions rounded down).
+
+Planning effort
+---------------
+
+Pass one of the following flags
+
+:code:\`PFFT:sub:`E`\ STIMATE\`,
+
+:code:\`PFFT:sub:`M`\ EASURE\`,
+
+:code:\`PFFT:sub:`P`\ ATIENT\`, or,
+
+:code:\`PFFT:sub:`E`\ XHAUSIVE\`
+
+to the PFFT planner in order to plan all internal FFTW plans with
+:code:\`FFTW:sub:`E`\ STIMATE\`, :code:\`FFTW:sub:`M`\ EASURE\`,
+:code:\`FFTW:sub:`P`\ ATIENT\`, or :code:\`FFTW:sub:`E`\ XHAUSIVE\`,
+respectively. The default value is :code:\`PFFT:sub:`M`\ EASURE\`.
+
+PFFT uses FFTW plans for parallel array transposition and the serial
+transforms. In fact, every serial transform is a combination of strided
+lower-dimensional FFTs and a serial array transposition (necessary to
+prepare the global transposition) which can be done by a single FFTW
+plan. However, it turns out that FFTW sometimes performs better if the
+serial transposition and the strided FFTs are executed separately.
+Therefore, PFFT introduces the flag :code:\`PFFT:sub:`T`\ UNE\` that
+enables extensive run time tests in order to find the optimal sequence
+of serial strided FFT and serial transposition for every serial
+transform. These tests are disable on default which corresponds to the
+flag :code:\`PFFT:sub:`N`\ O\ :sub:`T`\ UNE\`.
+
+Preserving input data
+---------------------
+
+The following flags
+
+:code:\`PFFT:sub:`P`\ RESERVE\ :sub:`I`\ NPUT\`,
+
+:code:\`PFFT:sub:`D`\ ESTROY\ :sub:`I`\ NPUT\`, and,
+
+:code:\`PFFT:sub:`B`\ UFFERED\ :sub:`I`\ NPLACE\`
+
+only take effect for out-of-place transforms. The first one behaves
+analogously to the FFTW flag
+:code:\`FFTW:sub:`P`\ RESERVE\ :sub:`I`\ NPUT\` and ensures that the
+input values are not overwritten. In fact, this flag implies that only
+the first serial transform is executed out-of-place and all successive
+steps are performed in-place on the output array. In compliance to FFTW,
+this is the default behaviour for out-of-place plans.
+
+The second flag behaves analogously to the FFTW flag
+:code:\`FFTW:sub:`D`\ ESTROY\ :sub:`I`\ NPUT\` and tells the planner
+that the input array can be used as scratch array. This may give some
+speedup for out-of-place plans, because all the intermediate transforms
+and transposition steps can be performed out-of-place.
+
+Finally, the flag :code:\`PFFT:sub:`B`\ UFFERED\ :sub:`I`\ NPLACE\` can
+be used for out-of-place plans that store its inputs and outputs in the
+same array, i.e., array :code:\`out\` is used for intermediate
+out-of-place transforms and transpositions but the PFFT inputs and
+outputs are stored in array :code:\`in\`.
+
+FFTs with shifted index sets
+----------------------------
+
+:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`I`\ N\`
+
+:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`O`\ UT\`
+
+Pruned FFT and Shifted Index Sets
+---------------------------------
+
+Pruned FFT
+~~~~~~~~~~
+
+For pruned r2r- and c2c-FFT are defined as
+
+.. math:: g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1,
+
+where :math:`n_i\le n` and :math:`n_o\le n`.
+
+Shifted Index Sets
+~~~~~~~~~~~~~~~~~~
+
+For :math:`N\in 2{\ensuremath{\mathbb{N}}}` we define the FFT with
+shifted inputs
+
+For :math:`K,L,N\in 2{\ensuremath{\mathbb{N}}}`, :math:`L<N`,
+:math:`L<N` we define
+
+Precisions
+----------
+
+PFFT handles multiple precisions exactly in the same way as FFTW.
+Therefore, we quote part  of the FFTW manual in the context of PFFT:
+
+You can install single and long-double precision versions of PFFT, which
+replace double with float and long double, respectively; see
+[sec:install]. To use these interfaces, you must
+
+Link to the single/long-double libraries; on Unix, :code:\`-lpfftf\` or
+:code:\`-lpfftl\` instead of (or in addition to) :code:\`-lpfft\`. (You
+can link to the different-precision libraries simultaneously.)
+
+Include the same :code:\`<pfft.h>\` header file.
+
+Replace all lowercase instances of ‘’ with ‘’ or ‘’ for single or
+long-double precision, respectively. (:code:\`pfft:sub:`c`\ omplex\`
+becomes :code:\`pfftf:sub:`c`\ omplex\`, :code:\`pfft:sub:`e`\ xecute\`
+becomes :code:\`pfftf:sub:`e`\ xecute\`, etcetera.)
+
+Uppercase names, i.e. names beginning with ‘’, remain the same.
+
+Replace :code:\`double\` with :code:\`float\` or :code:\`long double\`
+for subroutine parameters.
+
+Ghost cell communication
+------------------------
+
+Fortran interface
+-----------------
+
+Installation and linking
+========================
+
+The install of PFFT is based on the Autotools and follows the typical
+workflow
+
+::
+
+    ./configure
+    make
+    make install
+
+Install of the latest official FFTW release
+-------------------------------------------
+
+PFFT depends on Release 3.3.3 of the FFTW library . For the sake of
+completeness, we show the command line based install procedure in the
+following. However, note that we provide install scripts on
+`{www.tu-chemnitz.de/~mpip}/software.php <{www.tu-chemnitz.de/~mpip}/software.php>`__that
+simplify the install a lot. We highly recommend to use these install
+scripts, since they additionally apply several performance patches and
+bugfixes that have been submitted to the FFTW developers but are not yet
+included in the official FFTW releases.
+
+::
+
+    wget http://www.fftw.org/fftw-§\fftwversionsl§.tar.gz
+    tar xzvf fftw-§\fftwversion§.tar.gz
+    cd fftw-§\fftwversion§
+    ./configure --enable-mpi --prefix=$HOME/local/fftw3_mpi §\label{lst:fftw:conf}§
+    make
+    make install
+
+The MPI algorithms of FFTW must be build with a MPI C compiler. Add the
+statement :code:\`MPICC=$MPICCOMP\` at the end of line [lst:fftw:conf]
+if the :code:\`configure\` script fails to determine the right MPI C
+compiler :code:\`$MPICCOMP\`. Similarly, the MPI Fortran compiler
+:code:\`$MPIFCOMP\` is set by :code:\`MPIFC=$MPIFCOMP\`.
+
+Install of the PFFT library
+---------------------------
+
+In the simplest case, the hardware platform and the -3.3.3 library are
+recognized by the PFFT configure script automatically, so all we have to
+do is
+
+::
+
+    wget http://www.tu-chemnitz.de/~mpip/software/pfft-§\pfftversionsl§.tar.gz
+    tar xzvf pfft-§\pfftversion§.tar.gz
+    cd pfft-§\pfftversion§
+    ./configure
+    make
+    make check
+    make install
+
+Hereby, the optional call :code:\`make check\` builds the test programs.
+If the -3.3.3 software library is already installed on your system but
+not found by the configure script, you can provide the FFTW installation
+directory :code:\`$FFTWDIR\` to configure by
+
+.. code:: bash
+
+    ./configure --with-fftw3=$FFTWDIR
+
+This call implies that the FFTW header files are located in
+:code:\`$FFTWDIR/include\` and the FFTW library files are located in
+:code:\`$FFTWDIR/lib\`. Otherwise, one should specify the FFTW include
+path :code:\`$FFTWINC\` and the FFTW library path :code:\`$FFTWLIB\`
+separately by
+
+::
+
+    ./configure --with-fftw3-includedir=$FFTWINC --with-fftw3-libdir=$FFTWLIB
+
+At the end, this is equivalent to
+
+::
+
+    ./configure CPPFLAGS=-I$FFTWINC LDFLAGS=-L$FFTWLIB
+
+which is more common to experienced users of the Autotools. To install
+PFFT in a user specified directory :code:\`$PFFTINSTDIR\` call configure
+with the option
+
+::
+
+    ./configure --prefix=$PFFTINSTDIR
+
+However, this option is mandatory whenever you do not have root
+permissions on your machine, since the default install paths of
+:code:\`configure\` are not accessible by standard users. The PFFT
+library must be built with a MPI compiler. In
+Section [sec:fftw\ :sub:`i`\ nst] we already described how to hand the
+right compilers to the :code:\`configure\` script. Some more options are
+
+:code:\`[\`keywords=]–enable-float: Produces a single-precision version
+of PFFT (float) instead of the default double-precision (double); see
+[sec:prec].
+
+:code:\`[\`keywords=]–enable-long-double: Produces a long-double
+precision version of PFFT (long double) instead of the default
+double-precision (double); see [sec:prec].
+
+:code:\`–disable-fortran\`: Disables inclusion of Fortran wrapper
+routines in the standard PFFT libraries.
+
+:code:\`–disable-tests\`: Disables build of test programs.
+
+For more details on the options of the :code:\`configure\` script call
+
+::
+
+    ./configure --help
+
+How to include PFFT in your program
+-----------------------------------
+
+All programs using PFFT should include its header file
+
+::
+
+    #include <pfft.h>
+
+This header includes the FFTW headers :code:\`fftw.h\`,
+:code:\`fftw-mpi.h\` automatically. Make sure that the compiler can find
+them by setting the include flags appropriately. You must also link to
+the PFFT, FFTW and FFTW-MPI libraries. On Unix, this means adding
+:code:\`-lpfft -lfftw3:sub:`m`\ pi -lfftw3 -lm\` at the end of the link
+command. For example, to build :code:\`pfft:sub:`t`\ est.c\` use the
+following compiler invocation
+
+::
+
+    mpicc pfft_test.c -I$PFFTINC -I$FFTWINC -L$PFFTLIB -L$FFTWLIB -lpfft -lfftw3_mpi -lfftw3 -lm
+
+Substitute :code:\`mpicc\` by any other MPI C compiler if you like.
+:code:\`$PFFTINC\`, :code:\`$FFTWINC\`, :code:\`$PFFTLIB\`, and
+:code:\`$FFTWLIB\` denote the PFFT and FFTW include and library paths,
+respectively. If you use the install scripts mentioned in
+Sect. [sec:pfft-inst], these paths will be
+
+::
+
+    PFFTINC = $HOME/local/pfft-§\pfftversion§/include
+    FFTWINC = $HOME/local/fftw-§\fftwversion§/include
+    PFFTINC = $HOME/local/pfft-§\pfftversion§/lib
+    FFTWINC = $HOME/local/fftw-§\fftwversion§/lib
+
+Advanced Features
+=================
+
+How to Deal with FFT Index Shifts in Parallel
+---------------------------------------------
+
+Let :math:`n\in2{\ensuremath{\mathbb{N}}}`. A common problem is that the
+index of the FFT input and/or output array runs between
+:math:`-\nicefrac n2,\hdots,\nicefrac n2-1`, but the FFT library
+requires them to run between :math:`0,\hdots,n-1`. With serial program
+execution one can easily remap the input data :math:`\hat g_k` in a way
+that is suitable for the library, i.e.,
+
+.. math:: \hat f_k := \hat g_{(k-\nicefrac n2\bmod n)}, \quad k = 0,\hdots,n-1.
+
+Similarly, one could remap the outputs of the library :math:`f_l`,
+:math:`l=0,\cdots,n-1` in the opposite direction in order to get the
+required outputs, i.e.,
+
+.. math:: g_l := f_{l \bmod n}, \quad l = -\nicefrac n2,\hdots,\nicefrac n2-1.
+
+These shifts are also known as :code:\`fftshift\` in Matlab.
+
+However, with distributed memory these :code:\`fftshift\` operations
+require more complex data movements and result in a global
+communication. For example, the first index of the array moves to the
+middle and, therefore, the corresponding data move to another MPI
+process. Fortunately, this communication can be avoided at the cost of
+little extra computation. At the end of the section we present two PFFT
+library functions that perform the necessary pre- and postprocessing for
+shifted input and output index sets.
+
+Shift with half the FFT size
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The special case of input shift :math:`k_s=-\nicefrac n2` and/or output
+shift :math:`l_s=-\nicefrac n2` is supported by PFFT. User can choose to
+shift the input (``PFFT_SHIFTED_IN``) and/or to shift the output
+(``PFFT_SHIFTED_OUT``).
+
+Here, we are interested in the computation of
+
+.. math:: g_l = \sum_{k=-\nicefrac{n_i}{2}}^{\nicefrac{n_i}{2}-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1
+
+with :math:`n, n_i, n_o \in 2{\ensuremath{\mathbb{N}}}` and
+:math:`n>n_i`, :math:`n>n_o`.
+
+With an index shift of :math:`\nicefrac n2` both in :math:`k` and
+:math:`l` this equivalent to the computation of
+
+.. math::
+
+   \begin{aligned}
+     g_{(l-\nicefrac{n}{2})}
+     &= \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+        \hat g_{(k-\nicefrac{n}{2})} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k-\nicefrac n2)(l-\nicefrac n2)/n}}} \\
+     &= {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}l} 
+          \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+          \left(\hat g_{(k-\nicefrac{n}{2})}{{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(k-\nicefrac n2)}\right) {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}} \\
+     &= {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(l-\nicefrac n2)} 
+        \underbrace{
+          \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+          \underbrace{\left(\hat g_{(k-\nicefrac{n}{2})}{{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}k}\right)}_{\hat f_k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}
+        }_{f_l}\end{aligned}
+
+for
+:math:` l=\nicefrac n2-\nicefrac{n_o}{2},\hdots,\nicefrac n2 +\nicefrac{n_o}{2}-1`.
+Therefore, we get the following algorithm
+
+.. math:: f_l = \sum_{k=0}^n \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1
+
+The special case :math:`k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}`
+corresponds to the shifts the arrays ()
+
+[1] =1.1ex For :math:`k=0,\hdots,n-1` set :math:`\hat f_k = 0`. For
+:math:`k=-\nicefrac{n_i}{2},\hdots,\nicefrac{n_i}{2}-1` compute
+:math:`\hat f_{(k+\nicefrac{n}{2})} = (-1)^{(k+\nicefrac{n}{2})} \hat g_{k}`.
+For :math:`l=0,\hdots,n-1` compute
+:math:`f_l = \sum_{k=0}^{n} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}`
+using PFFT. For :math:`l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1`
+compute :math:`g_l = (-1)^l f_{(l+n/2)} `.
+
+Note, that this shift implies that the library deals with pruned FFTs in
+a special way, i.e., half of the zeros are added at the beginning of the
+inputs and the other half is added at the end.
+
+Arbitrary shifts
+~~~~~~~~~~~~~~~~
+
+More general shifts must be done by the user.
+
+In a more general setting, we are interested in the computation of FFTs
+with shifted index sets, i.e., assume
+:math:`k_s,l_s\in{\ensuremath{\mathbb{Z}}}` and compute
+
+.. math::
+
+   g_l = \sum_{k=k_s}^{n_i+k_s-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}},
+     \quad l=l_s,\hdots,n_o+l_s-1\,.
+
+Because of the periodicity of the FFT this can be easily performed by
+Alg. [alg:fftshift:sub:`t`\ ranslation].
+
+[alg:fftshift:sub:`t`\ ranslation]
+
+[1] =1.1ex For :math:`k=0,\hdots,n_i-1` assign
+:math:`\hat f_k = \hat g_{(k+k_s\bmod n_i)}`. For
+:math:`l=0,\hdots,n_o-1` compute
+:math:`f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}`
+using PFFT. For :math:`l=0,\hdots,n_o-1` assign
+:math:`g_l = f_{(l-l_s\bmod n_o)}`.
+
+However, this involves explicit data movement since the sequence of data
+changes. For a our parallel data decomposition the change of data layout
+requires data communication. A simple index shift results in the
+computation of
+
+.. math::
+
+   \begin{aligned}
+     g_{l+l_s}
+     &=
+       \sum_{k=k_s}^{n_i+k_s-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k(l+l_s)/n}}}
+       =
+       \sum_{k=0}^{n_i-1} \hat g_{k+k_s} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)(l+l_s)/n}}} \\
+     &=
+       {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k_sl/n}}} \sum_{k=0}^{n_i-1} \underbrace{\left(\hat g_{k+k_s}{\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)l_s/n}}}\right)}_{=: \hat f_k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\end{aligned}
+
+for all :math:`l=0,\hdots,n_o-1`. The resulting
+Alg. [alg:fftshift:sub:`m`\ odulation] preserves the sequence of data at
+the price of some extra computation.
+
+[alg:fftshift:sub:`m`\ odulation]
+
+[1] =1.1ex For :math:`k=0,\hdots,n_i-1` compute
+:math:`\hat f_k = \hat g_{(k+k_s)} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)l_s/n}}}`.
+For :math:`l=0,\hdots,n_o-1` compute
+:math:`f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}`
+using PFFT. For :math:`l=0,\hdots,n_o-1` compute
+:math:`g_{(l+l_s)} = f_l {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k_sl/n}}}`.
+
+The special case :math:`k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}`
+corresponds to the shifts the arrays ()
+
+[1] =1.1ex For :math:`k=0,\hdots,n_i-1` compute
+:math:`\hat f_k = \hat g_{(k-\nicefrac{n_i}{2})} {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(k-\nicefrac{n_i}{2})n_o/n}`.
+For :math:`l=0,\hdots,n_o-1` compute
+:math:`f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}`
+using PFFT. For :math:`l=0,\hdots,n_o-1` compute
+:math:`g_{(l-\nicefrac{n_o}{2})} = f_l {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}n_i l/n}`.
+
+Parallel pruned FFT
+-------------------
+
+Within PFFT we define a pruned FFT as
+
+.. math:: g_l = \sum_{k=0}^{n_i-1} \hat g_{k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1.
+
+Formally, this is equivallent to the following regular size :math:`n`
+FFT
+
+.. math:: f_l = \sum_{k=0}^{n-1} \hat f_{k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n,
+
+with
+
+.. math::
+
+   \hat g_k := 
+     \begin{cases}
+     \hat f_k, &: k=0,\hdots,n_1-1, \\
+     0         &: k=n_i,\hdots,n-1,    
+     \end{cases}
+
+and :math:`f_l := g_l`, :math:`k=0,\hdots,n_o-1`. I.e., we add
+:math:`n-n_i` zeros at the end of the input array and throw away
+:math:`n-n_o` entries at the end of the output array.
+
+The definition of pruned FFT changes for
+:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`I`\ N\` and
+:code:\`PFFT:sub:`S`\ HIFTED\ :sub:`O`\ UT\`.
+
+Interface Layers of the PFFT Library
+====================================
+
+We give a quick overview of the PFFT interface layers in the order of
+increasing flexibility at the example of c2c-FFTs. For r2c-, c2r-, and
+r2r-FFT similar interface layer specifications apply. A full reference
+list of all PFFT functions is given in Chapter [chap:ref].
+
+Basic Interface
+---------------
+
+The :code:\`:sub:`3`\ d\` interface is the simplest interface layer. It
+is suitable for the planning of three-dimensional FFTs.
+
+::
+
+    ptrdiff_t pfft_local_size_dft_3d(
+        const ptrdiff_t *n, MPI_Comm comm_cart, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    void pfft_local_block_dft_3d(
+        const ptrdiff_t *n, MPI_Comm comm_cart,
+        int pid, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    pfft_plan pfft_plan_dft_3d(
+        const ptrdiff_t *n,
+        pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+        int sign, unsigned pfft_flags);
+
+Hereby, :code:\`n\`, :code:\`local:sub:`n`\ i\`,
+:code:\`local:sub:`is`\ tart\`, :code:\`local:sub:`n`\ o\`, and
+:code:\`local:sub:`os`\ tart\` are :code:\`ptrdiff:sub:`t`\ \` arrays of
+length :code:\`3\`.
+
+The basic interface generalizes the :code:\`:sub:`3`\ d\` interface to
+FFTs of arbitrary dimension :code:\`rnk:sub:`n`\ \`.
+
+::
+
+    ptrdiff_t pfft_local_size_dft(
+        int rnk_n, const ptrdiff_t *n,
+        MPI_Comm comm_cart, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    void pfft_local_block_dft(
+        int rnk_n, const ptrdiff_t *n,
+        MPI_Comm comm_cart, int pid, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    pfft_plan pfft_plan_dft(
+        int rnk_n, const ptrdiff_t *n,
+        pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+        int sign, unsigned pfft_flags);
+
+Therefore, :code:\`n\`, :code:\`local:sub:`n`\ i\`,
+:code:\`local:sub:`is`\ tart\`, :code:\`local:sub:`n`\ o\`, and
+:code:\`local:sub:`os`\ tart\` become arrays of length
+:code:\`rnk:sub:`n`\ \`.
+
+Advanced Interface
+------------------
+
+The advanced interface introduces the arrays :code:\`ni\` and
+:code:\`no\` of length :code:\`rnk:sub:`n`\ \` that give the pruned FFT
+input and output size. Furthermore, the arrays :code:\`iblock\` and
+:code:\`oblock\` of length :code:\`rnk:sub:`p`\ m\`
+(:code:\`rnk:sub:`p`\ m\` being the dimension of the process mesh) serve
+to adjust the block size of the input and output block decomposition.
+The additional parameter :code:\`howmany\` gives the number of
+transforms that will be computed simultaneously.
+
+::
+
+    ptrdiff_t pfft_local_size_many_dft(
+        int rnk_n, const ptrdiff_t *n,
+        const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+        const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+        MPI_Comm comm_cart, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    void pfft_local_block_many_dft(
+        int rnk_n, const ptrdiff_t *ni, const ptrdiff_t *no,
+        const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+        MPI_Comm comm_cart, int pid, unsigned pfft_flags,
+        ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+        ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+    pfft_plan pfft_plan_many_dft(
+        int rnk_n, const ptrdiff_t *n,
+        const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+        const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+        pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+        int sign, unsigned pfft_flags);
+
+Preliminary: Skip Serial Transformations
+----------------------------------------
+
+The :code:\`:sub:`s`\ kipped\` interface extends the
+:code:\`:sub:`m`\ any\` interface by adding the possibility to skip some
+of the serial FFTs.
+
+::
+
+    pfft_plan pfft_plan_many_dft_skipped(
+        int rnk_n, const ptrdiff_t *n,
+        const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+        const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+        (red@const int *skip_trafos,@*)
+        pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+        int sign, unsigned pfft_flags);
+
+Hereby, :code:\`skip:sub:`t`\ rafos\` is an :code:\`int\` array of
+length :code:\`rnk:sub:`p`\ m+1\` (:code:\`rnk:sub:`p`\ m\` being the
+mesh dimension of the communicator :code:\`comm:sub:`c`\ art\`). For
+:code:\`t=0,...,rnk:sub:`p`\ m\` set :code:\`skip:sub:`t`\ rafos[t]=1\`
+if the :code:\`t\`-th serial transformation should be computed,
+otherwise set :code:\`skip:sub:`t`\ rafos[t]=0\`. Note that the local
+transpositions are always performed, since they are a prerequisite for
+the global communication to work. At the moment it is only possible to
+skip the whole serial transform along the last
+:code:\`rnk:sub:`n`-rnk:sub:`p`\ m-1\` dimensions. However, this
+behaviour can be realized by a call of a
+:code:\`(rnk:sub:`p`\ m+1)\`-dimensional PFFT with
+
+::
+
+    for(int t=rnk_pm+1; t<rnk_n; t++)
+      howmany *= n[t];
+
+and manual computation of the desired serial transforms along the last
+:code:\`rnk:sub:`n`-rnk:sub:`p`\ m-1\` dimensions.
+
 PFFT Reference
 ==============
 
@@ -1732,3 +2954,51 @@ periodic, Cartesian communicator of size
 is an array of length :code:\`rnk:sub:`n`\ p\`. Again, the memory of the
 generated communicator should be released with
 :code:\`MPI:sub:`C`\ omm\ :sub:`f`\ ree\` after usage.
+
+Developers Guide
+================
+
+Search and replace patterns
+---------------------------
+
+Correct alignment of pfft.h header
+
+::
+
+    %s/^\(    [^ ]\+[^\\]*\)  \\/  \1\\/g  
+
+Expand most macros of pfft.h to generate the function reference of this
+manual:
+
+::
+
+    sed -e 's/ *\\$//g' -e 's/PFFT_EXTERN //g' \
+        -e 's/PX(\([^)]*\))/pfft_\1/g' -e 's/ INT/ ptrdiff_t/g' \
+        -e 's/ R/ double/g' -e 's/ C/ pfft_complex/g' \
+        -e 's/^  //g' pfft.h > pfft.h.expanded
+
+ToDo
+====
+
+-  :code:\`PFFT:sub:`F`\ ORWARD\` is defined as
+   :code:\`FFTW:sub:`F`\ ORWARD\`
+
+-  :code:\`FFTW:sub:`F`\ ORWARD\` is defined as :math:`-1`
+
+-  PFFT allows to chose between :code:\`FFTW:sub:`F`\ ORWARD\` and
+   :code:\`FFTW:sub:`B`\ ACKWARD\`, which is not implemented by FFTW.
+
+-  Matlab uses the same sign convention, i.e., :math:`-1` for
+   :code:\`fft\` and :math:`+1` for :code:\`ifftn\`
+
+Measuring parallel run times
+----------------------------
+
+Use :code:\`MPI:sub:`B`\ arrier\` in front of every call to function to
+avoid unbalanced run times.
+
+Acknowledgments
+---------------
+
+We are thankful to Yu Feng who implemented the new array execute and the
+clear input functions.

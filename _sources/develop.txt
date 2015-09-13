@@ -1,4 +1,8 @@
-.. _chap-develop:
+[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3
+
+#1
+
+\`\_=\ :sub:`\_`
 
 Developers Guide
 ================
@@ -22,21 +26,22 @@ manual:
         -e 's/ R/ double/g' -e 's/ C/ pfft_complex/g' \
         -e 's/^  //g' pfft.h > pfft.h.expanded
 
-.. _chap-todo:
-
 ToDo
 ====
 
--  is defined as
+-  :code:\`PFFT:sub:`F`\ ORWARD\` is defined as
+   :code:\`FFTW:sub:`F`\ ORWARD\`
 
--  is defined as :math:`-1`
+-  :code:\`FFTW:sub:`F`\ ORWARD\` is defined as :math:`-1`
 
--  PFFT allows to chose between and , which is not implemented by FFTW.
+-  PFFT allows to chose between :code:\`FFTW:sub:`F`\ ORWARD\` and
+   :code:\`FFTW:sub:`B`\ ACKWARD\`, which is not implemented by FFTW.
 
--  Matlab uses the same sign convention, i.e., :math:`-1` for and
-   :math:`+1` for
+-  Matlab uses the same sign convention, i.e., :math:`-1` for
+   :code:\`fft\` and :math:`+1` for :code:\`ifftn\`
 
 Measuring parallel run times
 ----------------------------
 
-Use in front of every call to function to avoid unbalanced run times.
+Use :code:\`MPI:sub:`B`\ arrier\` in front of every call to function to
+avoid unbalanced run times.

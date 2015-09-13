@@ -1,4 +1,8 @@
-.. _chap-api:
+[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3
+
+#1
+
+\`\_=\ :sub:`\_`
 
 Interface Layers of the PFFT Library
 ====================================
@@ -6,13 +10,13 @@ Interface Layers of the PFFT Library
 We give a quick overview of the PFFT interface layers in the order of
 increasing flexibility at the example of c2c-FFTs. For r2c-, c2r-, and
 r2r-FFT similar interface layer specifications apply. A full reference
-list of all PFFT functions is given in Chapter ::ref:`chap-ref`.
+list of all PFFT functions is given in Chapter [chap:ref].
 
 Basic Interface
 ---------------
 
-The interface is the simplest interface layer. It is suitable for the
-planning of three-dimensional FFTs.
+The :code:\`:sub:`3`\ d\` interface is the simplest interface layer. It
+is suitable for the planning of three-dimensional FFTs.
 
 ::
 
@@ -30,10 +34,13 @@ planning of three-dimensional FFTs.
         pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
         int sign, unsigned pfft_flags);
 
-Hereby, , , , , and are arrays of length .
+Hereby, :code:\`n\`, :code:\`local:sub:`n`\ i\`,
+:code:\`local:sub:`is`\ tart\`, :code:\`local:sub:`n`\ o\`, and
+:code:\`local:sub:`os`\ tart\` are :code:\`ptrdiff:sub:`t`\ \` arrays of
+length :code:\`3\`.
 
-The basic interface generalizes the interface to FFTs of arbitrary
-dimension .
+The basic interface generalizes the :code:\`:sub:`3`\ d\` interface to
+FFTs of arbitrary dimension :code:\`rnk:sub:`n`\ \`.
 
 ::
 
@@ -52,17 +59,22 @@ dimension .
         pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
         int sign, unsigned pfft_flags);
 
-Therefore, , , , , and become arrays of length .
+Therefore, :code:\`n\`, :code:\`local:sub:`n`\ i\`,
+:code:\`local:sub:`is`\ tart\`, :code:\`local:sub:`n`\ o\`, and
+:code:\`local:sub:`os`\ tart\` become arrays of length
+:code:\`rnk:sub:`n`\ \`.
 
 Advanced Interface
 ------------------
 
-The advanced interface introduces the arrays and of length that give the
-pruned FFT input and output size. Furthermore, the arrays and of length
-( being the dimension of the process mesh) serve to adjust the block
-size of the input and output block decomposition. The additional
-parameter gives the number of transforms that will be computed
-simultaneously.
+The advanced interface introduces the arrays :code:\`ni\` and
+:code:\`no\` of length :code:\`rnk:sub:`n`\ \` that give the pruned FFT
+input and output size. Furthermore, the arrays :code:\`iblock\` and
+:code:\`oblock\` of length :code:\`rnk:sub:`p`\ m\`
+(:code:\`rnk:sub:`p`\ m\` being the dimension of the process mesh) serve
+to adjust the block size of the input and output block decomposition.
+The additional parameter :code:\`howmany\` gives the number of
+transforms that will be computed simultaneously.
 
 ::
 
@@ -86,13 +98,12 @@ simultaneously.
         pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
         int sign, unsigned pfft_flags);
 
-.. _sec-skip-trafo:
-
 Preliminary: Skip Serial Transformations
 ----------------------------------------
 
-The interface extends the interface by adding the possibility to skip
-some of the serial FFTs.
+The :code:\`:sub:`s`\ kipped\` interface extends the
+:code:\`:sub:`m`\ any\` interface by adding the possibility to skip some
+of the serial FFTs.
 
 ::
 
@@ -104,13 +115,18 @@ some of the serial FFTs.
         pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
         int sign, unsigned pfft_flags);
 
-Hereby, is an array of length ( being the mesh dimension of the
-communicator ). For set if the -th serial transformation should be
-computed, otherwise set . Note that the local transpositions are always
-performed, since they are a prerequisite for the global communication to
-work. At the moment it is only possible to skip the whole serial
-transform along the last dimensions. However, this behaviour can be
-realized by a call of a -dimensional PFFT with
+Hereby, :code:\`skip:sub:`t`\ rafos\` is an :code:\`int\` array of
+length :code:\`rnk:sub:`p`\ m+1\` (:code:\`rnk:sub:`p`\ m\` being the
+mesh dimension of the communicator :code:\`comm:sub:`c`\ art\`). For
+:code:\`t=0,...,rnk:sub:`p`\ m\` set :code:\`skip:sub:`t`\ rafos[t]=1\`
+if the :code:\`t\`-th serial transformation should be computed,
+otherwise set :code:\`skip:sub:`t`\ rafos[t]=0\`. Note that the local
+transpositions are always performed, since they are a prerequisite for
+the global communication to work. At the moment it is only possible to
+skip the whole serial transform along the last
+:code:\`rnk:sub:`n`-rnk:sub:`p`\ m-1\` dimensions. However, this
+behaviour can be realized by a call of a
+:code:\`(rnk:sub:`p`\ m+1)\`-dimensional PFFT with
 
 ::
 
@@ -118,4 +134,4 @@ realized by a call of a -dimensional PFFT with
       howmany *= n[t];
 
 and manual computation of the desired serial transforms along the last
-dimensions.
+:code:\`rnk:sub:`n`-rnk:sub:`p`\ m-1\` dimensions.

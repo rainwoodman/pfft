@@ -50,16 +50,19 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="interface-layers-of-the-pfft-library">
-<span id="chap-api"></span><h1>Interface Layers of the PFFT Library<a class="headerlink" href="#interface-layers-of-the-pfft-library" title="Permalink to this headline">¶</a></h1>
+  <p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
+<p>#1</p>
+<p>`_=<sub>_</sub></p>
+<div class="section" id="interface-layers-of-the-pfft-library">
+<h1>Interface Layers of the PFFT Library<a class="headerlink" href="#interface-layers-of-the-pfft-library" title="Permalink to this headline">¶</a></h1>
 <p>We give a quick overview of the PFFT interface layers in the order of
 increasing flexibility at the example of c2c-FFTs. For r2c-, c2r-, and
 r2r-FFT similar interface layer specifications apply. A full reference
-list of all PFFT functions is given in Chapter&nbsp;:<a class="reference internal" href="reference.html#chap-ref"><span>PFFT Reference</span></a>.</p>
+list of all PFFT functions is given in Chapter&nbsp;[chap:ref].</p>
 <div class="section" id="basic-interface">
 <h2>Basic Interface<a class="headerlink" href="#basic-interface" title="Permalink to this headline">¶</a></h2>
-<p>The interface is the simplest interface layer. It is suitable for the
-planning of three-dimensional FFTs.</p>
+<p>The :code:`:sub:<cite>3</cite>d` interface is the simplest interface layer. It
+is suitable for the planning of three-dimensional FFTs.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft_3d(
     const ptrdiff_t *n, MPI_Comm comm_cart, unsigned pfft_flags,
     ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
@@ -75,9 +78,12 @@ pfft_plan pfft_plan_dft_3d(
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Hereby, , , , , and are arrays of length .</p>
-<p>The basic interface generalizes the interface to FFTs of arbitrary
-dimension .</p>
+<p>Hereby, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
+:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
+:code:`local:sub:<cite>os</cite>tart` are :code:`ptrdiff:sub:<cite>t</cite>` arrays of
+length :code:`3`.</p>
+<p>The basic interface generalizes the :code:`:sub:<cite>3</cite>d` interface to
+FFTs of arbitrary dimension :code:`rnk:sub:<cite>n</cite>`.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft(
     int rnk_n, const ptrdiff_t *n,
     MPI_Comm comm_cart, unsigned pfft_flags,
@@ -94,16 +100,21 @@ pfft_plan pfft_plan_dft(
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Therefore, , , , , and become arrays of length .</p>
+<p>Therefore, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
+:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
+:code:`local:sub:<cite>os</cite>tart` become arrays of length
+:code:`rnk:sub:<cite>n</cite>`.</p>
 </div>
 <div class="section" id="advanced-interface">
 <h2>Advanced Interface<a class="headerlink" href="#advanced-interface" title="Permalink to this headline">¶</a></h2>
-<p>The advanced interface introduces the arrays and of length that give the
-pruned FFT input and output size. Furthermore, the arrays and of length
-( being the dimension of the process mesh) serve to adjust the block
-size of the input and output block decomposition. The additional
-parameter gives the number of transforms that will be computed
-simultaneously.</p>
+<p>The advanced interface introduces the arrays :code:`ni` and
+:code:`no` of length :code:`rnk:sub:<cite>n</cite>` that give the pruned FFT
+input and output size. Furthermore, the arrays :code:`iblock` and
+:code:`oblock` of length :code:`rnk:sub:<cite>p</cite>m`
+(:code:`rnk:sub:<cite>p</cite>m` being the dimension of the process mesh) serve
+to adjust the block size of the input and output block decomposition.
+The additional parameter :code:`howmany` gives the number of
+transforms that will be computed simultaneously.</p>
 <div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_many_dft(
     int rnk_n, const ptrdiff_t *n,
     const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
@@ -127,9 +138,10 @@ pfft_plan pfft_plan_many_dft(
 </div>
 </div>
 <div class="section" id="preliminary-skip-serial-transformations">
-<span id="sec-skip-trafo"></span><h2>Preliminary: Skip Serial Transformations<a class="headerlink" href="#preliminary-skip-serial-transformations" title="Permalink to this headline">¶</a></h2>
-<p>The interface extends the interface by adding the possibility to skip
-some of the serial FFTs.</p>
+<h2>Preliminary: Skip Serial Transformations<a class="headerlink" href="#preliminary-skip-serial-transformations" title="Permalink to this headline">¶</a></h2>
+<p>The :code:`:sub:<cite>s</cite>kipped` interface extends the
+:code:`:sub:<cite>m</cite>any` interface by adding the possibility to skip some
+of the serial FFTs.</p>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_many_dft_skipped(
     int rnk_n, const ptrdiff_t *n,
     const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
@@ -139,19 +151,24 @@ some of the serial FFTs.</p>
     int sign, unsigned pfft_flags);
 </pre></div>
 </div>
-<p>Hereby, is an array of length ( being the mesh dimension of the
-communicator ). For set if the -th serial transformation should be
-computed, otherwise set . Note that the local transpositions are always
-performed, since they are a prerequisite for the global communication to
-work. At the moment it is only possible to skip the whole serial
-transform along the last dimensions. However, this behaviour can be
-realized by a call of a -dimensional PFFT with</p>
+<p>Hereby, :code:`skip:sub:<cite>t</cite>rafos` is an :code:`int` array of
+length :code:`rnk:sub:<cite>p</cite>m+1` (:code:`rnk:sub:<cite>p</cite>m` being the
+mesh dimension of the communicator :code:`comm:sub:<cite>c</cite>art`). For
+:code:`t=0,...,rnk:sub:<cite>p</cite>m` set :code:`skip:sub:<cite>t</cite>rafos[t]=1`
+if the :code:`t`-th serial transformation should be computed,
+otherwise set :code:`skip:sub:<cite>t</cite>rafos[t]=0`. Note that the local
+transpositions are always performed, since they are a prerequisite for
+the global communication to work. At the moment it is only possible to
+skip the whole serial transform along the last
+:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions. However, this
+behaviour can be realized by a call of a
+:code:`(rnk:sub:<cite>p</cite>m+1)`-dimensional PFFT with</p>
 <div class="highlight-python"><div class="highlight"><pre>for(int t=rnk_pm+1; t&lt;rnk_n; t++)
   howmany *= n[t];
 </pre></div>
 </div>
 <p>and manual computation of the desired serial transforms along the last
-dimensions.</p>
+:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions.</p>
 </div>
 </div>
 

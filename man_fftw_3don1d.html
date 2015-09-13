@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Developers Guide &mdash; PFFT 1.0.8 documentation</title>
+    <title>&lt;no title&gt; &mdash; PFFT 1.0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,8 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
-    <link rel="prev" title="PFFT Reference" href="reference.html" /> 
+    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,9 +33,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="reference.html" title="PFFT Reference"
-             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -49,41 +45,40 @@
   <p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
 <p>#1</p>
 <p>`_=<sub>_</sub></p>
-<div class="section" id="developers-guide">
-<h1>Developers Guide<a class="headerlink" href="#developers-guide" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="search-and-replace-patterns">
-<h2>Search and replace patterns<a class="headerlink" href="#search-and-replace-patterns" title="Permalink to this headline">¶</a></h2>
-<p>Correct alignment of pfft.h header</p>
-<div class="highlight-python"><div class="highlight"><pre>%s/^\(    [^ ]\+[^\\]*\)  \\/  \1\\/g
-</pre></div>
-</div>
-<p>Expand most macros of pfft.h to generate the function reference of this
-manual:</p>
-<div class="highlight-python"><div class="highlight"><pre>sed -e &#39;s/ *\\$//g&#39; -e &#39;s/PFFT_EXTERN //g&#39; \
-    -e &#39;s/PX(\([^)]*\))/pfft_\1/g&#39; -e &#39;s/ INT/ ptrdiff_t/g&#39; \
-    -e &#39;s/ R/ double/g&#39; -e &#39;s/ C/ pfft_complex/g&#39; \
-    -e &#39;s/^  //g&#39; pfft.h &gt; pfft.h.expanded
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="todo">
-<h1>ToDo<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>:code:`PFFT:sub:<cite>F</cite>ORWARD` is defined as
-:code:`FFTW:sub:<cite>F</cite>ORWARD`</li>
-<li>:code:`FFTW:sub:<cite>F</cite>ORWARD` is defined as <span class="math">\(-1\)</span></li>
-<li>PFFT allows to chose between :code:`FFTW:sub:<cite>F</cite>ORWARD` and
-:code:`FFTW:sub:<cite>B</cite>ACKWARD`, which is not implemented by FFTW.</li>
-<li>Matlab uses the same sign convention, i.e., <span class="math">\(-1\)</span> for
-:code:`fft` and <span class="math">\(+1\)</span> for :code:`ifftn`</li>
-</ul>
-<div class="section" id="measuring-parallel-run-times">
-<h2>Measuring parallel run times<a class="headerlink" href="#measuring-parallel-run-times" title="Permalink to this headline">¶</a></h2>
-<p>Use :code:`MPI:sub:<cite>B</cite>arrier` in front of every call to function to
-avoid unbalanced run times.</p>
-</div>
-</div>
+<p>#include &lt;fftw3-mpi.h&gt;</p>
+<p>int main(int argc, char **argv)</p>
+<p>const ptrdiff<sub>t</sub> n0 = 4, n1 = 4, n2 = 4; fftw<sub>p</sub>lan
+plan; fftw<sub>c</sub>omplex *data; ptrdiff<sub>t</sub>
+alloc<sub>l</sub>ocal, local<sub>n</sub>0, local<sub>0s</sub>tart, i, j,
+k;</p>
+<p>MPI<sub>I</sub>nit(&amp;argc, &amp;argv); fftw<sub>m</sub>pi<sub>i</sub>nit();</p>
+<p>/* get local data size and allocate */ alloc<sub>l</sub>ocal =
+fftw<sub>m</sub>pi<sub>l</sub>ocal<sub>s</sub>ize<sub>3</sub>d(n0, n1,
+n2, MPI<sub>C</sub>OMM<sub>W</sub>ORLD, &amp;local<sub>n</sub>0,
+&amp;local<sub>0s</sub>tart); data =
+fftw<sub>a</sub>lloc<sub>c</sub>omplex(alloc<sub>l</sub>ocal);</p>
+<p>/* create plan for in-place forward DFT */ plan =
+fftw<sub>m</sub>pi<sub>p</sub>lan<sub>d</sub>ft<sub>3</sub>d(n0, n1, n2,
+data, data, MPI<sub>C</sub>OMM<sub>W</sub>ORLD, FFTW<sub>F</sub>ORWARD,
+FFTW<sub>E</sub>STIMATE);</p>
+<p>/* initialize data to some function my<sub>f</sub>unction(x,y) */ for
+(i = 0; i &lt; local<sub>n</sub>0; ++i) for (j = 0; j &lt; n1; ++j) for (k =
+0; k &lt; n2; ++k) data[i*n1*n2 + j*n2 + k] =
+my<sub>f</sub>unction(local<sub>0s</sub>tart + i, j, k);</p>
+<p>ptrdiff<sub>t</sub> local<sub>n</sub>i[3] = local<sub>n</sub>0, n1, n2,
+local<sub>is</sub>tart[3] = local<sub>0s</sub>tart, 0, 0;
+pfft<sub>a</sub>pr<sub>c</sub>omplex<sub>3</sub>d(data,
+local<sub>n</sub>i, local<sub>is</sub>tart, “input:”,
+MPI<sub>C</sub>OMM<sub>W</sub>ORLD);</p>
+<p>/* compute transforms, in-place, as many times as desired */
+fftw<sub>e</sub>xecute(plan);</p>
+<p>ptrdiff<sub>t</sub> local<sub>n</sub>o[3] = local<sub>n</sub>0, n1, n2,
+local<sub>os</sub>tart[3] = local<sub>0s</sub>tart, 0, 0;
+pfft<sub>a</sub>pr<sub>c</sub>omplex<sub>3</sub>d(data,
+local<sub>n</sub>o, local<sub>os</sub>tart, “output:”,
+MPI<sub>C</sub>OMM<sub>W</sub>ORLD);</p>
+<p>(*&#64; fftw_destroy_plan(plan); &#64;*)</p>
+<p>MPI<sub>F</sub>inalize();</p>
 
 
           </div>
@@ -91,25 +86,10 @@ avoid unbalanced run times.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Developers Guide</a><ul>
-<li><a class="reference internal" href="#search-and-replace-patterns">Search and replace patterns</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#todo">ToDo</a><ul>
-<li><a class="reference internal" href="#measuring-parallel-run-times">Measuring parallel run times</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="reference.html"
-                        title="previous chapter">PFFT Reference</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/develop.txt"
+      <li><a href="_sources/man_fftw_3don1d.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -136,9 +116,6 @@ avoid unbalanced run times.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="reference.html" title="PFFT Reference"
-             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PFFT Reference &mdash; PFFT 1.0.8 documentation</title>
+    <title>Introduction &mdash; PFFT 1.0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,9 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" />
-    <link rel="next" title="Developers Guide" href="develop.html" />
-    <link rel="prev" title="Interface Layers of the PFFT Library" href="interface.html" /> 
+    <link rel="top" title="PFFT 1.0.8 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -35,12 +33,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="develop.html" title="Developers Guide"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="interface.html" title="Interface Layers of the PFFT Library"
-             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -53,6 +45,1025 @@
   <p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
 <p>#1</p>
 <p>`_=<sub>_</sub></p>
+<p>for version 1.0.7-alpha</p>
+<div class="line-block">
+<div class="line">Michael Pippig</div>
+<div class="line">Technische Universität Chemnitz</div>
+<div class="line">Faculty of Mathematics</div>
+<div class="line">09107 Chemnitz, Germany</div>
+<div class="line"><a class="reference external" href="mailto:michael&#46;pippig&#37;&#52;&#48;mathematik&#46;tu-chemnitz&#46;de">michael<span>&#46;</span>pippig<span>&#64;</span>mathematik<span>&#46;</span>tu-chemnitz<span>&#46;</span>de</a></div>
+</div>
+<div class="line-block">
+<div class="line">Download <strong>P</strong>arallel <strong>F</strong>ast <strong>F</strong>ourier <strong>T</strong>ransform</div>
+</div>
+<p>Software Library at
+| <a class="reference external" href="{www.tu-chemnitz.de/~mpip}/software.php">{www.tu-chemnitz.de/~mpip}/software.php</a>
+| <a class="reference external" href="https://github.com/mpip/pfft.git">https://github.com/mpip/pfft.git</a></p>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>A popular software library for computing FFTs is FFTW&nbsp;. This library
+also includes a parallel FFT implementation (FFTW-MPI) based on the
+Message Passing Interface (MPI). FFTW-MPI parallelizes multi-dimensional
+FFTs by a mixture of serial lower-dimensional FFTs and parallel data
+transpositions. However, FFTW-MPI makes use of a one-dimensional data
+decomposition, which shows to be a scalability bottleneck on large
+scale, parallel computers. For example, a three-dimensional FFT of size
+<span class="math">\(1024^3\)</span> can be computed with at most <span class="math">\(1024\)</span> MPI processes.
+In contrast, using a two-dimensional data decomposition would increase
+the maximum number of MPI processes to <span class="math">\(1024^2\)</span> in this case.</p>
+<p>The main goal of PFFT is to extend the MPI part of the FFTW software
+library to multi-dimensional data decompositions, i.e.,
+<span class="math">\(d\)</span>-dimensional FFTs of size <span class="math">\(N^d\)</span> can be computed in
+parallel with at most <span class="math">\(N^{d-1}\)</span> MPI processes. In addition, PFFT
+offers several extra features that are particular usefull for parallel,
+distributed memory FFTs but are not yet present in FFTW-MPI. We refer to
+the publication&nbsp; for a closer look on the different data decompositions
+and the underlying algorithms of the PFFT library.</p>
+<p>The interface of PFFT is as close as possible to the FFTW-MPI interface.
+In fact, we consider every difference between PFFT and FFTW that is not
+explicitly mentioned within this manual as a bug that should be reported
+to <a class="reference external" href="https://github.com/mpip/pfft.git">https://github.com/mpip/pfft.git</a>. Therefore, porting code that uses
+FFTW-MPI to PFFT is almost trivial, e.g. see Section&nbsp;[sec:porting].</p>
+<p>Most features of PFFT are inherited from FFTW or similarily implemented.
+These include the following:</p>
+<p>We employ fast <span class="math">\(\mathcal{O}(N\log N)\)</span> algorithms of FFTW to
+compute arbitrary-size discrete Fourier transforms of complex data, real
+data, and even- or odd-symmetric real data.</p>
+<p>The dimension of the FFT can be arbitrary. However, parallel data
+decomposition must be at least one dimension smaller.</p>
+<p>PFFT offers portable performance; e.g., it will perform well on most
+platforms.</p>
+<p>The application of PFFT is split into a time consuming planning step and
+a high performance execution step.</p>
+<p>Installing the library is easy. It is based on the common sequence of
+configure, make, and make install.</p>
+<p>The interface of PFFT is very close to the MPI interface of FFTW. In
+fact, we tried to add as few extra parameters as possible.</p>
+<p>PFFT is written in C but also offers a Fortran interface, see
+Section&nbsp;[sec:fortran].</p>
+<p>FFTW includes shared memory parallelism for all serial transforms. This
+enables us to benefit from hybrid parallelism to a certain amount, see
+Section&nbsp;[sec:openmp].</p>
+<p>All steps of our parallel FFT can be performed completely in place. This
+is especially remarkable for the global transposition routines.</p>
+<p>Confirming to good MPI programming practice, all PFFT transforms can be
+performed on user defined communicators. In other words, PFFT does not
+enforce the user to work with <code class="docutils literal"><span class="pre">MPI_COMM_WORLD</span></code>.</p>
+<p>PFFT uses the same algorithm to compute the size of the local array
+blocks as FFTW. This implies that the FFT size need not be divisible by
+the number of processes.</p>
+<p>PFFT supports single, double and long double precision.</p>
+<p>PFFT supports new-array execution, i.e., a PFFT plan can be planned and
+executed on different plans up to some restrictions, see
+Section&nbsp;[sec:new-array] for details. Thanks to Yu Feng for the new-array
+execute patch.</p>
+<p>Furthermore, we added some special features to support repeated tasks
+that often occur in practical application of parallel FFTs.</p>
+<p>PFFT includes a very flexible ghost cell exchange module. A detailed
+description of this module is given in Section&nbsp;[sec:gc].</p>
+<p>PFFT accepts three-dimensional data decomposition even for
+three-dimensional FFTs. However, the underlying parallel FFT framework
+is still based on two-dimensional decomposition. A more detailed
+description can be found in Section&nbsp;[sec:3don2d].</p>
+<p>PFFT explicitly supports the parallel calculation of pruned FFTs.
+Details are given in Section&nbsp;[sec:pruned].</p>
+<p>Finally, we complete this overview with a list of features that are (not
+yet) implemented in PFFT.</p>
+<p>Parallel one-dimensional FFT based on MPI. FFTW-MPI uses another
+parallelization strategy for one-dimensional FFTs, which is not
+implemented in PFFT. The reason is that we can not achive a scalability
+benefit due to higher dimensional data decomposition if the FFT has only
+one dimension. Therefore, one can also call FFTW directly in this case.</p>
+<p>There is no equivalent of FFTW <em>wisdom</em> in PFFT, i.e., you can not save
+a PFFT plan to disk and restore it for later use.</p>
+<p>PFFT does not have full OpenMP support. All serial FFT computations and
+global communications are implemented with FFTW, which offers OpenMP
+support, see Section&nbsp;[sec:openmp]. However, most of the PFFT-only
+features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
+FFTs are not yet parallelized with OpenMP.</p>
+<p>PFFT does not have full SIMD support. All serial FFT computations and
+global communications are implemented with FFTW, which offers SIMD
+support, see Section&nbsp;[sec:simd]. However, most of the PFFT-only
+features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
+FFTs are not yet parallelized with SIMD.</p>
+<p>PFFT does not overlap communication and computation. The code of PFFT is
+build in a very modularized structure. Most of these modules consist of
+FFTWs routines. Therefore, the global transposition does not support non
+blocking communication.</p>
+<p>Similar to FFTW, we do not provide any parallel IO routines. The user is
+responsible of load and store of parallel data.</p>
+<p>PFFT depends on FFTW to perform its serial transforms and does not
+support different vendor FFTs (such as Intel’s MKL or IBM’s ESSL).
+However, this is not assumed to be a big drawback, since FFTW seems to
+perform very well on most platforms.</p>
+<p>The global communication routines can not be called separately. However,
+it should be possible to implement a user interface to our global
+transposition routines.</p>
+<p>PFFT does not support GPU parallelization.</p>
+<p>You are welcome to propose new PFFT features at
+<a class="reference external" href="https://github.com/mpip/pfft.git">https://github.com/mpip/pfft.git</a>.</p>
+<div class="section" id="alternative-parallel-fft-implementations">
+<h2>Alternative parallel FFT implementations<a class="headerlink" href="#alternative-parallel-fft-implementations" title="Permalink to this headline">¶</a></h2>
+<p>There have been several FFT implementations that aim to circumvent the
+scalability bottleneck for at least three dimensional FFTs by using
+two-dimensional decomposition approach. However, these implementations
+are often fitted to special problems and where not published as a stand
+alone software library. Remarkable exceptions are the parallel FFT
+software library by S.&nbsp;Plimpton&nbsp;, the P3DFFT software library by
+D.&nbsp;Pekurovsky&nbsp; and the software library by N.&nbsp;Li&nbsp;.</p>
+</div>
+<div class="section" id="parallel-nonequispaced-fft">
+<h2>Parallel nonequispaced FFT<a class="headerlink" href="#parallel-nonequispaced-fft" title="Permalink to this headline">¶</a></h2>
+<p>If your are interested in a parallel implementation of nonequispaced
+fast Fourier transforms (NFFT) for distributed memory architectures, you
+should have a look at our PNFFT software library&nbsp; that is also available
+at <a class="reference external" href="https://github.com/mpip/pnfft.git">https://github.com/mpip/pnfft.git</a>.</p>
+</div>
+</div>
+<div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The following chapter describes the usage of the PFFT library at the
+example of a simple test file in the first section, followed by the more
+advanced features of PFFT in the next sections.</p>
+<div class="section" id="a-first-parallel-transform-three-dimensional-fft-with-two-dimensional-data-decomposition">
+<h2>A first parallel transform - Three-dimensional FFT with two-dimensional data decomposition<a class="headerlink" href="#a-first-parallel-transform-three-dimensional-fft-with-two-dimensional-data-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>We explain the basic steps for computing a parallel FFT with the PFFT
+library at the example of the short test program given by
+Listing&nbsp;[lst:man<sub>c</sub>2c]. This test computes a three-dimensional
+c2c-FFT on a two-dimensional process mesh. The source code
+:code:`manual:sub:<cite>c</cite>2c<sub>3</sub>d.c` can be found in directory
+:code:`tests/` of the library’s source code tree.</p>
+<p>After initializing MPI with :code:`MPI:sub:<cite>I</cite>nit` and before
+calling any other PFFT routine initialize the parallel FFT computations
+via</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_init(void);
+</pre></div>
+</div>
+<p>MPI introduces the concept of communicators to store all the topological
+information of the physical process layout. PFFT requires to be called
+on a process mesh that corresponds to a periodic, Cartesian
+communicator. We assist the user in creating such a communicator with
+the following routine</p>
+<div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh_2d(
+    MPI_Comm comm, int np0, int np1,
+    MPI_Comm *comm_cart_2d);
+</pre></div>
+</div>
+<p>This routine uses the processes within the communicator :code:`comm`
+to create a two-dimensional process grid of size :code:`np0` x
+:code:`np1` and stores it into the Cartesian communicator
+:code:`comm:sub:<cite>c</cite>art<sub>2</sub>d`. Note that
+:code:`comm:sub:<cite>c</cite>art<sub>2</sub>d` is allocated by the routine and
+must be freed with :code:`MPI:sub:<cite>C</cite>omm<sub>f</sub>ree` after
+usage. The input parameter :code:`comm` is a communicator, indicating
+which processes will participate in the transform. Choosing
+:code:`comm` as :code:`MPI:sub:<cite>C</cite>OMM<sub>W</sub>ORLD` implies
+that the FFT is computed on all available processes.</p>
+<p>At the next step we need to know the data decomposition of the input and
+output array, that depends on the array sizes, the process grid and the
+chosen parallel algorithm. Therefore, we call</p>
+<div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_3d(
+    ptrdiff_t *n, MPI_Comm comm_cart_2d, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+</pre></div>
+</div>
+<p>Hereby, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
+:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`,
+:code:`local:sub:<cite>os</cite>tart` are arrays of length <span class="math">\(3\)</span> that must
+be allocated. The return value of this function equals the size of the
+local complex array that needs to be allocated by every process. In most
+cases, this coincides with the product of the local array sizes – but
+may be bigger, whenever the parallel algorithm needs some extra storage.
+The input value :code:`n` gives the three-dimensional FFT size and the
+flag :code:`pfft:sub:<cite>f</cite>lags` serves to adjust some details of the
+parallel execution. For the sake of simplicity, we restrict our self to
+the case
+:code:`pfft:sub:<cite>f</cite>lags=PFFT<sub>T</sub>RANSPOSED<sub>N</sub>ONE`
+for a while and explain the more sophisticated flags at a later point.
+The output arrays :code:`local:sub:<cite>n</cite>i` and
+:code:`local:sub:<cite>is</cite>tart` give the size and the offset of the local
+input array that result from the parallel block distribution of the
+global input array, i.e., every process owns the input data
+:code:`in[k[0],k[1],k[2]]` with :code:`local:sub:<cite>is</cite>tart[t] &lt;=
+k[t] &lt; local<sub>is</sub>tart[t] + local<sub>n</sub>i[t]` for
+:code:`t=0,1,2`. Analogously, the output parameters
+:code:`local:sub:<cite>os</cite>tart` and :code:`local:sub:<cite>n</cite>o` contain
+the size and the offset of the local output array.</p>
+<p>Afterward, the input and output arrays must be allocated. Hereby,</p>
+<div class="highlight-python"><div class="highlight"><pre>pfft_complex* pfft_alloc_complex(size_t size);
+</pre></div>
+</div>
+<p>is a simple wrapper of :code:`fftw:sub:<cite>a</cite>lloc<sub>c</sub>omplex`,
+which in turn allocates the memory via :code:`fftw:sub:<cite>m</cite>alloc` to
+ensure proper alignment for SIMD. Have a look at the FFTW user manual
+for more details on SIMD memory alignment and
+:code:`fftw:sub:<cite>m</cite>alloc`. Nevertheless, you can also use any other
+dynamic memory allocation.</p>
+<p>The planning of a single three-dimensional parallel FFT of size
+:code:`n[0]` x :code:`n[1]` x :code:`n[2]` is done by the function</p>
+<div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_dft_3d(
+    ptrdiff_t *n, pfft_complex *in, pfft_complex *out,
+    MPI_Comm comm_cart_2d, int sign, unsigned pfft_flags);
+</pre></div>
+</div>
+<p>We provide the address of the input and output array by the pointers
+:code:`in` and :code:`out`, respectively. An inplace transform is
+assumed if these pointers are equal. The integer :code:`sign` gives
+the sign in the exponential of the FFT. Possible values are
+:code:`PFFT:sub:<cite>F</cite>ORWARD` (<span class="math">\(-1\)</span>) and
+:code:`PFFT:sub:<cite>B</cite>ACKWARD` (<span class="math">\(+1\)</span>). Flags passed to the
+planner via :code:`pfft_flags` must coincide with the flags that were
+passed to :code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>3</sub>d`.
+Otherwise the data layout of the parallel execution may not match
+calculated local array sizes. As return value we get a PFFT plan, some
+structure that stores all the information needed to perform a parallel
+FFT.</p>
+<p>Once the plan is generated, we are allowed to fill the input array
+:code:`in`. Note, that per default the planning step
+:code:`pfft:sub:<cite>p</cite>lan<sub>d</sub>ft<sub>3</sub>d` will overwrite
+input array :code:`in`. Therefore, you should not write any sensitive
+data into :code:`in` until the plan was generated. For simplicity, our
+test program makes use of the library function</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_init_input_complex_3d(
+    ptrdiff_t *n, ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    pfft_complex *in);
+</pre></div>
+</div>
+<p>to fill the input array with some numbers. Alternatively, one can fill
+the array with a function :code:`func` of choice and the following
+loop that takes account of the parallel data layout</p>
+<div class="highlight-python"><div class="highlight"><pre>ptrdiff_t m=0;
+for(ptrdiff_t k0=0; k0 &lt; local_ni[0]; k0++)
+  for(ptrdiff_t k1=0; k1 &lt; local_ni[1]; k1++)
+    for(ptrdiff_t k2=0; k2 &lt; local_ni[2]; k2++)
+      in[m++] = func(k0 + local_i_start[0],
+                     k1 + local_i_start[1],
+                     k2 + local_i_start[2]);
+</pre></div>
+</div>
+<p>The parallel FFT is computed when we execute the generated plan via</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_execute(const pfft_plan plan);
+</pre></div>
+</div>
+<p>Now, the results can be read from :code:`out` with an analogous
+three-dimensional loop. If we do not want to execute another parallel
+FFT of the same type, we free the allocated memory of the plan with</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_destroy_plan(pfft_plan plan);
+</pre></div>
+</div>
+<p>Additionally, we use</p>
+<div class="highlight-python"><div class="highlight"><pre>int MPI_Comm_free(MPI_Comm *comm);
+</pre></div>
+</div>
+<p>to free the communicator allocated by
+:code:`pfft:sub:<cite>c</cite>reate<sub>p</sub>rocmesh<sub>2</sub>d` and</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_free(void *ptr);
+</pre></div>
+</div>
+<p>to free memory allocated by
+:code:`pfft:sub:<cite>a</cite>lloc<sub>c</sub>omplex`. Finally, we exit MPI via</p>
+<div class="highlight-python"><div class="highlight"><pre>int MPI_Finalize(void);
+</pre></div>
+</div>
+</div>
+<div class="section" id="porting-fftw-mpi-based-code-to-pfft">
+<h2>Porting FFTW-MPI based code to PFFT<a class="headerlink" href="#porting-fftw-mpi-based-code-to-pfft" title="Permalink to this headline">¶</a></h2>
+<p>We illustrate the close connection between FFTW-MPI and PFFT at a
+three-dimensional MPI example analogous to the example given in the FFTW
+manual&nbsp;.</p>
+<p>Exactly the same task can be performed with PFFT as given in
+Listing&nbsp;[lst:pfft<sub>3</sub>don1d].</p>
+<div class="highlight-python"><div class="highlight"><pre>#include &lt;pfft.h&gt;
+
+int main(int argc, char **argv)
+{
+    const ptrdiff_t n[3] = {..., ..., ...};
+    pfft_plan plan;
+    pfft_complex *data;
+    ptrdiff_t alloc_local, local_ni[3], local_i_start[3], local_no[3], local_o_start[3], i, j, k;
+    unsigned pfft_flags = 0;
+
+    MPI_Init(&amp;argc, &amp;argv);
+    pfft_init();
+
+    /* get local data size and allocate */
+    alloc_local = pfft_local_size_dft_3d(n, MPI_COMM_WORLD, pfft_flags,
+                                     local_ni, local_i_start,
+                                     local_no, local_o_start);
+    data = pfft_alloc_complex(alloc_local);
+
+    /* create plan for in-place forward DFT */
+    plan = pfft_plan_dft_3d(n, data, data, MPI_COMM_WORLD,
+                        PFFT_FORWARD, PFFT_ESTIMATE);
+
+    /* initialize data to some function my_function(x,y,z) */
+    for (i = 0; i &lt; local_n[0]; ++i)
+      for (j = 0; j &lt; n[1]; ++j)
+        for (k = 0; k &lt; n[2]; ++k)
+          data[i*n[1]*n[2] + j*n[2] + k] = my_function(local_i_start[0] + i, j, k);
+
+    /* compute transforms, in-place, as many times as desired */
+    pfft_execute(plan);
+
+    pfft_destroy_plan(plan);
+
+    MPI_Finalize();
+}
+</pre></div>
+</div>
+<p>substitute :code:`fftw3-mpi.h` by :code:`pfft.h`</p>
+<p>substitute all prefixes and by</p>
+<p>substitute all prefixes by</p>
+<p>the integers :code:`N`, :code:`local:sub:<cite>n</cite>0`,
+:code:`local:sub:<cite>0s</cite>tart` become arrays of length 3</p>
+<p>in
+:code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>d</sub>ft<sub>3</sub>d`</p>
+<p>:code:`pfft:sub:<cite>l</cite>ocal<sub>s</sub>ize<sub>d</sub>ft<sub>3</sub>d`
+has additional input :code:`pfft:sub:<cite>f</cite>lags` and additional outputs
+:code:`local:sub:<cite>n</cite>o`, :code:`local:sub:<cite>os</cite>tart`</p>
+<p>The loop that inits :code:`data` becomes splitted along all three
+dimensions. We could also use</p>
+<p>First, All prefixes are substituted by</p>
+<p>Now, the changes in order to use a two-dimensional process mesh are
+marginal as can be seen in Listing&nbsp;[lst:pfft<sub>3</sub>don2d].</p>
+<div class="highlight-python"><div class="highlight"><pre>#include &lt;pfft.h&gt;
+
+int main(int argc, char **argv)
+{
+    const ptrdiff_t n[3] = {..., ..., ...};
+    (red@const int np0 = ..., np1 = ...;@*)
+    pfft_plan plan;
+    pfft_complex *data;
+    ptrdiff_t alloc_local, local_ni[3], local_i_start[3], local_no[3], local_o_start[3], i, j, k;
+    unsigned pfft_flags = 0;
+    (red@MPI_Comm comm_cart_2d;@*)
+
+    MPI_Init(&amp;argc, &amp;argv);
+    pfft_init();
+
+    (red@/* create two-dimensional process grid of size np0 x np1 */@*)
+    (red@pfft_create_procmesh_2d(MPI_COMM_WORLD, np0, np1,@*)
+        (red@&amp;comm_cart_2d);@*)
+
+    /* get local data size and allocate */
+    alloc_local = pfft_local_size_dft_3d(n, (red@comm_cart_2d@*), pfft_flags,
+                                     local_ni, local_i_start,
+                                     local_no, local_o_start);
+    data = pfft_alloc_complex(alloc_local);
+
+    /* create plan for in-place forward DFT */
+    plan = pfft_plan_dft_3d(n, data, data, MPI_COMM_WORLD,
+                        PFFT_FORWARD, PFFT_ESTIMATE);
+
+    /* initialize data to some function my_function(x,y,z) */
+    for (i = 0; i &lt; local_n[0]; ++i)
+      for (j = 0; j &lt; (red@local_n[1]@*); ++j)
+        for (k = 0; k &lt; (red@local_n[2]@*); ++k)
+          data[i*(red@local_n[1]*local_n[2]@*) + j*(red@local_n[2]@*) + k] =
+              my_function(local_i_start[0] + i,
+                      (red@local_i_start[1] +@*) j,
+                      (red@local_i_start[2] +@*) k);
+
+    /* compute transforms, in-place, as many times as desired */
+    pfft_execute(plan);
+
+    pfft_destroy_plan(plan);
+
+    MPI_Finalize();
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="errorcode-for-communicator-creation">
+<h2>Errorcode for communicator creation<a class="headerlink" href="#errorcode-for-communicator-creation" title="Permalink to this headline">¶</a></h2>
+<p>As we have seen the function</p>
+<div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh_2d(
+    MPI_Comm comm, int np0, int np1,
+    MPI_Comm *comm_cart_2d);
+</pre></div>
+</div>
+<p>creates a two-dimensional, periodic, Cartesian communicator. The
+:code:`int` return value (not used in Listing&nbsp;[lst:man<sub>c</sub>2c])
+is the forwarded error code of
+:code:`MPI:sub:<cite>C</cite>art<sub>c</sub>reate`. It is equal to zero if the
+communicator was created successfully. The most common error is that the
+number of processes within the input communicator :code:`comm` does
+not fit :code:`np0 x np1`. In this case the Cartesian communicator is
+not generated and the return value is unequal to zero. Therefore, a
+typical sanity check might look like</p>
+<div class="highlight-python"><div class="highlight"><pre>/* Create two-dimensional process grid of size np[0] x np[1],
+   if possible */
+if( pfft_create_procmesh_2d(MPI_COMM_WORLD, np[0], np[1],
+        &amp;comm_cart_2d) )
+{
+  pfft_fprintf(MPI_COMM_WORLD, stderr,
+      &quot;Error: This test file only works with %d processes.\n&quot;,
+      np[0]*np[1]);
+  MPI_Finalize();
+  return 1;
+}
+</pre></div>
+</div>
+<p>Hereby, we use the PFFT library function</p>
+<div class="highlight-python"><div class="highlight"><pre>void pfft_fprintf(
+    MPI_Comm comm, FILE *stream, const char *format, ...);
+</pre></div>
+</div>
+<p>to print the error message. This function is similar to the standard C
+function :code:`fprintf` with the exception, that only the process
+with MPI rank <span class="math">\(0\)</span> within the given communicator :code:`comm`
+will produce some output; see Section&nbsp;[sec:fprintf] for details.</p>
+</div>
+<div class="section" id="inplace-transforms">
+<h2>Inplace transforms<a class="headerlink" href="#inplace-transforms" title="Permalink to this headline">¶</a></h2>
+<p>Similar to FFTW, PFFT is able to compute parallel FFTs completely in
+place, which means that beside some constant buffers, no second data
+array is necessary. Especially, the global data communication can be
+performed in place. As far as we know, there is no other parallel FFT
+library beside FFTW and PFFT that supports this feature. This feature is
+enabled as soon as the pointer to the output array :code:`out` is
+equal to the pointer to the input array :code:`in`. E.g., in
+Listing&nbsp;[lst:man<sub>c</sub>2c] we would call</p>
+<div class="highlight-python"><div class="highlight"><pre>/* Plan parallel forward FFT */
+plan = pfft_plan_dft_3d(n, in, in, comm_cart_2d,
+    PFFT_FORWARD, PFFT_TRANSPOSED_NONE);
+</pre></div>
+</div>
+</div>
+<div class="section" id="higher-dimensional-data-decomposition">
+<h2>Higher dimensional data decomposition<a class="headerlink" href="#higher-dimensional-data-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>The test program given in Listing&nbsp;[lst:man<sub>c</sub>2c] used a
+two-dimensional data decomposition of a three-dimensional data set.
+Moreover, PFFT support the computation of any <span class="math">\(d\)</span>-dimensional FFT
+with <span class="math">\(r\)</span>-dimensional data decomposition as long as
+<span class="math">\(r\le d-1\)</span>. For example, one can use a one-dimensional data
+decomposition for any two- or higher-dimensional data set, while the
+data set must be at least four-dimensional to fit to a three-dimensional
+data decomposition. The case <span class="math">\(r=d\)</span> is not supported efficiently,
+since during the parallel computations there is always at least one
+dimension that remains local, i.e., one dimensions stays non-decomposed.
+The only exception from this rule is the case <span class="math">\(d=r=3\)</span> that is
+supported by PFFT in a special way, see Section&nbsp;[sec:3don3d] for
+details.</p>
+<p>The dimensionality of the data decomposition is given by the dimension
+of the Cartesian communicator that goes into the PFFT planing routines.
+Therefore, we present a generalization of communicator creation function</p>
+<div class="highlight-python"><div class="highlight"><pre>int pfft_create_procmesh(
+    int rnk_np, MPI_Comm comm, const int *np,
+    MPI_Comm *comm_cart);
+</pre></div>
+</div>
+<p>Hereby, the array :code:`np` of length :code:`rnk:sub:<cite>n</cite>p` gives
+the size of the Cartesian communicator :code:`cart:sub:<cite>c</cite>omm`.</p>
+</div>
+<div class="section" id="parallel-data-decomposition">
+<h2>Parallel data decomposition<a class="headerlink" href="#parallel-data-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>In the following, we use the notation <span class="math">\(\frac{n}{P}\)</span> to symbolize
+that an array of length <span class="math">\(n\)</span> is broken into disjoint blocks and
+distributed on <span class="math">\(P\)</span> MPI processes. Hereby, the data is distributed
+in compliance to the FFTW-MPI data decompostion&nbsp;, i.e., the first
+:code:`P/block` (rounded down) processes get a contiguous chunk of
+:code:`block` elements, the next process gets the remaining :code:`n
+- block * (n/block)` data elements, and all remaining processes get
+nothing. Thereby, the block size :code:`block` defaults to
+:code:`n/P` (rounded down) but can also be user defined.</p>
+<div class="section" id="non-transposed-and-transposed-data-layout">
+<h3>Non-transposed and transposed data layout<a class="headerlink" href="#non-transposed-and-transposed-data-layout" title="Permalink to this headline">¶</a></h3>
+<p>In the following, we use the notation <span class="math">\(\frac{n}{P}\)</span> to symbolize
+that an array of length <span class="math">\(n\)</span> is distributed on <span class="math">\(P\)</span> MPI
+processes. The standard PFFT data decomposition of <span class="math">\(h\)</span> interleaved
+<span class="math">\(d\)</span>-dimensional arrays of equal size
+<span class="math">\(n_0 \times n_1\times \hdots \times n_{d-1}\)</span> on a
+<span class="math">\(r\)</span>-dimensional process mesh of size
+<span class="math">\(P_0\times \hdots \times P_{r-1}\)</span> is given by the blocks</p>
+<div class="math">
+\[\frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \hdots \times \frac{n_{r-1}}{P_{r-1}}  \times n_r \times n_{r+1} \times \hdots \times n_{d-1} \times h.\]</div>
+<p>A PFFT created with planning flag
+:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>N</sub>ONE` requires the inputs to
+be decomposed in this standard way and produces outputs that are
+decomposed in the same way.</p>
+<p>PFFT can save half of the global communication amount, if the data
+reordering to standard decomposition is omitted. The transposed data
+decomposition is given by</p>
+<div class="math">
+\[\frac{n_1}{P_0} \times \frac{n_2}{P_1} \times \hdots \times \frac{n_{r}}{P_{r-1}}  \times n_0 \times n_{r+1} \times \hdots \times n_{d-1} \times h\]</div>
+<p>A PFFT plan created with planning flag
+:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT` produces outputs with
+transposed data decomposition. Analogously, a PFFT plan created with
+planning flag :code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N` requires
+its inputs to be decomposed in the transposed way. Typically, one
+creates a forward plan with
+:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT` and a backward plan with
+planning flag :code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N`.</p>
+<p>Note that the flags :code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>O</sub>UT` and
+:code:`PFFT:sub:<cite>T</cite>RANSPOSED<sub>I</sub>N` must be passed to the
+array distribution function (see Section&nbsp;[sec:local-size]) <em>as well as</em>
+to the planner (see Section&nbsp;[sec:create-plan]).</p>
+</div>
+<div class="section" id="three-dimensional-ffts-with-three-dimensional-data-decomposition">
+<h3>Three-dimensional FFTs with three-dimensional data decomposition<a class="headerlink" href="#three-dimensional-ffts-with-three-dimensional-data-decomposition" title="Permalink to this headline">¶</a></h3>
+<p>Many applications work with three-dimensional block decompositions of
+three-dimensional arrays. PFFT supports decompositions of the kind</p>
+<div class="math">
+\[\frac{n_0}{P_0} \times \frac{n_1}{P_1} \times \frac{n_2}{P_2} \times h.\]</div>
+<p>However, PFFT applies a parallel algorithms that needs at least one
+non-distributed transform dimension (we do not transform along
+<span class="math">\(h\)</span>), Therefore, we split the number of processes along the last
+dimension into two factors <span class="math">\(P_2=Q_1Q_2\)</span>, remap the data to the
+two-dimensional decomposition</p>
+<div class="math">
+\[\frac{n_0}{P_0Q_0} \times \frac{n_1}{P_1Q_1} \times n_2 \times h,\]</div>
+<p>and compute the parallel FFT with this two-dimensional decomposition.
+Note that the 3d to 2d remap implies some very special restrictions on
+the block sizes for <span class="math">\(n_0\)</span> and <span class="math">\(n_1\)</span>, i.e., the blocks must
+be divisible by <span class="math">\(Q_0\)</span> and <span class="math">\(Q_1\)</span>. More precisely, the default
+blocks of the 2d-decomposition are given by :code:`n0/(P0*Q0)` and
+:code:`n1/(P1*Q1)` (both divisions rounded down). This implies that
+the default blocks of the 3d-decomposition must be :code:`n0/(P0*Q0)
+* Q0`, :code:`n1/(P1*Q1) * Q1`, and :code:`n2/(Q0*Q1)` (all
+divisions rounded down).</p>
+</div>
+</div>
+<div class="section" id="planning-effort">
+<h2>Planning effort<a class="headerlink" href="#planning-effort" title="Permalink to this headline">¶</a></h2>
+<p>Pass one of the following flags</p>
+<p>:code:`PFFT:sub:<cite>E</cite>STIMATE`,</p>
+<p>:code:`PFFT:sub:<cite>M</cite>EASURE`,</p>
+<p>:code:`PFFT:sub:<cite>P</cite>ATIENT`, or,</p>
+<p>:code:`PFFT:sub:<cite>E</cite>XHAUSIVE`</p>
+<p>to the PFFT planner in order to plan all internal FFTW plans with
+:code:`FFTW:sub:<cite>E</cite>STIMATE`, :code:`FFTW:sub:<cite>M</cite>EASURE`,
+:code:`FFTW:sub:<cite>P</cite>ATIENT`, or :code:`FFTW:sub:<cite>E</cite>XHAUSIVE`,
+respectively. The default value is :code:`PFFT:sub:<cite>M</cite>EASURE`.</p>
+<p>PFFT uses FFTW plans for parallel array transposition and the serial
+transforms. In fact, every serial transform is a combination of strided
+lower-dimensional FFTs and a serial array transposition (necessary to
+prepare the global transposition) which can be done by a single FFTW
+plan. However, it turns out that FFTW sometimes performs better if the
+serial transposition and the strided FFTs are executed separately.
+Therefore, PFFT introduces the flag :code:`PFFT:sub:<cite>T</cite>UNE` that
+enables extensive run time tests in order to find the optimal sequence
+of serial strided FFT and serial transposition for every serial
+transform. These tests are disable on default which corresponds to the
+flag :code:`PFFT:sub:<cite>N</cite>O<sub>T</sub>UNE`.</p>
+</div>
+<div class="section" id="preserving-input-data">
+<h2>Preserving input data<a class="headerlink" href="#preserving-input-data" title="Permalink to this headline">¶</a></h2>
+<p>The following flags</p>
+<p>:code:`PFFT:sub:<cite>P</cite>RESERVE<sub>I</sub>NPUT`,</p>
+<p>:code:`PFFT:sub:<cite>D</cite>ESTROY<sub>I</sub>NPUT`, and,</p>
+<p>:code:`PFFT:sub:<cite>B</cite>UFFERED<sub>I</sub>NPLACE`</p>
+<p>only take effect for out-of-place transforms. The first one behaves
+analogously to the FFTW flag
+:code:`FFTW:sub:<cite>P</cite>RESERVE<sub>I</sub>NPUT` and ensures that the
+input values are not overwritten. In fact, this flag implies that only
+the first serial transform is executed out-of-place and all successive
+steps are performed in-place on the output array. In compliance to FFTW,
+this is the default behaviour for out-of-place plans.</p>
+<p>The second flag behaves analogously to the FFTW flag
+:code:`FFTW:sub:<cite>D</cite>ESTROY<sub>I</sub>NPUT` and tells the planner
+that the input array can be used as scratch array. This may give some
+speedup for out-of-place plans, because all the intermediate transforms
+and transposition steps can be performed out-of-place.</p>
+<p>Finally, the flag :code:`PFFT:sub:<cite>B</cite>UFFERED<sub>I</sub>NPLACE` can
+be used for out-of-place plans that store its inputs and outputs in the
+same array, i.e., array :code:`out` is used for intermediate
+out-of-place transforms and transpositions but the PFFT inputs and
+outputs are stored in array :code:`in`.</p>
+</div>
+<div class="section" id="ffts-with-shifted-index-sets">
+<h2>FFTs with shifted index sets<a class="headerlink" href="#ffts-with-shifted-index-sets" title="Permalink to this headline">¶</a></h2>
+<p>:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>I</sub>N`</p>
+<p>:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>O</sub>UT`</p>
+</div>
+<div class="section" id="pruned-fft-and-shifted-index-sets">
+<h2>Pruned FFT and Shifted Index Sets<a class="headerlink" href="#pruned-fft-and-shifted-index-sets" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pruned-fft">
+<h3>Pruned FFT<a class="headerlink" href="#pruned-fft" title="Permalink to this headline">¶</a></h3>
+<p>For pruned r2r- and c2c-FFT are defined as</p>
+<div class="math">
+\[g_l = \sum_{k=0}^{n_i-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1,\]</div>
+<p>where <span class="math">\(n_i\le n\)</span> and <span class="math">\(n_o\le n\)</span>.</p>
+</div>
+<div class="section" id="shifted-index-sets">
+<h3>Shifted Index Sets<a class="headerlink" href="#shifted-index-sets" title="Permalink to this headline">¶</a></h3>
+<p>For <span class="math">\(N\in 2{\ensuremath{\mathbb{N}}}\)</span> we define the FFT with
+shifted inputs</p>
+<p>For <span class="math">\(K,L,N\in 2{\ensuremath{\mathbb{N}}}\)</span>, <span class="math">\(L&lt;N\)</span>,
+<span class="math">\(L&lt;N\)</span> we define</p>
+</div>
+</div>
+<div class="section" id="precisions">
+<h2>Precisions<a class="headerlink" href="#precisions" title="Permalink to this headline">¶</a></h2>
+<p>PFFT handles multiple precisions exactly in the same way as FFTW.
+Therefore, we quote part&nbsp; of the FFTW manual in the context of PFFT:</p>
+<p>You can install single and long-double precision versions of PFFT, which
+replace double with float and long double, respectively; see
+[sec:install]. To use these interfaces, you must</p>
+<p>Link to the single/long-double libraries; on Unix, :code:`-lpfftf` or
+:code:`-lpfftl` instead of (or in addition to) :code:`-lpfft`. (You
+can link to the different-precision libraries simultaneously.)</p>
+<p>Include the same :code:`&lt;pfft.h&gt;` header file.</p>
+<p>Replace all lowercase instances of ‘’ with ‘’ or ‘’ for single or
+long-double precision, respectively. (:code:`pfft:sub:<cite>c</cite>omplex`
+becomes :code:`pfftf:sub:<cite>c</cite>omplex`, :code:`pfft:sub:<cite>e</cite>xecute`
+becomes :code:`pfftf:sub:<cite>e</cite>xecute`, etcetera.)</p>
+<p>Uppercase names, i.e. names beginning with ‘’, remain the same.</p>
+<p>Replace :code:`double` with :code:`float` or :code:`long double`
+for subroutine parameters.</p>
+</div>
+<div class="section" id="ghost-cell-communication">
+<h2>Ghost cell communication<a class="headerlink" href="#ghost-cell-communication" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="fortran-interface">
+<h2>Fortran interface<a class="headerlink" href="#fortran-interface" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="installation-and-linking">
+<h1>Installation and linking<a class="headerlink" href="#installation-and-linking" title="Permalink to this headline">¶</a></h1>
+<p>The install of PFFT is based on the Autotools and follows the typical
+workflow</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure
+make
+make install
+</pre></div>
+</div>
+<div class="section" id="install-of-the-latest-official-fftw-release">
+<h2>Install of the latest official FFTW release<a class="headerlink" href="#install-of-the-latest-official-fftw-release" title="Permalink to this headline">¶</a></h2>
+<p>PFFT depends on Release&nbsp;3.3.3 of the FFTW library&nbsp;. For the sake of
+completeness, we show the command line based install procedure in the
+following. However, note that we provide install scripts on
+<a href="#id1"><span class="problematic" id="id2">`</span></a>{www.tu-chemnitz.de/~mpip}/software.php &lt;{www.tu-chemnitz.de/~mpip}/software.php&gt;`__that
+simplify the install a lot. We highly recommend to use these install
+scripts, since they additionally apply several performance patches and
+bugfixes that have been submitted to the FFTW developers but are not yet
+included in the official FFTW releases.</p>
+<div class="highlight-python"><div class="highlight"><pre>wget http://www.fftw.org/fftw-§\fftwversionsl§.tar.gz
+tar xzvf fftw-§\fftwversion§.tar.gz
+cd fftw-§\fftwversion§
+./configure --enable-mpi --prefix=$HOME/local/fftw3_mpi §\label{lst:fftw:conf}§
+make
+make install
+</pre></div>
+</div>
+<p>The MPI algorithms of FFTW must be build with a MPI C compiler. Add the
+statement :code:`MPICC=$MPICCOMP` at the end of line&nbsp;[lst:fftw:conf]
+if the :code:`configure` script fails to determine the right MPI C
+compiler :code:`$MPICCOMP`. Similarly, the MPI Fortran compiler
+:code:`$MPIFCOMP` is set by :code:`MPIFC=$MPIFCOMP`.</p>
+</div>
+<div class="section" id="install-of-the-pfft-library">
+<h2>Install of the PFFT library<a class="headerlink" href="#install-of-the-pfft-library" title="Permalink to this headline">¶</a></h2>
+<p>In the simplest case, the hardware platform and the -3.3.3 library are
+recognized by the PFFT configure script automatically, so all we have to
+do is</p>
+<div class="highlight-python"><div class="highlight"><pre>wget http://www.tu-chemnitz.de/~mpip/software/pfft-§\pfftversionsl§.tar.gz
+tar xzvf pfft-§\pfftversion§.tar.gz
+cd pfft-§\pfftversion§
+./configure
+make
+make check
+make install
+</pre></div>
+</div>
+<p>Hereby, the optional call :code:`make check` builds the test programs.
+If the -3.3.3 software library is already installed on your system but
+not found by the configure script, you can provide the FFTW installation
+directory :code:`$FFTWDIR` to configure by</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>./configure --with-fftw3=$FFTWDIR
+</pre></div>
+</div>
+<p>This call implies that the FFTW header files are located in
+:code:`$FFTWDIR/include` and the FFTW library files are located in
+:code:`$FFTWDIR/lib`. Otherwise, one should specify the FFTW include
+path :code:`$FFTWINC` and the FFTW library path :code:`$FFTWLIB`
+separately by</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure --with-fftw3-includedir=$FFTWINC --with-fftw3-libdir=$FFTWLIB
+</pre></div>
+</div>
+<p>At the end, this is equivalent to</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure CPPFLAGS=-I$FFTWINC LDFLAGS=-L$FFTWLIB
+</pre></div>
+</div>
+<p>which is more common to experienced users of the Autotools. To install
+PFFT in a user specified directory :code:`$PFFTINSTDIR` call configure
+with the option</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure --prefix=$PFFTINSTDIR
+</pre></div>
+</div>
+<p>However, this option is mandatory whenever you do not have root
+permissions on your machine, since the default install paths of
+:code:`configure` are not accessible by standard users. The PFFT
+library must be built with a MPI compiler. In
+Section&nbsp;[sec:fftw<sub>i</sub>nst] we already described how to hand the
+right compilers to the :code:`configure` script. Some more options are</p>
+<p>:code:`[`keywords=]–enable-float: Produces a single-precision version
+of PFFT (float) instead of the default double-precision (double); see
+[sec:prec].</p>
+<p>:code:`[`keywords=]–enable-long-double: Produces a long-double
+precision version of PFFT (long double) instead of the default
+double-precision (double); see [sec:prec].</p>
+<p>:code:`–disable-fortran`: Disables inclusion of Fortran wrapper
+routines in the standard PFFT libraries.</p>
+<p>:code:`–disable-tests`: Disables build of test programs.</p>
+<p>For more details on the options of the :code:`configure` script call</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-include-pfft-in-your-program">
+<h2>How to include PFFT in your program<a class="headerlink" href="#how-to-include-pfft-in-your-program" title="Permalink to this headline">¶</a></h2>
+<p>All programs using PFFT should include its header file</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#include &lt;pfft.h&gt;</span>
+</pre></div>
+</div>
+<p>This header includes the FFTW headers :code:`fftw.h`,
+:code:`fftw-mpi.h` automatically. Make sure that the compiler can find
+them by setting the include flags appropriately. You must also link to
+the PFFT, FFTW and FFTW-MPI libraries. On Unix, this means adding
+:code:`-lpfft -lfftw3:sub:<cite>m</cite>pi -lfftw3 -lm` at the end of the link
+command. For example, to build :code:`pfft:sub:<cite>t</cite>est.c` use the
+following compiler invocation</p>
+<div class="highlight-python"><div class="highlight"><pre>mpicc pfft_test.c -I$PFFTINC -I$FFTWINC -L$PFFTLIB -L$FFTWLIB -lpfft -lfftw3_mpi -lfftw3 -lm
+</pre></div>
+</div>
+<p>Substitute :code:`mpicc` by any other MPI C compiler if you like.
+:code:`$PFFTINC`, :code:`$FFTWINC`, :code:`$PFFTLIB`, and
+:code:`$FFTWLIB` denote the PFFT and FFTW include and library paths,
+respectively. If you use the install scripts mentioned in
+Sect.&nbsp;[sec:pfft-inst], these paths will be</p>
+<div class="highlight-python"><div class="highlight"><pre>PFFTINC = $HOME/local/pfft-§\pfftversion§/include
+FFTWINC = $HOME/local/fftw-§\fftwversion§/include
+PFFTINC = $HOME/local/pfft-§\pfftversion§/lib
+FFTWINC = $HOME/local/fftw-§\fftwversion§/lib
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-features">
+<h1>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-deal-with-fft-index-shifts-in-parallel">
+<h2>How to Deal with FFT Index Shifts in Parallel<a class="headerlink" href="#how-to-deal-with-fft-index-shifts-in-parallel" title="Permalink to this headline">¶</a></h2>
+<p>Let <span class="math">\(n\in2{\ensuremath{\mathbb{N}}}\)</span>. A common problem is that the
+index of the FFT input and/or output array runs between
+<span class="math">\(-\nicefrac n2,\hdots,\nicefrac n2-1\)</span>, but the FFT library
+requires them to run between <span class="math">\(0,\hdots,n-1\)</span>. With serial program
+execution one can easily remap the input data <span class="math">\(\hat g_k\)</span> in a way
+that is suitable for the library, i.e.,</p>
+<div class="math">
+\[\hat f_k := \hat g_{(k-\nicefrac n2\bmod n)}, \quad k = 0,\hdots,n-1.\]</div>
+<p>Similarly, one could remap the outputs of the library <span class="math">\(f_l\)</span>,
+<span class="math">\(l=0,\cdots,n-1\)</span> in the opposite direction in order to get the
+required outputs, i.e.,</p>
+<div class="math">
+\[g_l := f_{l \bmod n}, \quad l = -\nicefrac n2,\hdots,\nicefrac n2-1.\]</div>
+<p>These shifts are also known as :code:`fftshift` in Matlab.</p>
+<p>However, with distributed memory these :code:`fftshift` operations
+require more complex data movements and result in a global
+communication. For example, the first index of the array moves to the
+middle and, therefore, the corresponding data move to another MPI
+process. Fortunately, this communication can be avoided at the cost of
+little extra computation. At the end of the section we present two PFFT
+library functions that perform the necessary pre- and postprocessing for
+shifted input and output index sets.</p>
+<div class="section" id="shift-with-half-the-fft-size">
+<h3>Shift with half the FFT size<a class="headerlink" href="#shift-with-half-the-fft-size" title="Permalink to this headline">¶</a></h3>
+<p>The special case of input shift <span class="math">\(k_s=-\nicefrac n2\)</span> and/or output
+shift <span class="math">\(l_s=-\nicefrac n2\)</span> is supported by PFFT. User can choose to
+shift the input (<code class="docutils literal"><span class="pre">PFFT_SHIFTED_IN</span></code>) and/or to shift the output
+(<code class="docutils literal"><span class="pre">PFFT_SHIFTED_OUT</span></code>).</p>
+<p>Here, we are interested in the computation of</p>
+<div class="math">
+\[g_l = \sum_{k=-\nicefrac{n_i}{2}}^{\nicefrac{n_i}{2}-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\]</div>
+<p>with <span class="math">\(n, n_i, n_o \in 2{\ensuremath{\mathbb{N}}}\)</span> and
+<span class="math">\(n&gt;n_i\)</span>, <span class="math">\(n&gt;n_o\)</span>.</p>
+<p>With an index shift of <span class="math">\(\nicefrac n2\)</span> both in <span class="math">\(k\)</span> and
+<span class="math">\(l\)</span> this equivalent to the computation of</p>
+<div class="math">
+\[\begin{split}\begin{aligned}
+  g_{(l-\nicefrac{n}{2})}
+  &amp;= \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+     \hat g_{(k-\nicefrac{n}{2})} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k-\nicefrac n2)(l-\nicefrac n2)/n}}} \\
+  &amp;= {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}l}
+       \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+       \left(\hat g_{(k-\nicefrac{n}{2})}{{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(k-\nicefrac n2)}\right) {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}} \\
+  &amp;= {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(l-\nicefrac n2)}
+     \underbrace{
+       \sum_{k=\nicefrac{n}{2}-\nicefrac{n_i}{2}}^{\nicefrac{n}{2}+\nicefrac{n_i}{2}-1}
+       \underbrace{\left(\hat g_{(k-\nicefrac{n}{2})}{{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}k}\right)}_{\hat f_k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}
+     }_{f_l}\end{aligned}\end{split}\]</div>
+<p>for
+:math:` l=nicefrac n2-nicefrac{n_o}{2},hdots,nicefrac n2 +nicefrac{n_o}{2}-1`.
+Therefore, we get the following algorithm</p>
+<div class="math">
+\[f_l = \sum_{k=0}^n \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\]</div>
+<p>The special case <span class="math">\(k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}\)</span>
+corresponds to the shifts the arrays ()</p>
+<p>[1] =1.1ex For <span class="math">\(k=0,\hdots,n-1\)</span> set <span class="math">\(\hat f_k = 0\)</span>. For
+<span class="math">\(k=-\nicefrac{n_i}{2},\hdots,\nicefrac{n_i}{2}-1\)</span> compute
+<span class="math">\(\hat f_{(k+\nicefrac{n}{2})} = (-1)^{(k+\nicefrac{n}{2})} \hat g_{k}\)</span>.
+For <span class="math">\(l=0,\hdots,n-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\)</span>
+using PFFT. For <span class="math">\(l=-\nicefrac{n_o}{2},\hdots,\nicefrac{n_o}{2}-1\)</span>
+compute :math:<a href="#id3"><span class="problematic" id="id4">`</span></a>g_l = (-1)^l f_{(l+n/2)} <a href="#id5"><span class="problematic" id="id6">`</span></a>.</p>
+<p>Note, that this shift implies that the library deals with pruned FFTs in
+a special way, i.e., half of the zeros are added at the beginning of the
+inputs and the other half is added at the end.</p>
+</div>
+<div class="section" id="arbitrary-shifts">
+<h3>Arbitrary shifts<a class="headerlink" href="#arbitrary-shifts" title="Permalink to this headline">¶</a></h3>
+<p>More general shifts must be done by the user.</p>
+<p>In a more general setting, we are interested in the computation of FFTs
+with shifted index sets, i.e., assume
+<span class="math">\(k_s,l_s\in{\ensuremath{\mathbb{Z}}}\)</span> and compute</p>
+<div class="math">
+\[g_l = \sum_{k=k_s}^{n_i+k_s-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}},
+  \quad l=l_s,\hdots,n_o+l_s-1\,.\]</div>
+<p>Because of the periodicity of the FFT this can be easily performed by
+Alg.&nbsp;[alg:fftshift:sub:<cite>t</cite>ranslation].</p>
+<p>[alg:fftshift:sub:<cite>t</cite>ranslation]</p>
+<p>[1] =1.1ex For <span class="math">\(k=0,\hdots,n_i-1\)</span> assign
+<span class="math">\(\hat f_k = \hat g_{(k+k_s\bmod n_i)}\)</span>. For
+<span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\)</span>
+using PFFT. For <span class="math">\(l=0,\hdots,n_o-1\)</span> assign
+<span class="math">\(g_l = f_{(l-l_s\bmod n_o)}\)</span>.</p>
+<p>However, this involves explicit data movement since the sequence of data
+changes. For a our parallel data decomposition the change of data layout
+requires data communication. A simple index shift results in the
+computation of</p>
+<div class="math">
+\[\begin{split}\begin{aligned}
+  g_{l+l_s}
+  &amp;=
+    \sum_{k=k_s}^{n_i+k_s-1} \hat g_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k(l+l_s)/n}}}
+    =
+    \sum_{k=0}^{n_i-1} \hat g_{k+k_s} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)(l+l_s)/n}}} \\
+  &amp;=
+    {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k_sl/n}}} \sum_{k=0}^{n_i-1} \underbrace{\left(\hat g_{k+k_s}{\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)l_s/n}}}\right)}_{=: \hat f_k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\end{aligned}\end{split}\]</div>
+<p>for all <span class="math">\(l=0,\hdots,n_o-1\)</span>. The resulting
+Alg.&nbsp;[alg:fftshift:sub:<cite>m</cite>odulation] preserves the sequence of data at
+the price of some extra computation.</p>
+<p>[alg:fftshift:sub:<cite>m</cite>odulation]</p>
+<p>[1] =1.1ex For <span class="math">\(k=0,\hdots,n_i-1\)</span> compute
+<span class="math">\(\hat f_k = \hat g_{(k+k_s)} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} (k+k_s)l_s/n}}}\)</span>.
+For <span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\)</span>
+using PFFT. For <span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(g_{(l+l_s)} = f_l {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} k_sl/n}}}\)</span>.</p>
+<p>The special case <span class="math">\(k_s=-\frac{n_i}{2}, l_s=-\frac{n_o}{2}\)</span>
+corresponds to the shifts the arrays ()</p>
+<p>[1] =1.1ex For <span class="math">\(k=0,\hdots,n_i-1\)</span> compute
+<span class="math">\(\hat f_k = \hat g_{(k-\nicefrac{n_i}{2})} {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}(k-\nicefrac{n_i}{2})n_o/n}\)</span>.
+For <span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(f_l = \sum_{k=0}^{n_i} \hat f_k {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}\)</span>
+using PFFT. For <span class="math">\(l=0,\hdots,n_o-1\)</span> compute
+<span class="math">\(g_{(l-\nicefrac{n_o}{2})} = f_l {{\ensuremath{\mathrm{e}}}}^{+\pi{\ensuremath{\text{\scriptsize{i}}}}n_i l/n}\)</span>.</p>
+</div>
+</div>
+<div class="section" id="parallel-pruned-fft">
+<h2>Parallel pruned FFT<a class="headerlink" href="#parallel-pruned-fft" title="Permalink to this headline">¶</a></h2>
+<p>Within PFFT we define a pruned FFT as</p>
+<div class="math">
+\[g_l = \sum_{k=0}^{n_i-1} \hat g_{k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n_o-1.\]</div>
+<p>Formally, this is equivallent to the following regular size <span class="math">\(n\)</span>
+FFT</p>
+<div class="math">
+\[f_l = \sum_{k=0}^{n-1} \hat f_{k} {\ensuremath{\mathrm{e}^{-2\pi{{\ensuremath{\text{\scriptsize{i}}}}} kl/n}}}, \quad l=0,\hdots,n,\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}\hat g_k :=
+  \begin{cases}
+  \hat f_k, &amp;: k=0,\hdots,n_1-1, \\
+  0         &amp;: k=n_i,\hdots,n-1,
+  \end{cases}\end{split}\]</div>
+<p>and <span class="math">\(f_l := g_l\)</span>, <span class="math">\(k=0,\hdots,n_o-1\)</span>. I.e., we add
+<span class="math">\(n-n_i\)</span> zeros at the end of the input array and throw away
+<span class="math">\(n-n_o\)</span> entries at the end of the output array.</p>
+<p>The definition of pruned FFT changes for
+:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>I</sub>N` and
+:code:`PFFT:sub:<cite>S</cite>HIFTED<sub>O</sub>UT`.</p>
+</div>
+</div>
+<div class="section" id="interface-layers-of-the-pfft-library">
+<h1>Interface Layers of the PFFT Library<a class="headerlink" href="#interface-layers-of-the-pfft-library" title="Permalink to this headline">¶</a></h1>
+<p>We give a quick overview of the PFFT interface layers in the order of
+increasing flexibility at the example of c2c-FFTs. For r2c-, c2r-, and
+r2r-FFT similar interface layer specifications apply. A full reference
+list of all PFFT functions is given in Chapter&nbsp;[chap:ref].</p>
+<div class="section" id="basic-interface">
+<h2>Basic Interface<a class="headerlink" href="#basic-interface" title="Permalink to this headline">¶</a></h2>
+<p>The :code:`:sub:<cite>3</cite>d` interface is the simplest interface layer. It
+is suitable for the planning of three-dimensional FFTs.</p>
+<div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft_3d(
+    const ptrdiff_t *n, MPI_Comm comm_cart, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+void pfft_local_block_dft_3d(
+    const ptrdiff_t *n, MPI_Comm comm_cart,
+    int pid, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+pfft_plan pfft_plan_dft_3d(
+    const ptrdiff_t *n,
+    pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+    int sign, unsigned pfft_flags);
+</pre></div>
+</div>
+<p>Hereby, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
+:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
+:code:`local:sub:<cite>os</cite>tart` are :code:`ptrdiff:sub:<cite>t</cite>` arrays of
+length :code:`3`.</p>
+<p>The basic interface generalizes the :code:`:sub:<cite>3</cite>d` interface to
+FFTs of arbitrary dimension :code:`rnk:sub:<cite>n</cite>`.</p>
+<div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_dft(
+    int rnk_n, const ptrdiff_t *n,
+    MPI_Comm comm_cart, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+void pfft_local_block_dft(
+    int rnk_n, const ptrdiff_t *n,
+    MPI_Comm comm_cart, int pid, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+pfft_plan pfft_plan_dft(
+    int rnk_n, const ptrdiff_t *n,
+    pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+    int sign, unsigned pfft_flags);
+</pre></div>
+</div>
+<p>Therefore, :code:`n`, :code:`local:sub:<cite>n</cite>i`,
+:code:`local:sub:<cite>is</cite>tart`, :code:`local:sub:<cite>n</cite>o`, and
+:code:`local:sub:<cite>os</cite>tart` become arrays of length
+:code:`rnk:sub:<cite>n</cite>`.</p>
+</div>
+<div class="section" id="advanced-interface">
+<h2>Advanced Interface<a class="headerlink" href="#advanced-interface" title="Permalink to this headline">¶</a></h2>
+<p>The advanced interface introduces the arrays :code:`ni` and
+:code:`no` of length :code:`rnk:sub:<cite>n</cite>` that give the pruned FFT
+input and output size. Furthermore, the arrays :code:`iblock` and
+:code:`oblock` of length :code:`rnk:sub:<cite>p</cite>m`
+(:code:`rnk:sub:<cite>p</cite>m` being the dimension of the process mesh) serve
+to adjust the block size of the input and output block decomposition.
+The additional parameter :code:`howmany` gives the number of
+transforms that will be computed simultaneously.</p>
+<div class="highlight-python"><div class="highlight"><pre>ptrdiff_t pfft_local_size_many_dft(
+    int rnk_n, const ptrdiff_t *n,
+    const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+    const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+    MPI_Comm comm_cart, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+void pfft_local_block_many_dft(
+    int rnk_n, const ptrdiff_t *ni, const ptrdiff_t *no,
+    const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+    MPI_Comm comm_cart, int pid, unsigned pfft_flags,
+    ptrdiff_t *local_ni, ptrdiff_t *local_i_start,
+    ptrdiff_t *local_no, ptrdiff_t *local_o_start);
+pfft_plan pfft_plan_many_dft(
+    int rnk_n, const ptrdiff_t *n,
+    const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+    const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+    pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+    int sign, unsigned pfft_flags);
+</pre></div>
+</div>
+</div>
+<div class="section" id="preliminary-skip-serial-transformations">
+<h2>Preliminary: Skip Serial Transformations<a class="headerlink" href="#preliminary-skip-serial-transformations" title="Permalink to this headline">¶</a></h2>
+<p>The :code:`:sub:<cite>s</cite>kipped` interface extends the
+:code:`:sub:<cite>m</cite>any` interface by adding the possibility to skip some
+of the serial FFTs.</p>
+<div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_many_dft_skipped(
+    int rnk_n, const ptrdiff_t *n,
+    const ptrdiff_t *ni, const ptrdiff_t *no, ptrdiff_t howmany,
+    const ptrdiff_t *iblock, const ptrdiff_t *oblock,
+    (red@const int *skip_trafos,@*)
+    pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
+    int sign, unsigned pfft_flags);
+</pre></div>
+</div>
+<p>Hereby, :code:`skip:sub:<cite>t</cite>rafos` is an :code:`int` array of
+length :code:`rnk:sub:<cite>p</cite>m+1` (:code:`rnk:sub:<cite>p</cite>m` being the
+mesh dimension of the communicator :code:`comm:sub:<cite>c</cite>art`). For
+:code:`t=0,...,rnk:sub:<cite>p</cite>m` set :code:`skip:sub:<cite>t</cite>rafos[t]=1`
+if the :code:`t`-th serial transformation should be computed,
+otherwise set :code:`skip:sub:<cite>t</cite>rafos[t]=0`. Note that the local
+transpositions are always performed, since they are a prerequisite for
+the global communication to work. At the moment it is only possible to
+skip the whole serial transform along the last
+:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions. However, this
+behaviour can be realized by a call of a
+:code:`(rnk:sub:<cite>p</cite>m+1)`-dimensional PFFT with</p>
+<div class="highlight-python"><div class="highlight"><pre>for(int t=rnk_pm+1; t&lt;rnk_n; t++)
+  howmany *= n[t];
+</pre></div>
+</div>
+<p>and manual computation of the desired serial transforms along the last
+:code:`rnk:sub:<cite>n</cite>-rnk:sub:<cite>p</cite>m-1` dimensions.</p>
+</div>
+</div>
 <div class="section" id="pfft-reference">
 <h1>PFFT Reference<a class="headerlink" href="#pfft-reference" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="files-and-data-types">
@@ -411,8 +1422,8 @@ void pfft_local_block_many_r2r(
 </div>
 <div class="section" id="plan-creation">
 <h2>Plan Creation<a class="headerlink" href="#plan-creation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>Complex-to-Complex FFT<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Complex-to-Complex FFT<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_dft_3d(
     const ptrdiff_t *n, pfft_complex *in, pfft_complex *out, MPI_Comm comm_cart,
     int sign, unsigned pfft_flags);
@@ -463,8 +1474,8 @@ a backward transform (or vice versa) will result in the original data
 multiplied by the size of the transform (the product of the dimensions
 :code:`n[t]`).</p>
 </div>
-<div class="section" id="id2">
-<h3>Real-to-Complex FFT<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Real-to-Complex FFT<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_dft_r2c_3d(
     const ptrdiff_t *n, double *in, pfft_complex *out, MPI_Comm comm_cart,
     int sign, unsigned pfft_flags);
@@ -508,8 +1519,8 @@ be forward transforms. However, the backward transform can be easily
 realized by an additional conjugation of the complex outputs as done by
 PFFT.</p>
 </div>
-<div class="section" id="id3">
-<h3>Complex-to-Real FFT<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h3>Complex-to-Real FFT<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_dft_c2r_3d(
     const ptrdiff_t *n, pfft_complex *in, double *out, MPI_Comm comm_cart,
     int sign, unsigned pfft_flags);
@@ -553,8 +1564,8 @@ be backward transforms. However, the forward transform can be easily
 realized by an additional conjugation of the complex inputs as done by
 PFFT.</p>
 </div>
-<div class="section" id="id4">
-<h3>Real-to-Real FFT<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id10">
+<h3>Real-to-Real FFT<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre>pfft_plan pfft_plan_r2r_3d(
     const ptrdiff_t *n, double *in, double *out, MPI_Comm comm_cart,
     const pfft_r2r_kind *kinds, unsigned pfft_flags);
@@ -715,8 +1726,8 @@ three-dimensional FFTs on three-dimensional process meshes</p>
 same order as above.</p>
 </div>
 </div>
-<div class="section" id="ghost-cell-communication">
-<h2>Ghost Cell Communication<a class="headerlink" href="#ghost-cell-communication" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h2>Ghost Cell Communication<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <p>In the following we describe the PFFT ghost cell communication module.
 At the moment, PFFT ghost cell communication is restricted to
 three-dimensional arrays.</p>
@@ -1535,6 +2546,46 @@ generated communicator should be released with
 :code:`MPI:sub:<cite>C</cite>omm<sub>f</sub>ree` after usage.</p>
 </div>
 </div>
+<div class="section" id="developers-guide">
+<h1>Developers Guide<a class="headerlink" href="#developers-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="search-and-replace-patterns">
+<h2>Search and replace patterns<a class="headerlink" href="#search-and-replace-patterns" title="Permalink to this headline">¶</a></h2>
+<p>Correct alignment of pfft.h header</p>
+<div class="highlight-python"><div class="highlight"><pre>%s/^\(    [^ ]\+[^\\]*\)  \\/  \1\\/g
+</pre></div>
+</div>
+<p>Expand most macros of pfft.h to generate the function reference of this
+manual:</p>
+<div class="highlight-python"><div class="highlight"><pre>sed -e &#39;s/ *\\$//g&#39; -e &#39;s/PFFT_EXTERN //g&#39; \
+    -e &#39;s/PX(\([^)]*\))/pfft_\1/g&#39; -e &#39;s/ INT/ ptrdiff_t/g&#39; \
+    -e &#39;s/ R/ double/g&#39; -e &#39;s/ C/ pfft_complex/g&#39; \
+    -e &#39;s/^  //g&#39; pfft.h &gt; pfft.h.expanded
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="todo">
+<h1>ToDo<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>:code:`PFFT:sub:<cite>F</cite>ORWARD` is defined as
+:code:`FFTW:sub:<cite>F</cite>ORWARD`</li>
+<li>:code:`FFTW:sub:<cite>F</cite>ORWARD` is defined as <span class="math">\(-1\)</span></li>
+<li>PFFT allows to chose between :code:`FFTW:sub:<cite>F</cite>ORWARD` and
+:code:`FFTW:sub:<cite>B</cite>ACKWARD`, which is not implemented by FFTW.</li>
+<li>Matlab uses the same sign convention, i.e., <span class="math">\(-1\)</span> for
+:code:`fft` and <span class="math">\(+1\)</span> for :code:`ifftn`</li>
+</ul>
+<div class="section" id="measuring-parallel-run-times">
+<h2>Measuring parallel run times<a class="headerlink" href="#measuring-parallel-run-times" title="Permalink to this headline">¶</a></h2>
+<p>Use :code:`MPI:sub:<cite>B</cite>arrier` in front of every call to function to
+avoid unbalanced run times.</p>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<p>We are thankful to Yu Feng who implemented the new array execute and the
+clear input functions.</p>
+</div>
+</div>
 
 
           </div>
@@ -1544,7 +2595,57 @@ generated communicator should be released with
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">PFFT Reference</a><ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#alternative-parallel-fft-implementations">Alternative parallel FFT implementations</a></li>
+<li><a class="reference internal" href="#parallel-nonequispaced-fft">Parallel nonequispaced FFT</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tutorial">Tutorial</a><ul>
+<li><a class="reference internal" href="#a-first-parallel-transform-three-dimensional-fft-with-two-dimensional-data-decomposition">A first parallel transform - Three-dimensional FFT with two-dimensional data decomposition</a></li>
+<li><a class="reference internal" href="#porting-fftw-mpi-based-code-to-pfft">Porting FFTW-MPI based code to PFFT</a></li>
+<li><a class="reference internal" href="#errorcode-for-communicator-creation">Errorcode for communicator creation</a></li>
+<li><a class="reference internal" href="#inplace-transforms">Inplace transforms</a></li>
+<li><a class="reference internal" href="#higher-dimensional-data-decomposition">Higher dimensional data decomposition</a></li>
+<li><a class="reference internal" href="#parallel-data-decomposition">Parallel data decomposition</a><ul>
+<li><a class="reference internal" href="#non-transposed-and-transposed-data-layout">Non-transposed and transposed data layout</a></li>
+<li><a class="reference internal" href="#three-dimensional-ffts-with-three-dimensional-data-decomposition">Three-dimensional FFTs with three-dimensional data decomposition</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#planning-effort">Planning effort</a></li>
+<li><a class="reference internal" href="#preserving-input-data">Preserving input data</a></li>
+<li><a class="reference internal" href="#ffts-with-shifted-index-sets">FFTs with shifted index sets</a></li>
+<li><a class="reference internal" href="#pruned-fft-and-shifted-index-sets">Pruned FFT and Shifted Index Sets</a><ul>
+<li><a class="reference internal" href="#pruned-fft">Pruned FFT</a></li>
+<li><a class="reference internal" href="#shifted-index-sets">Shifted Index Sets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precisions">Precisions</a></li>
+<li><a class="reference internal" href="#ghost-cell-communication">Ghost cell communication</a></li>
+<li><a class="reference internal" href="#fortran-interface">Fortran interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-and-linking">Installation and linking</a><ul>
+<li><a class="reference internal" href="#install-of-the-latest-official-fftw-release">Install of the latest official FFTW release</a></li>
+<li><a class="reference internal" href="#install-of-the-pfft-library">Install of the PFFT library</a></li>
+<li><a class="reference internal" href="#how-to-include-pfft-in-your-program">How to include PFFT in your program</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a><ul>
+<li><a class="reference internal" href="#how-to-deal-with-fft-index-shifts-in-parallel">How to Deal with FFT Index Shifts in Parallel</a><ul>
+<li><a class="reference internal" href="#shift-with-half-the-fft-size">Shift with half the FFT size</a></li>
+<li><a class="reference internal" href="#arbitrary-shifts">Arbitrary shifts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parallel-pruned-fft">Parallel pruned FFT</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#interface-layers-of-the-pfft-library">Interface Layers of the PFFT Library</a><ul>
+<li><a class="reference internal" href="#basic-interface">Basic Interface</a></li>
+<li><a class="reference internal" href="#advanced-interface">Advanced Interface</a></li>
+<li><a class="reference internal" href="#preliminary-skip-serial-transformations">Preliminary: Skip Serial Transformations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pfft-reference">PFFT Reference</a><ul>
 <li><a class="reference internal" href="#files-and-data-types">Files and Data Types</a></li>
 <li><a class="reference internal" href="#mpi-initialization">MPI Initialization</a></li>
 <li><a class="reference internal" href="#using-pfft-plans">Using PFFT Plans</a></li>
@@ -1556,10 +2657,10 @@ generated communicator should be released with
 </ul>
 </li>
 <li><a class="reference internal" href="#plan-creation">Plan Creation</a><ul>
-<li><a class="reference internal" href="#id1">Complex-to-Complex FFT</a></li>
-<li><a class="reference internal" href="#id2">Real-to-Complex FFT</a></li>
-<li><a class="reference internal" href="#id3">Complex-to-Real FFT</a></li>
-<li><a class="reference internal" href="#id4">Real-to-Real FFT</a></li>
+<li><a class="reference internal" href="#id7">Complex-to-Complex FFT</a></li>
+<li><a class="reference internal" href="#id8">Real-to-Complex FFT</a></li>
+<li><a class="reference internal" href="#id9">Complex-to-Real FFT</a></li>
+<li><a class="reference internal" href="#id10">Real-to-Real FFT</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#fft-execution-timer">FFT Execution Timer</a><ul>
@@ -1567,7 +2668,7 @@ generated communicator should be released with
 <li><a class="reference internal" href="#advanced-timer-manipulation">Advanced Timer Manipulation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#ghost-cell-communication">Ghost Cell Communication</a><ul>
+<li><a class="reference internal" href="#id11">Ghost Cell Communication</a><ul>
 <li><a class="reference internal" href="#using-ghost-cell-plans">Using Ghost Cell Plans</a></li>
 <li><a class="reference internal" href="#data-distribution">Data Distribution</a></li>
 <li><a class="reference internal" href="#memory-allocation">Memory Allocation</a></li>
@@ -1590,18 +2691,21 @@ generated communicator should be released with
 <li><a class="reference internal" href="#generating-periodic-cartesian-communicators">Generating Periodic Cartesian Communicators</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#developers-guide">Developers Guide</a><ul>
+<li><a class="reference internal" href="#search-and-replace-patterns">Search and replace patterns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#todo">ToDo</a><ul>
+<li><a class="reference internal" href="#measuring-parallel-run-times">Measuring parallel run times</a></li>
+<li><a class="reference internal" href="#acknowledgments">Acknowledgments</a></li>
+</ul>
+</li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="interface.html"
-                        title="previous chapter">Interface Layers of the PFFT Library</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="develop.html"
-                        title="next chapter">Developers Guide</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/reference.txt"
+      <li><a href="_sources/manual.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -1628,12 +2732,6 @@ generated communicator should be released with
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="develop.html" title="Developers Guide"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="interface.html" title="Interface Layers of the PFFT Library"
-             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">PFFT 1.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>

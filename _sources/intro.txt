@@ -1,4 +1,8 @@
-.. _chap-intro:
+[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3
+
+#1
+
+\`\_=\ :sub:`\_`
 
 Introduction
 ============
@@ -26,8 +30,8 @@ and the underlying algorithms of the PFFT library.
 The interface of PFFT is as close as possible to the FFTW-MPI interface.
 In fact, we consider every difference between PFFT and FFTW that is not
 explicitly mentioned within this manual as a bug that should be reported
-to . Therefore, porting code that uses FFTW-MPI to PFFT is almost
-trivial, e.g. see Section :ref:`sec-porting`.
+to https://github.com/mpip/pfft.git. Therefore, porting code that uses
+FFTW-MPI to PFFT is almost trivial, e.g. see Section [sec:porting].
 
 Most features of PFFT are inherited from FFTW or similarily implemented.
 These include the following:
@@ -52,11 +56,11 @@ The interface of PFFT is very close to the MPI interface of FFTW. In
 fact, we tried to add as few extra parameters as possible.
 
 PFFT is written in C but also offers a Fortran interface, see
-Section :ref:`sec-fortran`.
+Section [sec:fortran].
 
 FFTW includes shared memory parallelism for all serial transforms. This
 enables us to benefit from hybrid parallelism to a certain amount, see
-Section :ref:`sec-openmp`.
+Section [sec:openmp].
 
 All steps of our parallel FFT can be performed completely in place. This
 is especially remarkable for the global transposition routines.
@@ -73,22 +77,22 @@ PFFT supports single, double and long double precision.
 
 PFFT supports new-array execution, i.e., a PFFT plan can be planned and
 executed on different plans up to some restrictions, see
-Section :ref:`sec-new-array` for details. Thanks to Yu Feng for the new-array
+Section [sec:new-array] for details. Thanks to Yu Feng for the new-array
 execute patch.
 
 Furthermore, we added some special features to support repeated tasks
 that often occur in practical application of parallel FFTs.
 
 PFFT includes a very flexible ghost cell exchange module. A detailed
-description of this module is given in Section :ref:`sec-gc`.
+description of this module is given in Section [sec:gc].
 
 PFFT accepts three-dimensional data decomposition even for
 three-dimensional FFTs. However, the underlying parallel FFT framework
 is still based on two-dimensional decomposition. A more detailed
-description can be found in Section :ref:`sec-3don2d`.
+description can be found in Section [sec:3don2d].
 
 PFFT explicitly supports the parallel calculation of pruned FFTs.
-Details are given in Section :ref:`sec-pruned`.
+Details are given in Section [sec:pruned].
 
 Finally, we complete this overview with a list of features that are (not
 yet) implemented in PFFT.
@@ -104,13 +108,13 @@ a PFFT plan to disk and restore it for later use.
 
 PFFT does not have full OpenMP support. All serial FFT computations and
 global communications are implemented with FFTW, which offers OpenMP
-support, see Section :ref:`sec-openmp`. However, most of the PFFT-only
+support, see Section [sec:openmp]. However, most of the PFFT-only
 features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
 FFTs are not yet parallelized with OpenMP.
 
 PFFT does not have full SIMD support. All serial FFT computations and
 global communications are implemented with FFTW, which offers SIMD
-support, see Section :ref:`sec-simd`. However, most of the PFFT-only
+support, see Section [sec:simd]. However, most of the PFFT-only
 features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
 FFTs are not yet parallelized with SIMD.
 
@@ -133,7 +137,8 @@ transposition routines.
 
 PFFT does not support GPU parallelization.
 
-You are welcome to propose new PFFT features at .
+You are welcome to propose new PFFT features at
+https://github.com/mpip/pfft.git.
 
 Alternative parallel FFT implementations
 ----------------------------------------
@@ -152,4 +157,4 @@ Parallel nonequispaced FFT
 If your are interested in a parallel implementation of nonequispaced
 fast Fourier transforms (NFFT) for distributed memory architectures, you
 should have a look at our PNFFT software library  that is also available
-at .
+at https://github.com/mpip/pnfft.git.

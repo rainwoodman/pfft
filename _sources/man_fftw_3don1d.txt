@@ -1,0 +1,51 @@
+[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3
+
+#1
+
+\`\_=\ :sub:`\_`
+
+#include <fftw3-mpi.h>
+
+int main(int argc, char \*\*argv)
+
+const ptrdiff\ :sub:`t` n0 = 4, n1 = 4, n2 = 4; fftw\ :sub:`p`\ lan
+plan; fftw\ :sub:`c`\ omplex \*data; ptrdiff\ :sub:`t`
+alloc\ :sub:`l`\ ocal, local\ :sub:`n`\ 0, local\ :sub:`0s`\ tart, i, j,
+k;
+
+MPI\ :sub:`I`\ nit(&argc, &argv); fftw\ :sub:`m`\ pi\ :sub:`i`\ nit();
+
+/\* get local data size and allocate \*/ alloc\ :sub:`l`\ ocal =
+fftw\ :sub:`m`\ pi\ :sub:`l`\ ocal\ :sub:`s`\ ize\ :sub:`3`\ d(n0, n1,
+n2, MPI\ :sub:`C`\ OMM\ :sub:`W`\ ORLD, &local\ :sub:`n`\ 0,
+&local\ :sub:`0s`\ tart); data =
+fftw\ :sub:`a`\ lloc\ :sub:`c`\ omplex(alloc\ :sub:`l`\ ocal);
+
+/\* create plan for in-place forward DFT \*/ plan =
+fftw\ :sub:`m`\ pi\ :sub:`p`\ lan\ :sub:`d`\ ft\ :sub:`3`\ d(n0, n1, n2,
+data, data, MPI\ :sub:`C`\ OMM\ :sub:`W`\ ORLD, FFTW\ :sub:`F`\ ORWARD,
+FFTW\ :sub:`E`\ STIMATE);
+
+/\* initialize data to some function my\ :sub:`f`\ unction(x,y) \*/ for
+(i = 0; i < local\ :sub:`n`\ 0; ++i) for (j = 0; j < n1; ++j) for (k =
+0; k < n2; ++k) data[i\*n1\*n2 + j\*n2 + k] =
+my\ :sub:`f`\ unction(local\ :sub:`0s`\ tart + i, j, k);
+
+ptrdiff\ :sub:`t` local\ :sub:`n`\ i[3] = local\ :sub:`n`\ 0, n1, n2,
+local\ :sub:`is`\ tart[3] = local\ :sub:`0s`\ tart, 0, 0;
+pfft\ :sub:`a`\ pr\ :sub:`c`\ omplex\ :sub:`3`\ d(data,
+local\ :sub:`n`\ i, local\ :sub:`is`\ tart, “input:”,
+MPI\ :sub:`C`\ OMM\ :sub:`W`\ ORLD);
+
+/\* compute transforms, in-place, as many times as desired \*/
+fftw\ :sub:`e`\ xecute(plan);
+
+ptrdiff\ :sub:`t` local\ :sub:`n`\ o[3] = local\ :sub:`n`\ 0, n1, n2,
+local\ :sub:`os`\ tart[3] = local\ :sub:`0s`\ tart, 0, 0;
+pfft\ :sub:`a`\ pr\ :sub:`c`\ omplex\ :sub:`3`\ d(data,
+local\ :sub:`n`\ o, local\ :sub:`os`\ tart, “output:”,
+MPI\ :sub:`C`\ OMM\ :sub:`W`\ ORLD);
+
+(\*@ fftw\_destroy\_plan(plan); @\*)
+
+MPI\ :sub:`F`\ inalize();

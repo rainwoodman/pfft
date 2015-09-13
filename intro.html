@@ -50,8 +50,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="introduction">
-<span id="chap-intro"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+  <p>[2]ifpackageloaded#1#2 [2]ifpackageloaded#1#2 [3]ifpackageloaded#1#2#3</p>
+<p>#1</p>
+<p>`_=<sub>_</sub></p>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>A popular software library for computing FFTs is FFTW&nbsp;. This library
 also includes a parallel FFT implementation (FFTW-MPI) based on the
 Message Passing Interface (MPI). FFTW-MPI parallelizes multi-dimensional
@@ -73,8 +76,8 @@ and the underlying algorithms of the PFFT library.</p>
 <p>The interface of PFFT is as close as possible to the FFTW-MPI interface.
 In fact, we consider every difference between PFFT and FFTW that is not
 explicitly mentioned within this manual as a bug that should be reported
-to . Therefore, porting code that uses FFTW-MPI to PFFT is almost
-trivial, e.g. see Section&nbsp;<a class="reference internal" href="tutorial.html#sec-porting"><span>Porting FFTW-MPI based code to PFFT</span></a>.</p>
+to <a class="reference external" href="https://github.com/mpip/pfft.git">https://github.com/mpip/pfft.git</a>. Therefore, porting code that uses
+FFTW-MPI to PFFT is almost trivial, e.g. see Section&nbsp;[sec:porting].</p>
 <p>Most features of PFFT are inherited from FFTW or similarily implemented.
 These include the following:</p>
 <p>We employ fast <span class="math">\(\mathcal{O}(N\log N)\)</span> algorithms of FFTW to
@@ -91,10 +94,10 @@ configure, make, and make install.</p>
 <p>The interface of PFFT is very close to the MPI interface of FFTW. In
 fact, we tried to add as few extra parameters as possible.</p>
 <p>PFFT is written in C but also offers a Fortran interface, see
-Section&nbsp;<span class="xref std std-ref">sec-fortran</span>.</p>
+Section&nbsp;[sec:fortran].</p>
 <p>FFTW includes shared memory parallelism for all serial transforms. This
 enables us to benefit from hybrid parallelism to a certain amount, see
-Section&nbsp;<span class="xref std std-ref">sec-openmp</span>.</p>
+Section&nbsp;[sec:openmp].</p>
 <p>All steps of our parallel FFT can be performed completely in place. This
 is especially remarkable for the global transposition routines.</p>
 <p>Confirming to good MPI programming practice, all PFFT transforms can be
@@ -106,18 +109,18 @@ the number of processes.</p>
 <p>PFFT supports single, double and long double precision.</p>
 <p>PFFT supports new-array execution, i.e., a PFFT plan can be planned and
 executed on different plans up to some restrictions, see
-Section&nbsp;<span class="xref std std-ref">sec-new-array</span> for details. Thanks to Yu Feng for the new-array
+Section&nbsp;[sec:new-array] for details. Thanks to Yu Feng for the new-array
 execute patch.</p>
 <p>Furthermore, we added some special features to support repeated tasks
 that often occur in practical application of parallel FFTs.</p>
 <p>PFFT includes a very flexible ghost cell exchange module. A detailed
-description of this module is given in Section&nbsp;<a class="reference internal" href="reference.html#sec-gc"><span>Ghost Cell Communication</span></a>.</p>
+description of this module is given in Section&nbsp;[sec:gc].</p>
 <p>PFFT accepts three-dimensional data decomposition even for
 three-dimensional FFTs. However, the underlying parallel FFT framework
 is still based on two-dimensional decomposition. A more detailed
-description can be found in Section&nbsp;<span class="xref std std-ref">sec-3don2d</span>.</p>
+description can be found in Section&nbsp;[sec:3don2d].</p>
 <p>PFFT explicitly supports the parallel calculation of pruned FFTs.
-Details are given in Section&nbsp;<span class="xref std std-ref">sec-pruned</span>.</p>
+Details are given in Section&nbsp;[sec:pruned].</p>
 <p>Finally, we complete this overview with a list of features that are (not
 yet) implemented in PFFT.</p>
 <p>Parallel one-dimensional FFT based on MPI. FFTW-MPI uses another
@@ -129,12 +132,12 @@ one dimension. Therefore, one can also call FFTW directly in this case.</p>
 a PFFT plan to disk and restore it for later use.</p>
 <p>PFFT does not have full OpenMP support. All serial FFT computations and
 global communications are implemented with FFTW, which offers OpenMP
-support, see Section&nbsp;<span class="xref std std-ref">sec-openmp</span>. However, most of the PFFT-only
+support, see Section&nbsp;[sec:openmp]. However, most of the PFFT-only
 features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
 FFTs are not yet parallelized with OpenMP.</p>
 <p>PFFT does not have full SIMD support. All serial FFT computations and
 global communications are implemented with FFTW, which offers SIMD
-support, see Section&nbsp;<span class="xref std std-ref">sec-simd</span>. However, most of the PFFT-only
+support, see Section&nbsp;[sec:simd]. However, most of the PFFT-only
 features, such as pruned FFT, ghost cell send and 3d decompostion of 3d
 FFTs are not yet parallelized with SIMD.</p>
 <p>PFFT does not overlap communication and computation. The code of PFFT is
@@ -151,7 +154,8 @@ perform very well on most platforms.</p>
 it should be possible to implement a user interface to our global
 transposition routines.</p>
 <p>PFFT does not support GPU parallelization.</p>
-<p>You are welcome to propose new PFFT features at .</p>
+<p>You are welcome to propose new PFFT features at
+<a class="reference external" href="https://github.com/mpip/pfft.git">https://github.com/mpip/pfft.git</a>.</p>
 <div class="section" id="alternative-parallel-fft-implementations">
 <h2>Alternative parallel FFT implementations<a class="headerlink" href="#alternative-parallel-fft-implementations" title="Permalink to this headline">¶</a></h2>
 <p>There have been several FFT implementations that aim to circumvent the
@@ -167,7 +171,7 @@ D.&nbsp;Pekurovsky&nbsp; and the software library by N.&nbsp;Li&nbsp;.</p>
 <p>If your are interested in a parallel implementation of nonequispaced
 fast Fourier transforms (NFFT) for distributed memory architectures, you
 should have a look at our PNFFT software library&nbsp; that is also available
-at .</p>
+at <a class="reference external" href="https://github.com/mpip/pnfft.git">https://github.com/mpip/pnfft.git</a>.</p>
 </div>
 </div>
 
