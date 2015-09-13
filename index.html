@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to PFFT’s documentation! &mdash; PFFT 1.0.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PFFT 1.0.8 documentation" href="#" />
+    <link rel="next" title="Introduction" href="intro.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-pfft-s-documentation">
+<h1>Welcome to PFFT&#8217;s documentation!<a class="headerlink" href="#welcome-to-pfft-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#alternative-parallel-fft-implementations">Alternative parallel FFT implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#parallel-nonequispaced-fft">Parallel nonequispaced FFT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#a-first-parallel-transform-three-dimensional-fft-with-two-dimensional-data-decomposition">A first parallel transform - Three-dimensional FFT with two-dimensional data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#porting-fftw-mpi-based-code-to-pfft">Porting FFTW-MPI based code to PFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#errorcode-for-communicator-creation">Errorcode for communicator creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inplace-transforms">Inplace transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#higher-dimensional-data-decomposition">Higher dimensional data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#parallel-data-decomposition">Parallel data decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#planning-effort">Planning effort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#preserving-input-data">Preserving input data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#ffts-with-shifted-index-sets">FFTs with shifted index sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#pruned-fft-and-shifted-index-sets">Pruned FFT and Shifted Index Sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#precisions">Precisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#ghost-cell-communication">Ghost cell communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#fortran-interface">Fortran interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation and linking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-of-the-latest-official-fftw-release">Install of the latest official FFTW release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-of-the-pfft-library">Install of the PFFT library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#how-to-include-pfft-in-your-program">How to include PFFT in your program</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features.html#how-to-deal-with-fft-index-shifts-in-parallel">How to Deal with FFT Index Shifts in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html#parallel-pruned-fft">Parallel pruned FFT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="interface.html">Interface Layers of the PFFT Library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#basic-interface">Basic Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#advanced-interface">Advanced Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface.html#preliminary-skip-serial-transformations">Preliminary: Skip Serial Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">PFFT Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#files-and-data-types">Files and Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#mpi-initialization">MPI Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#using-pfft-plans">Using PFFT Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#data-distribution-functions">Data Distribution Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#plan-creation">Plan Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#fft-execution-timer">FFT Execution Timer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#ghost-cell-communication">Ghost Cell Communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#useful-tools">Useful Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#generating-periodic-cartesian-communicators">Generating Periodic Cartesian Communicators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Developers Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="develop.html#search-and-replace-patterns">Search and replace patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html#todo">ToDo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="develop.html#measuring-parallel-run-times">Measuring parallel run times</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>:<a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li>:<a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li>:<a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to PFFT&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">Introduction</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">PFFT 1.0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Michael Pippig.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
